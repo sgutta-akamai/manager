@@ -17,6 +17,7 @@ export const grantTypeMap = {
   stackscript: 'StackScripts',
   volume: 'Volumes',
   vpc: 'VPCs',
+  waf: 'WAFs',
 } as const;
 
 export const RESTRICTED_FIELD_TOOLTIP = 'This field can\u{2019}t be modified.';
