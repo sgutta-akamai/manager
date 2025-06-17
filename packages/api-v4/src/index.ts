@@ -64,3 +64,5 @@ export * from './vlans';
 export * from './volumes';
 
 export * from './vpcs';
+
+export * from './wafs';
