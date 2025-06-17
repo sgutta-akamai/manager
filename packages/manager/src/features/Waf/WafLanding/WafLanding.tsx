@@ -14,21 +14,35 @@ const useWafQuery = () => {
   const error = undefined;
 
   const dummyData = {
-    resources: [] /*Simulating empty WAF data*/,
-    // resources: [
+    waf_configs: [] /*Simulating empty WAF data*/,
+    // waf_configs: [
     //   {
     //     config_id: 101,
     //     label: 'Production WAF',
-    //     status: 'enabled',
-    //     resources: ['host1.com', 'host2.com'],
+    //     status: 'active',
+    //     resources: ['NodeBalancer-01', 'NodeBalancer-02'],
     //     update_dt: '2025-06-10T12:00:00Z',
     //   },
     //   {
     //     config_id: 102,
     //     label: 'Staging WAF',
-    //     status: 'disabled',
-    //     resources: ['staging.example.com'],
-    //     update_dt: '2025-06-08T08:30:00Z',
+    //     status: 'active',
+    //     resources: ['NodeBalancer-03'],
+    //     update_dt: '2025-06-11T08:30:00Z',
+    //   },
+    //   {
+    //     config_id: 103,
+    //     label: 'Develop WAF',
+    //     status: 'inactive',
+    //     resources: ['NodeBalancer-04'],
+    //     update_dt: '2025-02-18T08:30:00Z',
+    //   },
+    //   {
+    //     config_id: 104,
+    //     label: 'UAT WAF',
+    //     status: 'inactive',
+    //     resources: ['NodeBalancer-05', 'NodeBalancer-06'],
+    //     update_dt: '2025-04-22T08:30:00Z',
     //   },
     // ],
   };
@@ -46,7 +60,7 @@ export const WafLanding = () => {
     return <CircleProgress />;
   }
 
-  if (data?.resources.length === 0) {
+  if (data?.waf_configs.length === 0) {
     return (
       <>
         <WafEmptyState />
@@ -82,7 +96,7 @@ export const WafLanding = () => {
         onButtonClick={() => navigate({ to: '/databases/create' })}
         title="Akamai Cloud WAF"
       />
-      <WafLandingTable wafData={data?.resources} />
+      <WafLandingTable wafData={data?.waf_configs} />
     </>
   );
 };

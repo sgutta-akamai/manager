@@ -1,3 +1,5 @@
+// TODO: Add all the relevant redirection links, & currently this page serves only as a placeholder (with empty links).
+
 import {
   docsLink,
   guidesMoreLinkText,
@@ -22,15 +24,15 @@ export const gettingStartedGuides: ResourcesLinkSection = {
   links: [
     {
       text: 'Overview of Akamai-Powered WAF',
-      to: 'https://techdocs.akamai.com/cloud-computing/docs/aiven-database-clusters',
+      to: '',
     },
     {
       text: 'Linode WAF Security Quick Start',
-      to: 'https://techdocs.akamai.com/cloud-computing/docs/get-started-new-clusters',
+      to: '',
     },
     {
       text: 'Monitor and Tune App Protections',
-      to: 'https://techdocs.akamai.com/cloud-computing/docs/aiven-database-engines',
+      to: '',
     },
   ],
   moreInfo: {
@@ -45,17 +47,17 @@ export const youtubeLinkData: ResourcesLinkSection = {
     {
       external: true,
       text: 'Introduction to Linode WAF',
-      to: 'https://www.youtube.com/watch?v=loEVtzUN2i8',
+      to: '',
     },
     {
       external: true,
       text: 'How to Protect Your Applications',
-      to: 'https://www.youtube.com/watch?v=dnV-6TtfYfY',
+      to: '',
     },
     {
       external: true,
       text: 'WAF Customization and Monitoring',
-      to: 'https://www.youtube.com/playlist?list=PLTnRtjQN5ieZl3kM_jqfnK98uqYeXbfmC',
+      to: '',
     },
   ],
   moreInfo: {
