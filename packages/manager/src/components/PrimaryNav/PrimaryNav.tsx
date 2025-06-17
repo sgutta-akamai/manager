@@ -224,7 +224,7 @@ export const PrimaryNav = (props: PrimaryNavProps) => {
           name: 'Databases',
         },
         {
-          icon: <Database />,
+          icon: <Database />, //TODO-replace icon with security icon once available
           links: [
             {
               display: 'Akamai Cloud WAF',

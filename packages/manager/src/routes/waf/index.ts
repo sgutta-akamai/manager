@@ -34,7 +34,7 @@ const wafDetailIndexRoute = createRoute({
   },
   getParentRoute: () => wafDetailRoute,
   path: '/',
-});
+}).lazy(() => import('./wafLazyRoutes').then((m) => m.wafDetailLazyRoute));
 
 const wafDetailOverviewRoute = createRoute({
   getParentRoute: () => wafDetailRoute,
