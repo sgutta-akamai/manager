@@ -1,4 +1,3 @@
-import { WafConfig } from '@linode/api-v4/lib/wafs';
 import {
   CircleProgress,
   CloseIcon,
@@ -19,13 +18,14 @@ import { TableSortCell } from 'src/components/TableSortCell';
 import { WafRow } from 'src/features/Waf/WafLanding/WafRow';
 import { useOrder } from 'src/hooks/useOrder';
 
-interface WafLandingTableProps {
-  wafData: WafConfig[];
+import type { WAF } from '@linode/api-v4/lib/wafs/types';
+
+interface Props {
+  wafData: WAF[];
 }
 
-export const WafLandingTable = ({ wafData }: WafLandingTableProps) => {
+export const WafLandingTable = ({ wafData }: Props) => {
   const navigate = useNavigate();
-  // const pagination = usePagination(1, preferenceKey);
   const query = '';
   const isFetching = false;
   const { handleOrderChange, order, orderBy } = useOrder({
@@ -97,15 +97,7 @@ export const WafLandingTable = ({ wafData }: WafLandingTableProps) => {
           </TableRow>
         </TableHead>
         <TableBody>
-          {wafData?.map((waf: any) => (
-            <WafRow
-              key={waf.config_id}
-              label={waf.label}
-              resources={waf.resources}
-              status={waf.status}
-              updated={waf.update_dt}
-            />
-          ))}
+          {wafData?.map((waf: WAF) => <WafRow key={waf.config_id} waf={waf} />)}
         </TableBody>
       </Table>
     </>

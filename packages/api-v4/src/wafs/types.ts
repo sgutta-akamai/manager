@@ -1,4 +1,4 @@
-export interface WafConfig {
+export interface WAF {
   config_id: number;
   label: string;
   resources: string[];
