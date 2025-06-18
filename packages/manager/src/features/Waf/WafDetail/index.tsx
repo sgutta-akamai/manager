@@ -1,5 +1,7 @@
+import { useParams } from '@tanstack/react-router';
 import * as React from 'react';
 
+import { LandingHeader } from 'src/components/LandingHeader';
 import { SuspenseLoader } from 'src/components/SuspenseLoader';
 import { SafeTabPanel } from 'src/components/Tabs/SafeTabPanel';
 import { TabPanels } from 'src/components/Tabs/TabPanels';
@@ -32,6 +34,10 @@ const WafSettings = React.lazy(() =>
 );
 
 export const WafDetail = () => {
+  const { id } = useParams({
+    strict: false,
+  });
+
   const { handleTabChange, tabIndex, tabs } = useTabs([
     {
       title: 'Overview',
@@ -53,6 +59,16 @@ export const WafDetail = () => {
 
   return (
     <React.Fragment>
+      <LandingHeader
+        breadcrumbProps={{
+          //TODO - add onEditHandler when integrating with backend
+          pathname: `/waf/${id}`, //TODO - replace id with waf label when integrating with backend and WAF creation form
+        }}
+        docsLabel="Getting Started"
+        docsLink="https://techdocs.akamai.com/cloud-computing/docs/" //TODO - add correct link once available
+        //TODO - add AI assistance feature once more clarity is available
+      />
+      {/*TODO - add "active" status bar once UX is finalised*/}
       <Tabs index={tabIndex} onChange={handleTabChange}>
         <TanStackTabLinkList tabs={tabs}></TanStackTabLinkList>
         <React.Suspense fallback={<SuspenseLoader />}>
