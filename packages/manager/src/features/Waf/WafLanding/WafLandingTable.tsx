@@ -39,8 +39,7 @@ export const WafLandingTable = ({ wafData }: Props) => {
         ...prev,
         query: undefined,
       }),
-      // TODO: Change the navigation path to '/waf' instead of '/firewalls'
-      to: '/firewalls',
+      to: '/waf',
     });
   };
 
@@ -51,8 +50,7 @@ export const WafLandingTable = ({ wafData }: Props) => {
         page: undefined,
         query: e.target.value || undefined,
       }),
-      // TODO: Change the navigation path to '/waf' instead of '/firewalls'
-      to: '/firewalls',
+      to: '/waf',
     });
   };
 

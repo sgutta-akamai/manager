@@ -93,8 +93,7 @@ export const WafLanding = () => {
         }}
         createButtonText="Create WAF configuration"
         docsLink={docsLink}
-        // TODO: Change navigate URL to- '/waf/create'
-        onButtonClick={() => navigate({ to: '/databases/create' })}
+        onButtonClick={() => navigate({ to: '/waf/create' })}
         title="Akamai Cloud WAF"
       />
       <Typography variant="h3"> WAF Configurations </Typography>

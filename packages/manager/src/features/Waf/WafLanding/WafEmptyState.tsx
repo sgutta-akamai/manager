@@ -26,9 +26,8 @@ export const WafEmptyState = () => {
               category: linkAnalyticsEvent.category,
               label: 'Create WAF',
             });
-            //TODO: Change navigate URL to- /waf/create
             navigate({
-              to: '/databases/create',
+              to: '/waf/create',
             });
           },
           tooltipText: getRestrictedResourceText({
