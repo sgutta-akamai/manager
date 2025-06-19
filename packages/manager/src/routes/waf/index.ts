@@ -4,6 +4,10 @@ import { WafRoute } from 'src/routes/waf/WafRoute';
 
 import { rootRoute } from '../root';
 
+export interface WafSearchParams {
+  query?: string;
+}
+
 const wafRoute = createRoute({
   component: WafRoute,
   getParentRoute: () => rootRoute,

@@ -1,17 +1,33 @@
-import { CircleProgress, ErrorState, Typography } from '@linode/ui';
-import { useNavigate } from '@tanstack/react-router';
+import {
+  CircleProgress,
+  CloseIcon,
+  ErrorState,
+  IconButton,
+  InputAdornment,
+  TextField,
+  Typography,
+} from '@linode/ui';
+import { useNavigate, useSearch } from '@tanstack/react-router';
 import * as React from 'react';
+import { debounce } from 'throttle-debounce';
 
 import { LandingHeader } from 'src/components/LandingHeader';
 import { getRestrictedResourceText } from 'src/features/Account/utils';
 import { WafEmptyState } from 'src/features/Waf/WafLanding/WafEmptyState';
 import { WafLandingTable } from 'src/features/Waf/WafLanding/WafLandingTable';
+import { useOrderV2 } from 'src/hooks/useOrderV2';
+import { usePaginationV2 } from 'src/hooks/usePaginationV2';
+// TODO: import { useWafQuery } from 'src/queries/wafs/wafs';
 import { getAPIErrorOrDefault } from 'src/utilities/errorUtils';
 
+import type { Filter } from '@linode/api-v4';
+import type { WafSearchParams } from 'src/routes/waf';
+
 // --- Mocked useWafQuery hook ---
-const useWafQuery = () => {
+const useWafQuery = (pagination: {}, filter: Filter) => {
   const isLoading = false;
   const error = undefined;
+  const isFetching = true;
 
   const dummyData = {
     // waf_configs: [] /*Simulating empty WAF data*/,
@@ -45,17 +61,84 @@ const useWafQuery = () => {
         update_dt: '2025-04-22T08:30:00Z',
       },
     ],
+    results: 4,
   };
 
-  return { data: dummyData, isLoading, error };
+  return { data: dummyData, error, isFetching, isLoading };
 };
+
+const preferenceKey = 'wafs';
 
 export const WafLanding = () => {
   const navigate = useNavigate();
-  const { data, error, isLoading } = useWafQuery();
+  const search: WafSearchParams = useSearch({
+    from: '/waf',
+  });
+  const pagination = usePaginationV2({
+    currentRoute: '/waf',
+    preferenceKey,
+    searchParams: (prev) => ({
+      ...prev,
+      query: search.query,
+    }),
+  });
+
+  const { query } = search;
+
+  const {
+    handleOrderChange: handleOrderChange,
+    order: order,
+    orderBy: orderBy,
+  } = useOrderV2({
+    initialRoute: {
+      defaultOrder: {
+        order: 'desc',
+        orderBy: 'label',
+      },
+      from: '/waf',
+    },
+    preferenceKey: `${preferenceKey}-order`,
+  });
+
+  const filter: Filter = {
+    ['+order']: order,
+    ['+order_by']: orderBy,
+    ...(query && {
+      label: { '+contains': query },
+    }),
+  };
+
+  const { data, error, isFetching, isLoading } = useWafQuery(
+    {
+      page: pagination.page,
+      page_size: pagination.pageSize,
+    },
+    filter
+  );
 
   // TODO: Update the relevant docsLink, currently this serves as a placeholder
   const docsLink = '';
+
+  const resetSearch = () => {
+    navigate({
+      search: (prev) => ({
+        ...prev,
+        query: undefined,
+      }),
+      to: '/waf',
+    });
+  };
+
+  const onSearch = (e: React.ChangeEvent<HTMLInputElement>) => {
+    navigate({
+      search: (prev) => ({
+        ...prev,
+        page: undefined,
+        query: e.target.value || undefined,
+      }),
+      to: '/waf',
+    });
+  };
 
   if (isLoading) {
     return <CircleProgress />;
@@ -97,7 +180,33 @@ export const WafLanding = () => {
         title="Akamai Cloud WAF"
       />
       <Typography variant="h3"> WAF Configurations </Typography>
-      <WafLandingTable wafData={data?.waf_configs} />
+      <TextField
+        hideLabel
+        InputProps={{
+          endAdornment: query && (
+            <InputAdornment position="end">
+              {isFetching && <CircleProgress size="sm" />}
+              <IconButton aria-label="Clear" onClick={resetSearch} size="small">
+                <CloseIcon />
+              </IconButton>
+            </InputAdornment>
+          ),
+          sx: { my: 2 },
+        }}
+        label="Search"
+        onChange={debounce(400, (e) => {
+          onSearch(e);
+        })}
+        placeholder="Search by Configuration Name"
+        value={query ?? ''}
+      />
+      <WafLandingTable
+        data={data?.waf_configs}
+        handleOrderChange={handleOrderChange}
+        order={order}
+        orderBy={orderBy}
+        results={data?.results}
+      />
     </>
   );
 };

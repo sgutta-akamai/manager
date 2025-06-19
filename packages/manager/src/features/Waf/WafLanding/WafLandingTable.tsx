@@ -1,82 +1,40 @@
-import {
-  CircleProgress,
-  CloseIcon,
-  IconButton,
-  InputAdornment,
-  TextField,
-} from '@linode/ui';
-import { useNavigate } from '@tanstack/react-router';
 import * as React from 'react';
-import { debounce } from 'throttle-debounce';
 
+import { PaginationFooter } from 'src/components/PaginationFooter/PaginationFooter';
 import { Table } from 'src/components/Table';
 import { TableBody } from 'src/components/TableBody';
 import { TableCell } from 'src/components/TableCell';
 import { TableHead } from 'src/components/TableHead';
 import { TableRow } from 'src/components/TableRow';
+import { TableRowEmpty } from 'src/components/TableRowEmpty/TableRowEmpty';
 import { TableSortCell } from 'src/components/TableSortCell';
 import { WafRow } from 'src/features/Waf/WafLanding/WafRow';
-import { useOrder } from 'src/hooks/useOrder';
+import { usePagination } from 'src/hooks/usePagination';
 
 import type { WAF } from '@linode/api-v4/lib/wafs/types';
+import type { Order } from '@linode/utilities';
+
+const preferenceKey = 'wafs';
 
 interface Props {
-  wafData: WAF[];
+  data: WAF[];
+  handleOrderChange: (newOrderBy: string, newOrder: Order) => void;
+  order: 'asc' | 'desc';
+  orderBy: string;
+  results: number | undefined;
 }
 
-export const WafLandingTable = ({ wafData }: Props) => {
-  const navigate = useNavigate();
-  const query = '';
-  const isFetching = false;
-  const { handleOrderChange, order, orderBy } = useOrder({
-    order: 'asc',
-    orderBy: 'label',
-  });
-
-  const resetSearch = () => {
-    navigate({
-      search: (prev) => ({
-        ...prev,
-        query: undefined,
-      }),
-      to: '/waf',
-    });
-  };
-
-  const onSearch = (e: React.ChangeEvent<HTMLInputElement>) => {
-    navigate({
-      search: (prev) => ({
-        ...prev,
-        page: undefined,
-        query: e.target.value || undefined,
-      }),
-      to: '/waf',
-    });
-  };
+export const WafLandingTable = ({
+  data,
+  handleOrderChange,
+  order,
+  orderBy,
+  results,
+}: Props) => {
+  const pagination = usePagination(1, preferenceKey);
 
   return (
     <>
-      <TextField
-        hideLabel
-        InputProps={{
-          endAdornment: query && (
-            <InputAdornment position="end">
-              {isFetching && <CircleProgress size="sm" />}
-              <IconButton aria-label="Clear" onClick={resetSearch} size="small">
-                <CloseIcon />
-              </IconButton>
-            </InputAdornment>
-          ),
-          sx: { my: 2 },
-        }}
-        label="Search"
-        onChange={debounce(400, (e) => {
-          onSearch(e);
-        })}
-        placeholder="Search by Configuration Name"
-        value={query ?? ''}
-      />
-
       <Table aria-label="List of WAF Configurations">
         <TableHead>
           <TableRow>
@@ -95,9 +53,20 @@ export const WafLandingTable = ({ wafData }: Props) => {
           </TableRow>
         </TableHead>
         <TableBody>
-          {wafData?.map((waf: WAF) => <WafRow key={waf.config_id} waf={waf} />)}
+          {data?.length === 0 && (
+            <TableRowEmpty colSpan={6} message="No WAF found" />
+          )}
+          {data?.map((waf: WAF) => <WafRow key={waf.config_id} waf={waf} />)}
         </TableBody>
       </Table>
+      <PaginationFooter
+        count={results || 0}
+        eventCategory="WAF Configuration Table"
+        handlePageChange={pagination.handlePageChange}
+        handleSizeChange={pagination.handlePageSizeChange}
+        page={pagination.page}
+        pageSize={pagination.pageSize}
+      />
     </>
   );
 };
