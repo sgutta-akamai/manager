@@ -32,6 +32,7 @@ export const WafOverview = () => {
             When you apply web application firewall protections as part of your
             security policy, the policy uses rules to examine specific requests
             and determine what, if any, action to take. <br />
+            {/*// TODO: Add the relevant redirection link for 'Learn more', once available. */}
             <Link to="">Learn more</Link>
           </Typography>
         </Stack>
@@ -51,6 +52,7 @@ export const WafOverview = () => {
           <Typography variant="body1">
             Use custom rules to protect against specific traffic patterns. To
             activate a custom rule, add it to a Security Policy. &nbsp;
+            {/*// TODO: Add the relevant redirection link for 'Learn more, once available. */}
             <Link to="">Learn more</Link>
           </Typography>
         </Stack>
