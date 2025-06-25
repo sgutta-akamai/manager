@@ -1,19 +1,9 @@
 import { Box, Button, Paper, Stack, Typography } from '@linode/ui';
 import * as React from 'react';
-import { makeStyles } from 'tss-react/mui';
 
-import type { Theme } from '@mui/material/styles';
-
-const useStyles = makeStyles()((theme: Theme) => ({
-  enableBackupsButton: {
-    ...theme.applyLinkStyles,
-    fontSize: '0.875rem',
-  },
-}));
+import { Link } from 'src/components/Link';
 
 export const WafOverview = () => {
-  const { classes } = useStyles();
-
   return (
     <Stack spacing={2}>
       <Paper>
@@ -42,12 +32,7 @@ export const WafOverview = () => {
             When you apply web application firewall protections as part of your
             security policy, the policy uses rules to examine specific requests
             and determine what, if any, action to take. <br />
-            <button
-              className={classes.enableBackupsButton}
-              onClick={() => 'Protections Learn more clicked!'}
-            >
-              Learn more
-            </button>
+            <Link to="">Learn more</Link>
           </Typography>
         </Stack>
       </Paper>
@@ -66,12 +51,7 @@ export const WafOverview = () => {
           <Typography variant="body1">
             Use custom rules to protect against specific traffic patterns. To
             activate a custom rule, add it to a Security Policy. &nbsp;
-            <button
-              className={classes.enableBackupsButton}
-              onClick={() => 'Custom Rule Learn more clicked!'}
-            >
-              Learn more
-            </button>
+            <Link to="">Learn more</Link>
           </Typography>
         </Stack>
       </Paper>
