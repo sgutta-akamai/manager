@@ -1,7 +1,8 @@
 import { Box, Button, Paper, Stack, Typography } from '@linode/ui';
-import { Theme } from '@mui/material/styles';
 import * as React from 'react';
 import { makeStyles } from 'tss-react/mui';
+
+import type { Theme } from '@mui/material/styles';
 
 const useStyles = makeStyles()((theme: Theme) => ({
   enableBackupsButton: {
