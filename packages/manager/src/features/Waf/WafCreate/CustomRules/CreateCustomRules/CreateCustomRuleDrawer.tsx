@@ -26,9 +26,20 @@ export interface CreateCustomRuleDrawerProps {
 // TODO: Remove the dummy data, once BE integration is finished
 const filterFields = ['Hostname', 'Request body parameter', 'IP Address'];
 const operators = ['matches', 'equals', 'contains'];
+const criteria = [
+  {
+    label: 'Any',
+    value: 'any',
+  },
+  {
+    label: 'All',
+    value: 'all',
+  },
+];
 const initialJSON = {
   custom_rule_id: 1751023618480,
   label: 'Custom Rule #01',
+  criteria: 'all',
   description: 'Creating custom rules',
   filters: [
     {
@@ -55,6 +66,7 @@ export const CreateCustomRuleDrawer = (props: CreateCustomRuleDrawerProps) => {
   const form = useForm({
     defaultValues: {
       label: initialJSON.label,
+      criteria: initialJSON.criteria,
       description: initialJSON.description,
       filters: initialJSON.filters,
     },
@@ -128,19 +140,22 @@ export const CreateCustomRuleDrawer = (props: CreateCustomRuleDrawerProps) => {
                 Execute the rule only when
               </Typography>
 
-              <Select
-                hideLabel
-                label=""
-                options={[
-                  {
-                    label: 'All',
-                    value: 'all',
-                  },
-                  {
-                    label: 'Any',
-                    value: 'any',
-                  },
-                ]}
+              <Controller
+                control={control}
+                name="criteria"
+                render={({ field, fieldState }) => (
+                  <Select
+                    errorText={fieldState.error?.message}
+                    hideLabel
+                    label="Criteria"
+                    onChange={(_, selected) => field.onChange(selected?.value)}
+                    options={criteria}
+                    value={
+                      criteria.find((option) => option.value === field.value) ??
+                      null
+                    }
+                  />
+                )}
               />
 
               <Typography variant={'subtitle1'}>
