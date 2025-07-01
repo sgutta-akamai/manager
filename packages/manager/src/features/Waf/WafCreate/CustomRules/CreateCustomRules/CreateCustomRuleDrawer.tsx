@@ -18,6 +18,8 @@ import {
 
 import { CustomRuleCondition } from 'src/features/Waf/WafCreate/CustomRules/CreateCustomRules/CustomRuleCondition';
 
+import type { CreateCustomRulePayload } from '@linode/api-v4';
+
 export interface CreateCustomRuleDrawerProps {
   onClose: () => void;
   open: boolean;
@@ -79,10 +81,10 @@ export const CreateCustomRuleDrawer = (props: CreateCustomRuleDrawerProps) => {
     name: 'filters',
   });
 
-  const onSubmit = (data: any) => {
+  const onSubmit = (formData: CreateCustomRulePayload) => {
     /* eslint-disable */
     // TODO: Remove the console log statement
-    console.log('Final form submission', data);
+    console.log('Final form submission', formData);
     /* eslint-enable */
   };
 
@@ -163,7 +165,7 @@ export const CreateCustomRuleDrawer = (props: CreateCustomRuleDrawerProps) => {
               </Typography>
             </Stack>
 
-            {fields.map((row: any, index: number) => (
+            {fields.map((row, index: number) => (
               <CustomRuleCondition
                 filterFields={filterFields}
                 index={index}

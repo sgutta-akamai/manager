@@ -4,6 +4,8 @@ import { Controller, useFormContext } from 'react-hook-form';
 
 import { TagsInput } from 'src/components/TagsInput/TagsInput';
 
+import type { CreateCustomRulePayload } from '@linode/api-v4';
+
 interface CustomRuleConditionProps {
   filterFields: string[];
   index: number;
@@ -13,7 +15,7 @@ interface CustomRuleConditionProps {
 
 export const CustomRuleCondition = (props: CustomRuleConditionProps) => {
   const { filterFields, index, onRemove, operators } = props;
-  const { control } = useFormContext();
+  const { control } = useFormContext<CreateCustomRulePayload>();
 
   return (
     <>
@@ -29,7 +31,11 @@ export const CustomRuleCondition = (props: CustomRuleConditionProps) => {
                 label="Field"
                 onChange={(_, selected) => field.onChange(selected?.value)}
                 options={filterFields.map((f) => ({ label: f, value: f }))}
-                value={field.value}
+                value={
+                  field.value
+                    ? { label: field.value, value: field.value }
+                    : null
+                }
               />
             )}
           />
@@ -46,7 +52,11 @@ export const CustomRuleCondition = (props: CustomRuleConditionProps) => {
                 label="Operator"
                 onChange={(_, selected) => field.onChange(selected?.value)}
                 options={operators.map((o) => ({ label: o, value: o }))}
-                value={field.value}
+                value={
+                  field.value
+                    ? { label: field.value, value: field.value }
+                    : null
+                }
               />
             )}
           />
@@ -67,9 +77,8 @@ export const CustomRuleCondition = (props: CustomRuleConditionProps) => {
                 hideLabel
                 label="Values"
                 menuPlacement="bottom"
-                name={`filters.${index}.values`}
                 onChange={(items) =>
-                  field.onChange(items.map((i: any) => i.value))
+                  field.onChange(items.map((item) => item.value))
                 }
                 tagError={fieldState.error?.message}
                 value={
