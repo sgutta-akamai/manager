@@ -1,3 +1,4 @@
+// TODO: import { useWafsQuery } from '@linode/queries';
 import {
   CircleProgress,
   CloseIcon,
@@ -17,14 +18,13 @@ import { WafEmptyState } from 'src/features/Waf/WafLanding/WafEmptyState';
 import { WafLandingTable } from 'src/features/Waf/WafLanding/WafLandingTable';
 import { useOrderV2 } from 'src/hooks/useOrderV2';
 import { usePaginationV2 } from 'src/hooks/usePaginationV2';
-// TODO: import { useWafQuery } from 'src/queries/wafs/wafs';
 import { getAPIErrorOrDefault } from 'src/utilities/errorUtils';
 
 import type { Filter } from '@linode/api-v4';
 import type { WafSearchParams } from 'src/routes/waf';
 
-// --- Mocked useWafQuery hook ---
-const useWafQuery = (pagination: {}, filter: Filter) => {
+// --- Mocked useWafsQuery hook ---
+const useWafsQuery = (pagination: {}, filter: Filter) => {
   const isLoading = false;
   const error = undefined;
   const isFetching = true;
@@ -108,7 +108,7 @@ export const WafLanding = () => {
     }),
   };
 
-  const { data, error, isFetching, isLoading } = useWafQuery(
+  const { data, error, isFetching, isLoading } = useWafsQuery(
     {
       page: pagination.page,
       page_size: pagination.pageSize,
