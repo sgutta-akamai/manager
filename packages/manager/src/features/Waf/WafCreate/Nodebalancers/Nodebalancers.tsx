@@ -10,7 +10,7 @@ import {
 import * as React from 'react';
 import { Controller, useFormContext } from 'react-hook-form';
 
-// import {TagsInput} from "src/components/TagsInput/TagsInput";
+import { TagsInput } from 'src/components/TagsInput/TagsInput';
 import { Device, WafCreateForm } from 'src/features/Waf/utils';
 
 export const Nodebalancers = () => {
@@ -70,38 +70,42 @@ export const Nodebalancers = () => {
             />
           }
           label="Adjust protected resources"
+          sx={{ marginTop: '10px' }}
         ></FormControlLabel>
         {isAdjustProtectedResourcesEnabled && (
           <>
-            <Typography sx={{ marginTop: '20px' }}>
+            <Typography sx={{ marginTop: '10px' }}>
               By default, all hostnames and paths are selected and protected by
               this WAF. You can choose to exclude specific hostnames or paths
               from protection as needed.
             </Typography>
+            <Controller
+              control={control}
+              name="hosts"
+              render={({ field }) => (
+                <TagsInput
+                  disableOptions={true}
+                  label="Exclude Hostnames"
+                  onChange={(selected) =>
+                    field.onChange(
+                      selected.map((item) => ({
+                        hostname: item.value,
+                        path: item.value,
+                        type: 'exclude',
+                      }))
+                    )
+                  }
+                  value={
+                    field.value?.map((host) => ({
+                      label: host.hostname,
+                      value: host.hostname,
+                    })) || []
+                  }
+                />
+              )}
+            />
           </>
         )}
-        {/*<Controller*/}
-        {/*  control={control}*/}
-        {/*  name="hosts"*/}
-        {/*  render={({ field }) => (*/}
-        {/*    <TagsInput<Host>*/}
-        {/*      disableOptions={true}*/}
-        {/*      label="Exclude Hostnames"*/}
-        {/*      onChange={(selected) => field.onChange(*/}
-        {/*        selected.map(item => ({*/}
-        {/*          hostname: item.value,*/}
-        {/*          path: item.value,*/}
-        {/*          type: 'exclude'*/}
-        {/*        }))*/}
-        {/*      )}*/}
-        {/*      sx={{width: '462px'}}*/}
-        {/*      value={field.value?.map(host => ({*/}
-        {/*        label: host.hostname,*/}
-        {/*        value: host.hostname*/}
-        {/*      })) || []}*/}
-        {/*    />*/}
-        {/*    )}*/}
-        {/*/>*/}
       </Box>
     </Paper>
   );
