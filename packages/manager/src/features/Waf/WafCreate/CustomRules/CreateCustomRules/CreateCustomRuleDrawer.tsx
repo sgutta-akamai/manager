@@ -28,7 +28,7 @@ export interface CreateCustomRuleDrawerProps {
 // TODO: Remove the dummy data, once BE integration is finished
 const filterFields = ['Hostname', 'Request body parameter', 'IP Address'];
 const operators = ['matches', 'equals', 'contains'];
-const criteria = [
+const match_type = [
   {
     label: 'Any',
     value: 'any',
@@ -41,26 +41,30 @@ const criteria = [
 const initialJSON = {
   custom_rule_id: 1751023618480,
   label: 'Custom Rule #01',
-  criteria: 'all',
   description: 'Creating custom rules',
   filters: [
     {
-      field: 'Hostname',
-      operator: 'matches',
-      values: ['example.com', 'test.org'],
-    },
-    {
-      field: 'Request body parameter',
-      operator: 'equals',
-      values: ['param1'],
-    },
-    {
-      field: 'IP Address',
-      operator: 'contains',
-      values: ['192.168'],
+      match_type: 'all',
+      conditions: [
+        {
+          field: 'Hostname',
+          operator: 'matches',
+          values: ['example.com', 'test.org'],
+        },
+        {
+          field: 'Request body parameter',
+          operator: 'equals',
+          values: ['param1'],
+        },
+        {
+          field: 'IP Address',
+          operator: 'contains',
+          values: ['192.168'],
+        },
+      ],
     },
   ],
-  action: 'ALLOW',
+  action: 'alert',
 };
 
 export const CreateCustomRuleDrawer = (props: CreateCustomRuleDrawerProps) => {
@@ -68,7 +72,6 @@ export const CreateCustomRuleDrawer = (props: CreateCustomRuleDrawerProps) => {
   const form = useForm({
     defaultValues: {
       label: initialJSON.label,
-      criteria: initialJSON.criteria,
       description: initialJSON.description,
       filters: initialJSON.filters,
     },
@@ -78,7 +81,7 @@ export const CreateCustomRuleDrawer = (props: CreateCustomRuleDrawerProps) => {
 
   const { fields, append, remove } = useFieldArray({
     control,
-    name: 'filters',
+    name: 'filters.0.conditions',
   });
 
   const onSubmit = (formData: CreateCustomRulePayload) => {
@@ -144,17 +147,18 @@ export const CreateCustomRuleDrawer = (props: CreateCustomRuleDrawerProps) => {
 
               <Controller
                 control={control}
-                name="criteria"
+                name="filters.0.match_type"
                 render={({ field, fieldState }) => (
                   <Select
                     errorText={fieldState.error?.message}
                     hideLabel
-                    label="Criteria"
+                    label="Match Type"
                     onChange={(_, selected) => field.onChange(selected?.value)}
-                    options={criteria}
+                    options={match_type}
                     value={
-                      criteria.find((option) => option.value === field.value) ??
-                      null
+                      match_type.find(
+                        (option) => option.value === field.value
+                      ) ?? null
                     }
                   />
                 )}

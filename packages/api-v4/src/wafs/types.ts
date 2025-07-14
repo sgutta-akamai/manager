@@ -12,10 +12,14 @@ export interface FilterCondition {
   values: string[];
 }
 
+export interface Filter {
+  conditions: FilterCondition[];
+  match_type: string;
+}
+
 export interface CreateCustomRulePayload {
   action: string;
-  criteria: string;
   description: string;
-  filters: FilterCondition[];
+  filters: Filter[];
   label: string;
 }

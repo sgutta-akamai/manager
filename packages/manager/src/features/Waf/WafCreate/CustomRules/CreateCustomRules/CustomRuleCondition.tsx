@@ -23,7 +23,7 @@ export const CustomRuleCondition = (props: CustomRuleConditionProps) => {
         <Box sx={{ width: '40%' }}>
           <Controller
             control={control}
-            name={`filters.${index}.field`}
+            name={`filters.0.conditions.${index}.field`}
             render={({ field, fieldState }) => (
               <Select
                 errorText={fieldState.error?.message}
@@ -44,7 +44,7 @@ export const CustomRuleCondition = (props: CustomRuleConditionProps) => {
         <Box sx={{ width: '20%' }}>
           <Controller
             control={control}
-            name={`filters.${index}.operator`}
+            name={`filters.0.conditions.${index}.operator`}
             render={({ field, fieldState }) => (
               <Select
                 errorText={fieldState.error?.message}
@@ -71,7 +71,7 @@ export const CustomRuleCondition = (props: CustomRuleConditionProps) => {
         >
           <Controller
             control={control}
-            name={`filters.${index}.values`}
+            name={`filters.0.conditions.${index}.values`}
             render={({ field, fieldState }) => (
               <TagsInput
                 hideLabel
