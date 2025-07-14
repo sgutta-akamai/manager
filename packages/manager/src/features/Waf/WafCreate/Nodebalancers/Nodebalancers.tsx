@@ -1,4 +1,12 @@
-import { Autocomplete, Box, Paper, TextField, Typography } from '@linode/ui';
+import {
+  Autocomplete,
+  Box,
+  FormControlLabel,
+  Paper,
+  TextField,
+  Toggle,
+  Typography,
+} from '@linode/ui';
 import * as React from 'react';
 import { Controller, useFormContext } from 'react-hook-form';
 
@@ -7,6 +15,17 @@ import { Device, WafCreateForm } from 'src/features/Waf/utils';
 
 export const Nodebalancers = () => {
   const { control } = useFormContext<WafCreateForm>();
+  const [
+    isAdjustProtectedResourcesEnabled,
+    setIsAdjustProtectedResourcesEnabled,
+  ] = React.useState<boolean>(false);
+
+  const handleAdjustProtectResourcesChanged = (
+    event: React.ChangeEvent<HTMLInputElement>,
+    value: boolean
+  ) => {
+    setIsAdjustProtectedResourcesEnabled(value);
+  };
 
   const deviceOptions: Device[] = [
     { id: '1', label: 'NodeBalancer 1', type: 'nodebalancer' },
@@ -43,11 +62,24 @@ export const Nodebalancers = () => {
             />
           )}
         />
-        <Typography sx={{ marginTop: '20px' }}>
-          By default, all hostnames and paths are selected and protected by this
-          WAF. You can choose to exclude specific hostnames or paths from
-          protection as needed.
-        </Typography>
+        <FormControlLabel
+          control={
+            <Toggle
+              checked={isAdjustProtectedResourcesEnabled}
+              onChange={handleAdjustProtectResourcesChanged}
+            />
+          }
+          label="Adjust protected resources"
+        ></FormControlLabel>
+        {isAdjustProtectedResourcesEnabled && (
+          <>
+            <Typography sx={{ marginTop: '20px' }}>
+              By default, all hostnames and paths are selected and protected by
+              this WAF. You can choose to exclude specific hostnames or paths
+              from protection as needed.
+            </Typography>
+          </>
+        )}
         {/*<Controller*/}
         {/*  control={control}*/}
         {/*  name="hosts"*/}
