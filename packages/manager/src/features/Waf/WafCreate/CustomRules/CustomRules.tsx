@@ -39,6 +39,16 @@ export const CustomRules = () => {
     action: 'alert',
   };
 
+  const handleSaveCustomRule = (formData: CreateCustomRulePayload) => {
+    /* eslint-disable */
+    // TODO: Remove the console log statement
+    console.log('Parent received form data:', formData);
+    /* eslint-enable */
+
+    // TODO: Send to backend once integration is done
+    setIsCreateCustomRuleDrawerOpen(false);
+  };
+
   return (
     <React.Fragment>
       <Paper>
@@ -61,6 +71,7 @@ export const CustomRules = () => {
         onClose={() => {
           setIsCreateCustomRuleDrawerOpen(false);
         }}
+        onSubmit={handleSaveCustomRule}
         open={isCreateCustomRuleDrawerOpen}
       />
     </React.Fragment>

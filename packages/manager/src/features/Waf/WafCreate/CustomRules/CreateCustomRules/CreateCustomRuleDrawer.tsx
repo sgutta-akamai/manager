@@ -23,6 +23,7 @@ import type { CreateCustomRulePayload } from '@linode/api-v4';
 export interface CreateCustomRuleDrawerProps {
   customRuleData?: CreateCustomRulePayload;
   onClose: () => void;
+  onSubmit: (data: CreateCustomRulePayload) => void;
   open: boolean;
 }
 
@@ -41,7 +42,7 @@ const match_type = [
 ];
 
 export const CreateCustomRuleDrawer = (props: CreateCustomRuleDrawerProps) => {
-  const { customRuleData, onClose, open } = props;
+  const { customRuleData, onClose, onSubmit, open } = props;
   const form = useForm({
     defaultValues: {
       label: customRuleData?.label ?? '',
@@ -62,11 +63,8 @@ export const CreateCustomRuleDrawer = (props: CreateCustomRuleDrawerProps) => {
     name: 'filters.0.conditions',
   });
 
-  const onSubmit = (formData: CreateCustomRulePayload) => {
-    /* eslint-disable */
-    // TODO: Remove the console log statement
-    console.log('Final form submission', formData);
-    /* eslint-enable */
+  const handleFormSubmit = (formData: CreateCustomRulePayload) => {
+    onSubmit(formData);
   };
 
   return (
@@ -78,7 +76,7 @@ export const CreateCustomRuleDrawer = (props: CreateCustomRuleDrawerProps) => {
         wide={true}
       >
         <FormProvider {...form}>
-          <form onSubmit={handleSubmit(onSubmit)}>
+          <form onSubmit={handleSubmit(handleFormSubmit)}>
             <Box marginTop={3}>
               <Controller
                 control={control}
