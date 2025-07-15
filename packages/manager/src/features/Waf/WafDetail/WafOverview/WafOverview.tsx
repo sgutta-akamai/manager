@@ -10,6 +10,7 @@ import { useParams } from '@tanstack/react-router';
 import * as React from 'react';
 
 import { Link } from 'src/components/Link';
+import { CustomRules } from 'src/features/Waf/WafDetail/WafOverview/CustomRules/CustomRules';
 // TODO: import { useWafOverviewQuery } from 'src/queries/wafs/wafs';
 import { getAPIErrorOrDefault } from 'src/utilities/errorUtils';
 
@@ -103,6 +104,21 @@ export const WafOverview = () => {
             <Link to="">Learn more</Link>
           </Typography>
         </Stack>
+      </Paper>
+
+      <Paper>
+        <Typography variant="h2"> Custom rules </Typography>
+        <Stack mb={4} mt={1}>
+          <Typography variant="body1">
+            Use custom rules to handle scenarios not covered by standard
+            firewall rules or to quickly patch new website vulnerabilities.
+            &nbsp;
+            {/*// TODO: Add the relevant redirection link for 'Learn more', once available. */}
+            <Link to=""> Learn more </Link>
+          </Typography>
+        </Stack>
+
+        <CustomRules />
       </Paper>
     </Stack>
   );

@@ -16,7 +16,7 @@ import {
   useForm,
 } from 'react-hook-form';
 
-import { CustomRuleCondition } from 'src/features/Waf/WafCreate/CustomRules/CreateCustomRules/CustomRuleCondition';
+import { CustomRuleCondition } from 'src/features/Waf/WafDetail/WafOverview/CustomRules/CreateCustomRules/CustomRuleCondition';
 
 import type { CreateCustomRulePayload } from '@linode/api-v4';
 

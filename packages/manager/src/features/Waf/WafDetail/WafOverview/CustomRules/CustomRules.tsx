@@ -1,7 +1,7 @@
-import { Button, Paper, Typography } from '@linode/ui';
+import { Button } from '@linode/ui';
 import * as React from 'react';
 
-import { CreateCustomRuleDrawer } from 'src/features/Waf/WafCreate/CustomRules/CreateCustomRules/CreateCustomRuleDrawer';
+import { CreateCustomRuleDrawer } from 'src/features/Waf/WafDetail/WafOverview/CustomRules/CreateCustomRules/CreateCustomRuleDrawer';
 
 import type { CreateCustomRulePayload } from '@linode/api-v4';
 
@@ -51,20 +51,14 @@ export const CustomRules = () => {
 
   return (
     <React.Fragment>
-      <Paper>
-        <Typography marginBottom={2} variant="h2">
-          Custom rules
-        </Typography>
-
-        <Button
-          buttonType="outlined"
-          onClick={() => {
-            setIsCreateCustomRuleDrawerOpen(true);
-          }}
-        >
-          Create custom rule
-        </Button>
-      </Paper>
+      <Button
+        buttonType="outlined"
+        onClick={() => {
+          setIsCreateCustomRuleDrawerOpen(true);
+        }}
+      >
+        Add custom rule
+      </Button>
 
       <CreateCustomRuleDrawer
         customRuleData={initialJSON}
