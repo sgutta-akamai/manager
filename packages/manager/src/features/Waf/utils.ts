@@ -6,6 +6,7 @@ export interface WafCreateForm {
   devices?: Device[];
   hosts?: Host[];
   label: string;
+  paths?: Host[];
 }
 
 export interface AttackGroup {

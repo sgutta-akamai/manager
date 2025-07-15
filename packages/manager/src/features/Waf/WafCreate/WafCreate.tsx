@@ -18,9 +18,10 @@ export const WafCreate = () => {
   const labelValue = methods.watch('label') || '';
   const devicesValue = methods.watch('devices') || [];
   const hostnamesValue = methods.watch('hosts') || [];
+  const pathsValue = methods.watch('paths') || [];
 
   const isNodebalancersSet = devicesValue.length > 0;
-  const isHostnamesSet = hostnamesValue.length > 0;
+  const isHostsSet = hostnamesValue.length > 0 || pathsValue.length > 0;
 
   return (
     <div>
@@ -36,7 +37,7 @@ export const WafCreate = () => {
           <WafName />
           <Nodebalancers />
           <Summary
-            isHostnamesSet={isHostnamesSet}
+            isHostsSet={isHostsSet}
             isNodebalancersSet={isNodebalancersSet}
             isWafLabelSet={!!labelValue}
             wafLabel={labelValue}

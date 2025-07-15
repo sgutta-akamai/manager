@@ -85,12 +85,12 @@ export const Nodebalancers = () => {
               render={({ field }) => (
                 <TagsInput
                   disableOptions={true}
-                  label="Exclude Hostnames"
+                  label="Exclude hostnames"
                   onChange={(selected) =>
                     field.onChange(
                       selected.map((item) => ({
                         hostname: item.value,
-                        path: item.value,
+                        path: '',
                         type: 'exclude',
                       }))
                     )
@@ -99,6 +99,31 @@ export const Nodebalancers = () => {
                     field.value?.map((host) => ({
                       label: host.hostname,
                       value: host.hostname,
+                    })) || []
+                  }
+                />
+              )}
+            />
+            <Controller
+              control={control}
+              name="paths"
+              render={({ field }) => (
+                <TagsInput
+                  disableOptions={true}
+                  label="Exclude paths"
+                  onChange={(selected) =>
+                    field.onChange(
+                      selected.map((item) => ({
+                        hostname: '*',
+                        path: item.value,
+                        type: 'exclude',
+                      }))
+                    )
+                  }
+                  value={
+                    field.value?.map((host) => ({
+                      label: host.path,
+                      value: host.path,
                     })) || []
                   }
                 />

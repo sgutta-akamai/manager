@@ -4,14 +4,14 @@ import * as React from 'react';
 import { CheckoutSummary } from 'src/components/CheckoutSummary/CheckoutSummary';
 
 interface SummaryProps {
-  isHostnamesSet: boolean;
+  isHostsSet: boolean;
   isNodebalancersSet: boolean;
   isWafLabelSet: boolean;
   wafLabel: string;
 }
 
 export const Summary = (props: SummaryProps) => {
-  const { wafLabel, isWafLabelSet, isNodebalancersSet, isHostnamesSet } = props;
+  const { wafLabel, isWafLabelSet, isNodebalancersSet, isHostsSet } = props;
 
   const summaryItems = [];
 
@@ -26,7 +26,7 @@ export const Summary = (props: SummaryProps) => {
     summaryItems.push({ title: 'NodeBalancers Assigned' });
   }
 
-  if (isHostnamesSet) {
+  if (isHostsSet) {
     summaryItems.push({ title: 'Protected Resources Defined' });
   }
 
@@ -40,9 +40,7 @@ export const Summary = (props: SummaryProps) => {
             {isNodebalancersSet && (
               <Typography>NodeBalancers Assigned</Typography>
             )}
-            {isHostnamesSet && (
-              <Typography>Protected Resources Defined</Typography>
-            )}
+            {isHostsSet && <Typography>Protected Resources Defined</Typography>}
           </Box>
         </Box>
       </Paper>
