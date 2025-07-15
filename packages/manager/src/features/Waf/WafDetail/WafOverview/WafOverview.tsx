@@ -1,4 +1,4 @@
-import { Box, Button, Paper, Stack, Typography } from '@linode/ui';
+import { Box, Paper, Stack, Typography } from '@linode/ui';
 import * as React from 'react';
 
 import { Link } from 'src/components/Link';
@@ -33,26 +33,6 @@ export const WafOverview = () => {
             security policy, the policy uses rules to examine specific requests
             and determine what, if any, action to take. <br />
             {/*// TODO: Add the relevant redirection link for 'Learn more', once available. */}
-            <Link to="">Learn more</Link>
-          </Typography>
-        </Stack>
-      </Paper>
-
-      <Paper>
-        <Box alignItems="center" display="flex" justifyContent="space-between">
-          <Typography variant="h2"> Custom rules </Typography>
-          <Box>
-            <Button buttonType="outlined" onClick={() => 'Manage clicked!'}>
-              Manage
-            </Button>
-          </Box>
-        </Box>
-
-        <Stack mt={1}>
-          <Typography variant="body1">
-            Use custom rules to protect against specific traffic patterns. To
-            activate a custom rule, add it to a Security Policy. &nbsp;
-            {/*// TODO: Add the relevant redirection link for 'Learn more, once available. */}
             <Link to="">Learn more</Link>
           </Typography>
         </Stack>
