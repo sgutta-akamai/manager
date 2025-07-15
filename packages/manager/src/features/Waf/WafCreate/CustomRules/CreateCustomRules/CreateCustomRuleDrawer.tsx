@@ -21,6 +21,7 @@ import { CustomRuleCondition } from 'src/features/Waf/WafCreate/CustomRules/Crea
 import type { CreateCustomRulePayload } from '@linode/api-v4';
 
 export interface CreateCustomRuleDrawerProps {
+  customRuleData?: CreateCustomRulePayload;
   onClose: () => void;
   open: boolean;
 }
@@ -38,42 +39,19 @@ const match_type = [
     value: 'all',
   },
 ];
-const initialJSON = {
-  custom_rule_id: 1751023618480,
-  label: 'Custom Rule #01',
-  description: 'Creating custom rules',
-  filters: [
-    {
-      match_type: 'all',
-      conditions: [
-        {
-          field: 'Hostname',
-          operator: 'matches',
-          values: ['example.com', 'test.org'],
-        },
-        {
-          field: 'Request body parameter',
-          operator: 'equals',
-          values: ['param1'],
-        },
-        {
-          field: 'IP Address',
-          operator: 'contains',
-          values: ['192.168'],
-        },
-      ],
-    },
-  ],
-  action: 'alert',
-};
 
 export const CreateCustomRuleDrawer = (props: CreateCustomRuleDrawerProps) => {
-  const { onClose, open } = props;
+  const { customRuleData, onClose, open } = props;
   const form = useForm({
     defaultValues: {
-      label: initialJSON.label,
-      description: initialJSON.description,
-      filters: initialJSON.filters,
+      label: customRuleData?.label ?? '',
+      description: customRuleData?.description ?? '',
+      filters: customRuleData?.filters ?? [
+        {
+          match_type: '',
+          conditions: [],
+        },
+      ],
     },
   });
 
@@ -196,7 +174,7 @@ export const CreateCustomRuleDrawer = (props: CreateCustomRuleDrawerProps) => {
 
             <ActionsPanel
               primaryButtonProps={{
-                label: 'Create Custom Rule',
+                label: 'Save',
                 type: 'submit',
               }}
               secondaryButtonProps={{
