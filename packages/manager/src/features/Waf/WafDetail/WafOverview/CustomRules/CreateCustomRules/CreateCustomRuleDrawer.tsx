@@ -8,6 +8,7 @@ import {
   TextField,
   Typography,
 } from '@linode/ui';
+import { capitalize } from '@linode/utilities';
 import * as React from 'react';
 import {
   Controller,
@@ -30,7 +31,7 @@ export interface CreateCustomRuleDrawerProps {
 // TODO: Remove the dummy data, once BE integration is finished
 const filterFields = ['Hostname', 'Request body parameter', 'IP Address'];
 const operators = ['matches', 'equals', 'contains'];
-const match_type = [
+const match_type_options = [
   {
     label: 'Any',
     value: 'any',
@@ -47,12 +48,7 @@ export const CreateCustomRuleDrawer = (props: CreateCustomRuleDrawerProps) => {
     defaultValues: {
       label: customRuleData?.label ?? '',
       description: customRuleData?.description ?? '',
-      filters: customRuleData?.filters ?? [
-        {
-          match_type: '',
-          conditions: [],
-        },
-      ],
+      filters: customRuleData?.filters,
     },
   });
 
@@ -61,6 +57,12 @@ export const CreateCustomRuleDrawer = (props: CreateCustomRuleDrawerProps) => {
   const { fields, append, remove } = useFieldArray({
     control,
     name: 'filters.0.conditions',
+  });
+
+  const createEmptyRuleCondition = () => ({
+    field: '',
+    operator: '',
+    values: [],
   });
 
   const handleFormSubmit = (formData: CreateCustomRulePayload) => {
@@ -130,12 +132,11 @@ export const CreateCustomRuleDrawer = (props: CreateCustomRuleDrawerProps) => {
                     hideLabel
                     label="Match Type"
                     onChange={(_, selected) => field.onChange(selected?.value)}
-                    options={match_type}
-                    value={
-                      match_type.find(
-                        (option) => option.value === field.value
-                      ) ?? null
-                    }
+                    options={match_type_options}
+                    value={{
+                      label: capitalize(field?.value) ?? '',
+                      value: field?.value ?? '',
+                    }}
                   />
                 )}
               />
@@ -158,13 +159,7 @@ export const CreateCustomRuleDrawer = (props: CreateCustomRuleDrawerProps) => {
             <Box>
               <Button
                 buttonType="outlined"
-                onClick={() =>
-                  append({
-                    field: '',
-                    operator: '',
-                    values: [],
-                  })
-                }
+                onClick={() => append(createEmptyRuleCondition())}
               >
                 Add
               </Button>

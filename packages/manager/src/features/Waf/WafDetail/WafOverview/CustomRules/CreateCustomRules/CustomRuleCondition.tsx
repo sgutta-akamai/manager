@@ -17,6 +17,16 @@ export const CustomRuleCondition = (props: CustomRuleConditionProps) => {
   const { filterFields, index, onRemove, operators } = props;
   const { control } = useFormContext<CreateCustomRulePayload>();
 
+  const filterFieldOptions = React.useMemo(
+    () => filterFields.map((f) => ({ label: f, value: f })),
+    [filterFields]
+  );
+
+  const operatorOptions = React.useMemo(
+    () => operators.map((o) => ({ label: o, value: o })),
+    [operators]
+  );
+
   return (
     <>
       <Stack alignItems="center" direction="row" marginY={2} spacing={1}>
@@ -30,12 +40,11 @@ export const CustomRuleCondition = (props: CustomRuleConditionProps) => {
                 hideLabel
                 label="Field"
                 onChange={(_, selected) => field.onChange(selected?.value)}
-                options={filterFields.map((f) => ({ label: f, value: f }))}
-                value={
-                  field.value
-                    ? { label: field.value, value: field.value }
-                    : null
-                }
+                options={filterFieldOptions}
+                value={{
+                  label: field.value,
+                  value: field.value,
+                }}
               />
             )}
           />
@@ -51,12 +60,11 @@ export const CustomRuleCondition = (props: CustomRuleConditionProps) => {
                 hideLabel
                 label="Operator"
                 onChange={(_, selected) => field.onChange(selected?.value)}
-                options={operators.map((o) => ({ label: o, value: o }))}
-                value={
-                  field.value
-                    ? { label: field.value, value: field.value }
-                    : null
-                }
+                options={operatorOptions}
+                value={{
+                  label: field.value,
+                  value: field.value,
+                }}
               />
             )}
           />
@@ -77,15 +85,10 @@ export const CustomRuleCondition = (props: CustomRuleConditionProps) => {
                 hideLabel
                 label="Values"
                 menuPlacement="bottom"
-                onChange={(items) =>
-                  field.onChange(items.map((item) => item.value))
-                }
+                onChange={(item) => field.onChange(item.map((i) => i.value))}
                 tagError={fieldState.error?.message}
                 value={
-                  field?.value.map((tag: string) => ({
-                    label: tag,
-                    value: tag,
-                  })) ?? []
+                  field.value?.map((tag) => ({ label: tag, value: tag })) ?? []
                 }
               />
             )}
