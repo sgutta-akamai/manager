@@ -1,5 +1,5 @@
 import {
-  useAccount,
+  useAllTypes,
   useMutateAccountAgreements,
   useRegionsQuery,
 } from '@linode/queries';
@@ -29,8 +29,6 @@ import { RegionSelect } from 'src/components/RegionSelect/RegionSelect';
 import { RegionHelperText } from 'src/components/SelectRegionPanel/RegionHelperText';
 import { getRestrictedResourceText } from 'src/features/Account/utils';
 import {
-  getKubeControlPlaneACL,
-  getKubeHighAvailability,
   getLatestVersion,
   useAPLAvailability,
   useIsLkeEnterpriseEnabled,
@@ -44,7 +42,6 @@ import {
   useCreateKubernetesClusterMutation,
   useKubernetesTypesQuery,
 } from 'src/queries/kubernetes';
-import { useAllTypes } from 'src/queries/types';
 import { getAPIErrorOrDefault, getErrorMap } from 'src/utilities/errorUtils';
 import { extendType } from 'src/utilities/extendType';
 import { filterCurrentTypes } from 'src/utilities/filterCurrentLinodeTypes';
@@ -69,7 +66,6 @@ import { ControlPlaneACLPane } from './ControlPlaneACLPane';
 import {
   StyledDocsLinkContainer,
   StyledStackWithTabletBreakpoint,
-  useStyles,
 } from './CreateCluster.styles';
 import { HAControlPlane } from './HAControlPlane';
 import { NodePoolPanel } from './NodePoolPanel';
@@ -91,7 +87,6 @@ export const CreateCluster = () => {
     flags.gecko2?.enabled,
     flags.gecko2?.la
   );
-  const { classes } = useStyles();
   const [selectedRegion, setSelectedRegion] = React.useState<
     Region | undefined
   >();
@@ -109,11 +104,8 @@ export const CreateCluster = () => {
 
   const { data, error: regionsError } = useRegionsQuery();
   const regionsData = data ?? [];
-  const { data: account } = useAccount();
   const { showAPL } = useAPLAvailability();
   const { isUsingBetaEndpoint } = useKubernetesBetaEndpoint();
-  const { showHighAvailability } = getKubeHighAvailability(account);
-  const { showControlPlaneACL } = getKubeControlPlaneACL(account);
   const [ipV4Addr, setIPv4Addr] = React.useState<ExtendedIP[]>([
     stringToExtendedIP(''),
   ]);
@@ -386,8 +378,8 @@ export const CreateCluster = () => {
         docsLink="https://techdocs.akamai.com/cloud-computing/docs/getting-started-with-lke-linode-kubernetes-engine"
         title="Create Cluster"
       />
-      <Grid className={classes.root} container ref={formContainerRef}>
-        <Grid className={`mlMain py0`}>
+      <Grid container ref={formContainerRef} spacing={2}>
+        <Grid size={{ lg: 9, md: 12, sm: 12, xs: 12 }}>
           {generalError && (
             <Notice variant="error">
               <ErrorMessage
@@ -414,6 +406,7 @@ export const CreateCluster = () => {
               disabled={isCreateClusterRestricted}
               errorText={errorMap.label}
               label="Cluster Label"
+              noMarginTop
               onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
                 updateLabel(e.target.value)
               }
@@ -513,7 +506,7 @@ export const CreateCluster = () => {
                 marginTop: showAPL ? 1 : 4,
               }}
             />
-            {showHighAvailability && selectedTier !== 'enterprise' && (
+            {selectedTier !== 'enterprise' && (
               <Box data-testid="ha-control-plane">
                 <HAControlPlane
                   highAvailabilityPrice={
@@ -530,41 +523,40 @@ export const CreateCluster = () => {
               </Box>
             )}
             {selectedTier === 'enterprise' && <ClusterNetworkingPanel />}
-            {showControlPlaneACL && (
-              <>
-                <Divider
-                  sx={{ marginTop: selectedTier === 'enterprise' ? 4 : 1 }}
-                />
-                <ControlPlaneACLPane
-                  enableControlPlaneACL={controlPlaneACL}
-                  errorText={errorMap.control_plane}
-                  handleIPv4Change={(newIpV4Addr: ExtendedIP[]) => {
-                    const validatedIPs = validateIPs(newIpV4Addr, {
-                      allowEmptyAddress: true,
-                      errorMessage: 'Must be a valid IPv4 address.',
-                    });
-                    setIPv4Addr(validatedIPs);
-                  }}
-                  handleIPv6Change={(newIpV6Addr: ExtendedIP[]) => {
-                    const validatedIPs = validateIPs(newIpV6Addr, {
-                      allowEmptyAddress: true,
-                      errorMessage: 'Must be a valid IPv6 address.',
-                    });
-                    setIPv6Addr(validatedIPs);
-                  }}
-                  handleIsAcknowledgementChecked={(isChecked: boolean) => {
-                    setIsACLAcknowledgementChecked(isChecked);
-                    setIPv4Addr([stringToExtendedIP('')]);
-                    setIPv6Addr([stringToExtendedIP('')]);
-                  }}
-                  ipV4Addr={ipV4Addr}
-                  ipV6Addr={ipV6Addr}
-                  isAcknowledgementChecked={isACLAcknowledgementChecked}
-                  selectedTier={selectedTier}
-                  setControlPlaneACL={setControlPlaneACL}
-                />
-              </>
-            )}
+            <>
+              <Divider
+                sx={{ marginTop: selectedTier === 'enterprise' ? 4 : 1 }}
+              />
+              <ControlPlaneACLPane
+                enableControlPlaneACL={controlPlaneACL}
+                errorText={errorMap.control_plane}
+                handleIPv4Change={(newIpV4Addr: ExtendedIP[]) => {
+                  const validatedIPs = validateIPs(newIpV4Addr, {
+                    allowEmptyAddress: true,
+                    errorMessage: 'Must be a valid IPv4 address.',
+                  });
+                  setIPv4Addr(validatedIPs);
+                }}
+                handleIPv6Change={(newIpV6Addr: ExtendedIP[]) => {
+                  const validatedIPs = validateIPs(newIpV6Addr, {
+                    allowEmptyAddress: true,
+                    errorMessage: 'Must be a valid IPv6 address.',
+                  });
+                  setIPv6Addr(validatedIPs);
+                }}
+                handleIsAcknowledgementChecked={(isChecked: boolean) => {
+                  setIsACLAcknowledgementChecked(isChecked);
+                  setIPv4Addr([stringToExtendedIP('')]);
+                  setIPv6Addr([stringToExtendedIP('')]);
+                }}
+                ipV4Addr={ipV4Addr}
+                ipV6Addr={ipV6Addr}
+                isAcknowledgementChecked={isACLAcknowledgementChecked}
+                selectedTier={selectedTier}
+                setControlPlaneACL={setControlPlaneACL}
+              />
+            </>
+
             <Divider sx={{ marginBottom: 4 }} />
             <NodePoolPanel
               addNodePool={(pool: KubeNodePoolResponse) => addPool(pool)}
@@ -590,8 +582,8 @@ export const CreateCluster = () => {
           </Paper>
         </Grid>
         <Grid
-          className={`mlSidebar ${classes.sidebar}`}
           data-testid="kube-checkout-bar"
+          size={{ lg: 3, md: 12, sm: 12, xs: 12 }}
         >
           <KubeCheckoutBar
             createCluster={createCluster}
@@ -613,7 +605,6 @@ export const CreateCluster = () => {
             region={selectedRegion?.id}
             regionsData={regionsData}
             removePool={removePool}
-            showHighAvailability={showHighAvailability}
             submitting={submitting}
             toggleHasAgreed={toggleHasAgreed}
             updateFor={[
@@ -626,7 +617,6 @@ export const CreateCluster = () => {
               updatePool,
               removePool,
               createCluster,
-              classes,
             ]}
             updatePool={updatePool}
           />

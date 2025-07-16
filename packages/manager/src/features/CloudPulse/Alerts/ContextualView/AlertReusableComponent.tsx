@@ -1,18 +1,17 @@
 import {
   Autocomplete,
+  BetaChip,
   Box,
   Button,
   CircleProgress,
   Paper,
   Stack,
-  Tooltip,
   Typography,
 } from '@linode/ui';
 import React from 'react';
 // eslint-disable-next-line no-restricted-imports
 import { useHistory } from 'react-router-dom';
 
-import InfoIcon from 'src/assets/icons/info.svg';
 import { DebouncedSearchTextField } from 'src/components/DebouncedSearchTextField';
 import { useAlertDefinitionByServiceTypeQuery } from 'src/queries/cloudpulse/alerts';
 
@@ -23,18 +22,28 @@ import {
 } from '../Utils/utils';
 import { AlertInformationActionTable } from './AlertInformationActionTable';
 
-import type { AlertDefinitionType } from '@linode/api-v4';
+import type {
+  AlertDefinitionType,
+  CloudPulseAlertsPayload,
+} from '@linode/api-v4';
 
 interface AlertReusableComponentProps {
   /**
    * Id for the selected entity
    */
-  entityId: string;
+  entityId?: string;
 
   /**
    * Name of the selected entity
    */
-  entityName: string;
+  entityName?: string;
+
+  /**
+   * Called when an alert is toggled on or off.
+   * Only use in create flow.
+   * @param payload enabled alerts ids
+   */
+  onToggleAlert?: (payload: CloudPulseAlertsPayload) => void;
 
   /**
    * Service type of selected entity
@@ -43,7 +52,7 @@ interface AlertReusableComponentProps {
 }
 
 export const AlertReusableComponent = (props: AlertReusableComponentProps) => {
-  const { entityId, entityName, serviceType } = props;
+  const { entityId, entityName, onToggleAlert, serviceType } = props;
   const {
     data: alerts,
     error,
@@ -55,11 +64,10 @@ export const AlertReusableComponent = (props: AlertReusableComponentProps) => {
     AlertDefinitionType | undefined
   >();
 
-  // Filter alerts based on serach text & selected type
-  const filteredAlerts = filterAlertsByStatusAndType(
-    alerts,
-    searchText,
-    selectedType
+  // Filter alerts based on status, search text & selected type
+  const filteredAlerts = React.useMemo(
+    () => filterAlertsByStatusAndType(alerts, searchText, selectedType),
+    [alerts, searchText, selectedType]
   );
 
   const history = useHistory();
@@ -70,17 +78,14 @@ export const AlertReusableComponent = (props: AlertReusableComponentProps) => {
   if (isLoading) {
     return <CircleProgress />;
   }
+
   return (
     <Paper>
       <Stack gap={3}>
         <Box display="flex" justifyContent="space-between">
           <Box alignItems="center" display="flex" gap={0.5}>
             <Typography variant="h2">Alerts</Typography>
-            <Tooltip title="The list contains only the alerts enabled in the Monitor centralized view.">
-              <span>
-                <InfoIcon />
-              </span>
-            </Tooltip>
+            <BetaChip />
           </Box>
           <Button
             buttonType="outlined"
@@ -125,7 +130,9 @@ export const AlertReusableComponent = (props: AlertReusableComponentProps) => {
             entityId={entityId}
             entityName={entityName}
             error={error}
+            onToggleAlert={onToggleAlert}
             orderByColumn="Alert Name"
+            serviceType={serviceType}
           />
         </Stack>
       </Stack>

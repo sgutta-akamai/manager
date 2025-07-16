@@ -1,12 +1,22 @@
-import { useAccountAgreements, useProfile } from '@linode/queries';
-import { CircleProgress, Divider, Notice, Typography } from '@linode/ui';
+import {
+  useAccountAgreements,
+  useProfile,
+  useSpecificTypes,
+} from '@linode/queries';
+import {
+  Box,
+  CircleProgress,
+  Divider,
+  Notice,
+  Stack,
+  Typography,
+} from '@linode/ui';
 import * as React from 'react';
 
 import { CheckoutBar } from 'src/components/CheckoutBar/CheckoutBar';
 import { Link } from 'src/components/Link';
 import { RenderGuard } from 'src/components/RenderGuard';
 import { EUAgreementCheckbox } from 'src/features/Account/Agreements/EUAgreementCheckbox';
-import { useSpecificTypes } from 'src/queries/types';
 import { extendTypesQueryResult } from 'src/utilities/extendType';
 import { getGDPRDetails } from 'src/utilities/formatRegion';
 import {
@@ -20,7 +30,6 @@ import {
 } from 'src/utilities/pricing/kubernetes';
 
 import { nodeWarning } from '../constants';
-import { StyledBox, StyledHeader } from './KubeCheckoutSummary.styles';
 import { NodePoolSummaryItem } from './NodePoolSummaryItem';
 
 import type { KubeNodePoolResponse, Region } from '@linode/api-v4';
@@ -35,7 +44,6 @@ export interface Props {
   region: string | undefined;
   regionsData: Region[];
   removePool: (poolIdx: number) => void;
-  showHighAvailability: boolean | undefined;
   submitting: boolean;
   toggleHasAgreed: () => void;
   updatePool: (poolIdx: number, updatedPool: KubeNodePoolResponse) => void;
@@ -52,7 +60,6 @@ export const KubeCheckoutBar = (props: Props) => {
     region,
     regionsData,
     removePool,
-    showHighAvailability,
     submitting,
     toggleHasAgreed,
     updatePool,
@@ -79,9 +86,7 @@ export const KubeCheckoutBar = (props: Props) => {
   const gdprConditions = !hasAgreed && showGDPRCheckbox;
 
   const haConditions =
-    highAvailability === undefined &&
-    showHighAvailability &&
-    highAvailabilityPrice !== undefined;
+    highAvailability === undefined && highAvailabilityPrice !== undefined;
 
   const disableCheckout = Boolean(
     needsAPool ||
@@ -94,28 +99,27 @@ export const KubeCheckoutBar = (props: Props) => {
     return <CircleProgress />;
   }
 
+  const price = region
+    ? getTotalClusterPrice({
+        enterprisePrice: enterprisePrice ?? undefined,
+        highAvailabilityPrice:
+          highAvailability && !enterprisePrice
+            ? Number(highAvailabilityPrice)
+            : undefined,
+        pools,
+        region,
+        types: types ?? [],
+      })
+    : undefined;
+
   return (
     <CheckoutBar
-      additionalPricing={AdditionalPricing}
       agreement={
         showGDPRCheckbox ? (
           <EUAgreementCheckbox checked={hasAgreed} onChange={toggleHasAgreed} />
         ) : undefined
       }
-      calculatedPrice={
-        region
-          ? getTotalClusterPrice({
-              enterprisePrice: enterprisePrice ?? undefined,
-              highAvailabilityPrice:
-                highAvailability && !enterprisePrice
-                  ? Number(highAvailabilityPrice)
-                  : undefined,
-              pools,
-              region,
-              types: types ?? [],
-            })
-          : undefined
-      }
+      calculatedPrice={price}
       data-qa-checkout-bar
       disabled={disableCheckout}
       heading="Cluster Summary"
@@ -128,22 +132,20 @@ export const KubeCheckoutBar = (props: Props) => {
       }
       submitText="Create Cluster"
     >
-      <>
+      <Stack divider={<Divider />} mt={2} spacing={2}>
         {region && highAvailability && !enterprisePrice && (
-          <StyledBox>
-            <Divider dark spacingBottom={16} spacingTop={16} />
-            <StyledHeader>High Availability (HA) Control Plane</StyledHeader>
+          <Stack spacing={1}>
+            <Typography variant="h3">
+              High Availability (HA) Control Plane
+            </Typography>
             <Typography>{`$${highAvailabilityPrice}/month`}</Typography>
-          </StyledBox>
+          </Stack>
         )}
         {enterprisePrice && (
-          <StyledBox>
-            <Divider dark spacingBottom={16} spacingTop={16} />
-            <StyledHeader>LKE Enterprise</StyledHeader>
-            <Typography mt={1}>{`$${enterprisePrice?.toFixed(
-              2
-            )}/month`}</Typography>
-          </StyledBox>
+          <Stack spacing={1}>
+            <Typography variant="h3">LKE Enterprise</Typography>
+            <Typography>{`$${enterprisePrice?.toFixed(2)}/month`}</Typography>
+          </Stack>
         )}
         {pools.map((thisPool, idx) => (
           <NodePoolSummaryItem
@@ -169,27 +171,25 @@ export const KubeCheckoutBar = (props: Props) => {
             }
           />
         ))}
-        <Divider dark spacingBottom={0} spacingTop={16} />
         {showWarning && (
           <Notice spacingTop={16} text={nodeWarning} variant="warning" />
         )}
-      </>
+        {price && price >= 0 && (
+          <Box>
+            <Typography>{LKE_ADDITIONAL_PRICING}</Typography>
+            <Link
+              data-testid="additional-pricing-link"
+              to="https://www.linode.com/pricing/"
+            >
+              See pricing
+            </Link>
+            .
+            <Divider spacingBottom={0} spacingTop={16} />
+          </Box>
+        )}
+      </Stack>
     </CheckoutBar>
   );
 };
-
-const AdditionalPricing = (
-  <>
-    <Divider dark spacingBottom={16} spacingTop={16} />
-    <Typography>{LKE_ADDITIONAL_PRICING}</Typography>
-    <Link
-      data-testid="additional-pricing-link"
-      to="https://www.linode.com/pricing/"
-    >
-      See pricing
-    </Link>
-    .
-  </>
-);
 
 export default RenderGuard(KubeCheckoutBar);

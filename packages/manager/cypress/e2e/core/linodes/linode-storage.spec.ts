@@ -9,6 +9,7 @@ import {
 import { ui } from 'support/ui';
 import { cleanUp } from 'support/util/cleanup';
 import { createTestLinode } from 'support/util/linodes';
+import { randomLabel } from 'support/util/random';
 
 import type { Linode } from '@linode/api-v4';
 
@@ -38,11 +39,6 @@ const DISK_RESIZE_SIZE_MB = 768;
  */
 const deleteInUseDisk = (diskName: string) => {
   waitForProvision();
-
-  ui.actionMenu
-    .findByTitle(`Action menu for Disk ${diskName}`)
-    .should('be.visible')
-    .click();
 
   ui.actionMenuItem
     .findByTitle('Delete')
@@ -150,8 +146,13 @@ describe('linode storage tab', () => {
       ui.button.findByTitle('Add a Disk').should('be.disabled');
 
       cy.get(`[data-qa-disk="${diskName}"]`).within(() => {
-        cy.contains('Resize').should('be.disabled');
+        ui.actionMenu
+          .findByTitle(`Action menu for Disk ${diskName}`)
+          .should('be.visible')
+          .click();
       });
+
+      ui.actionMenuItem.findByTitle('Resize').should('be.disabled');
 
       deleteInUseDisk(diskName);
 
@@ -165,18 +166,25 @@ describe('linode storage tab', () => {
    * - Confirms that Cloud Manager UI automatically updates to reflect deleted disk.
    */
   it('delete disk', () => {
-    const diskName = 'cy-test-disk';
+    const diskName = randomLabel();
     cy.defer(() => createTestLinode({ image: null })).then((linode) => {
       interceptDeleteDisks(linode.id).as('deleteDisk');
       interceptAddDisks(linode.id).as('addDisk');
       cy.visitWithLogin(`/linodes/${linode.id}/storage`);
       addDisk(diskName);
-      cy.findByText(diskName).should('be.visible');
+
       cy.wait('@addDisk').its('response.statusCode').should('eq', 200);
-      // Disk should show "Creating". We must wait for it to finish "Creating" before we try to delete the disk
-      cy.findByText('Creating', { exact: false }).should('be.visible');
-      // "Creating" should go away when the Disk is able to be deleted
-      cy.findByText('Creating', { exact: false }).should('not.exist');
+
+      cy.findByText(diskName)
+        .should('be.visible')
+        .closest('tr')
+        .within(() => {
+          // Disk should show "Creating". We must wait for it to finish "Creating" before we try to delete the disk
+          cy.findByText('Creating', { exact: false }).should('be.visible');
+          // "Creating" should go away when the Disk is able to be deleted
+          cy.findByText('Creating', { exact: false }).should('not.exist');
+        });
+
       deleteDisk(diskName);
       cy.wait('@deleteDisk').its('response.statusCode').should('eq', 200);
       cy.findByText('Deleting', { exact: false }).should('be.visible');
@@ -195,7 +203,7 @@ describe('linode storage tab', () => {
    * - Confirms that Cloud Manager UI automatically updates to reflect new disk.
    */
   it('add a disk', () => {
-    const diskName = 'cy-test-disk';
+    const diskName = randomLabel();
     cy.defer(() => createTestLinode({ image: null })).then((linode: Linode) => {
       interceptAddDisks(linode.id).as('addDisk');
       cy.visitWithLogin(`/linodes/${linode.id}/storage`);
@@ -230,8 +238,13 @@ describe('linode storage tab', () => {
       });
 
       cy.get(`[data-qa-disk="${diskName}"]`).within(() => {
-        cy.findByText('Resize').should('be.visible').click();
+        ui.actionMenu
+          .findByTitle(`Action menu for Disk ${diskName}`)
+          .should('be.visible')
+          .click();
       });
+
+      ui.actionMenuItem.findByTitle('Resize').should('be.visible').click();
 
       ui.drawer
         .findByTitle(`Resize ${diskName}`)

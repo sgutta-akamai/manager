@@ -11,6 +11,7 @@ import Grid from '@mui/material/Grid';
 import { useTheme } from '@mui/material/styles';
 import useMediaQuery from '@mui/material/useMediaQuery';
 import * as React from 'react';
+import type { JSX } from 'react';
 
 import { VPCPanel } from 'src/features/Linodes/LinodesDetail/LinodeSettings/VPCPanel';
 import { sendLinodeCreateDocsEvent } from 'src/utilities/analytics/customEventAnalytics';
@@ -32,7 +33,6 @@ interface InterfaceSelectProps extends VPCState {
   ipamAddress?: null | string;
   label?: null | string;
   purpose: ExtendedPurpose;
-  readOnly: boolean;
   region?: string;
   regionHasVLANs?: boolean;
   regionHasVPCs?: boolean;
@@ -76,7 +76,6 @@ export const InterfaceSelect = (props: InterfaceSelectProps) => {
     label,
     nattedIPv4Address,
     purpose,
-    readOnly,
     region,
     regionHasVLANs,
     regionHasVPCs,
@@ -248,7 +247,6 @@ export const InterfaceSelect = (props: InterfaceSelectProps) => {
   const jsxSelectVLAN = (
     <Autocomplete
       autoHighlight
-      disabled={readOnly}
       errorText={errors.labelError}
       filterOptions={filterVLANOptions}
       id={`vlan-label-${slotNumber}`}
@@ -277,7 +275,6 @@ export const InterfaceSelect = (props: InterfaceSelectProps) => {
 
   const jsxIPAMForVLAN = (
     <TextField
-      disabled={readOnly}
       errorText={errors.ipamError}
       inputId={`ipam-input-${slotNumber}`}
       label="IPAM Address"
@@ -388,9 +385,6 @@ export const InterfaceSelect = (props: InterfaceSelectProps) => {
                     )
               }
               placeholder="Select an Interface"
-              textFieldProps={{
-                disabled: readOnly,
-              }}
               value={purposeOptions.find(
                 (thisOption) => thisOption.value === purpose
               )}
