@@ -13,6 +13,7 @@ import * as React from 'react';
 import { debounce } from 'throttle-debounce';
 
 import { LandingHeader } from 'src/components/LandingHeader';
+import { wafConfigurationsFactory } from 'src/factories/wafs';
 import { getRestrictedResourceText } from 'src/features/Account/utils';
 import { WafEmptyState } from 'src/features/Waf/WafLanding/WafEmptyState';
 import { WafLandingTable } from 'src/features/Waf/WafLanding/WafLandingTable';
@@ -24,6 +25,7 @@ import type { Filter } from '@linode/api-v4';
 import type { WafSearchParams } from 'src/routes/waf';
 
 // --- Mocked useWafsQuery hook ---
+const waf_configs = wafConfigurationsFactory.buildList(10);
 const useWafsQuery = (pagination: {}, filter: Filter) => {
   const isLoading = false;
   const error = undefined;
@@ -31,37 +33,8 @@ const useWafsQuery = (pagination: {}, filter: Filter) => {
 
   const dummyData = {
     // waf_configs: [] /*Simulating empty WAF data*/,
-    waf_configs: [
-      {
-        config_id: 101,
-        label: 'Production WAF',
-        status: 'active',
-        resources: ['NodeBalancer-01', 'NodeBalancer-02'],
-        update_dt: '2025-06-10T12:00:00Z',
-      },
-      {
-        config_id: 102,
-        label: 'Staging WAF',
-        status: 'active',
-        resources: ['NodeBalancer-03'],
-        update_dt: '2025-06-11T08:30:00Z',
-      },
-      {
-        config_id: 103,
-        label: 'Develop WAF',
-        status: 'inactive',
-        resources: ['NodeBalancer-04'],
-        update_dt: '2025-02-18T08:30:00Z',
-      },
-      {
-        config_id: 104,
-        label: 'UAT WAF',
-        status: 'inactive',
-        resources: ['NodeBalancer-05', 'NodeBalancer-06'],
-        update_dt: '2025-04-22T08:30:00Z',
-      },
-    ],
-    results: 4,
+    waf_configs,
+    results: waf_configs.length,
   };
 
   return { data: dummyData, error, isFetching, isLoading };

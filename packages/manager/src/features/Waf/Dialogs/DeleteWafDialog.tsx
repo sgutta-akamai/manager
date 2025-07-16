@@ -11,6 +11,7 @@ interface Props {
   isFetching?: boolean;
   onClose: () => void;
   open: boolean;
+  // TODO: Review the handling of 'waf' prop later, to provide a better fix
   waf: undefined | WAF;
   wafError?: APIError[] | null;
 }
@@ -51,6 +52,7 @@ export const DeleteWafDialog = (props: Props) => {
   const { checkForNewEvents } = useEventsPollingActions();
 
   const onDelete = () => {
+    // TODO: Review the handling of 'id' in deleteWaf() mutation, to provide a better fix
     deleteWaf({ id: waf?.config_id ?? -1 }).then(() => {
       onClose();
       checkForNewEvents();

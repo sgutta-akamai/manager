@@ -6,6 +6,7 @@ import { Link } from 'src/components/Link';
 import { StatusIcon } from 'src/components/StatusIcon/StatusIcon';
 import { TableCell } from 'src/components/TableCell';
 import { TableRow } from 'src/components/TableRow';
+import { WafStatus } from 'src/features/Waf/WafLanding/types';
 
 import { WafActionMenu } from './WafActionMenu';
 
@@ -26,7 +27,13 @@ export const WafRow = (props: Props) => {
         <Link to={`/waf/${waf.config_id}`}>{waf.label}</Link>
       </TableCell>
       <TableCell statusCell>
-        <StatusIcon status={waf.status === 'active' ? 'active' : 'inactive'} />
+        <StatusIcon
+          status={
+            waf.status === WafStatus.Active
+              ? WafStatus.Active
+              : WafStatus.Inactive
+          }
+        />
         {capitalize(waf.status)}
       </TableCell>
       <TableCell>
