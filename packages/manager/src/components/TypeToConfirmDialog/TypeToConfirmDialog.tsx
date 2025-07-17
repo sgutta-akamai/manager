@@ -38,7 +38,8 @@ interface EntityInfo {
     | 'Placement Group'
     | 'Subnet'
     | 'Volume'
-    | 'VPC';
+    | 'VPC'
+    | 'WAF configuration';
 }
 
 interface TypeToConfirmDialogProps {

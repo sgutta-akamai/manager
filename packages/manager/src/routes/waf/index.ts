@@ -4,6 +4,16 @@ import { WafRoute } from 'src/routes/waf/WafRoute';
 
 import { rootRoute } from '../root';
 
+const wafAction = {
+  analytics: 'analytics',
+  delete: 'delete',
+  logs: 'logs',
+  overview: 'overview',
+  settings: 'settings',
+} as const;
+
+export type WafAction = (typeof wafAction)[keyof typeof wafAction];
+
 export interface WafSearchParams {
   query?: string;
 }
@@ -18,6 +28,37 @@ const wafIndexRoute = createRoute({
   getParentRoute: () => wafRoute,
   path: '/',
 }).lazy(() => import('./wafLazyRoutes').then((m) => m.wafLandingLazyRoute));
+
+type WafActionRouteParams<P = number | string> = {
+  action: WafAction;
+  wafId: P;
+};
+
+const wafActionRoute = createRoute({
+  beforeLoad: async ({ params }) => {
+    if (!(params.action in wafAction)) {
+      throw redirect({
+        search: () => ({}),
+        to: '/waf',
+      });
+    }
+  },
+  getParentRoute: () => wafRoute,
+  params: {
+    parse: ({ action, wafId }: WafActionRouteParams<string>) => ({
+      action,
+      wafId: Number(wafId),
+    }),
+    stringify: ({ action, wafId }: WafActionRouteParams<number>) => ({
+      action,
+      wafId: String(wafId),
+    }),
+  },
+  path: '$wafId/$action',
+  validateSearch: (search: WafSearchParams) => search,
+}).lazy(() =>
+  import('src/routes/waf/wafLazyRoutes').then((m) => m.wafLandingLazyRoute)
+);
 
 const wafCreateRoute = createRoute({
   getParentRoute: () => wafRoute,
@@ -61,7 +102,7 @@ const wafDetailLogsRoute = createRoute({
 }).lazy(() => import('./wafLazyRoutes').then((m) => m.wafDetailLazyRoute));
 
 export const wafRouteTree = wafRoute.addChildren([
-  wafIndexRoute,
+  wafIndexRoute.addChildren([wafActionRoute]),
   wafCreateRoute,
   wafDetailRoute.addChildren([
     wafDetailIndexRoute,
