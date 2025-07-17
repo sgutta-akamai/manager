@@ -1,12 +1,22 @@
 export interface WafCreateForm {
-  advancedSettings: {
-    customRulesEnabled: boolean;
+  advancedSettings?: {
+    customRulesEnabled?: boolean;
   };
   attackGroups?: AttackGroup[];
   devices?: Device[];
   hosts?: Host[];
   label: string;
   paths?: Host[];
+}
+
+export interface WafCreateFormDTO {
+  advanced_settings?: {
+    custom_rules_enabled?: boolean;
+  };
+  attack_groups?: AttackGroup[];
+  devices?: Device[];
+  hosts?: Host[];
+  label: string;
 }
 
 export interface AttackGroup {

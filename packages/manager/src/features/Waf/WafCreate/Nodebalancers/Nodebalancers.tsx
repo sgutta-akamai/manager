@@ -79,56 +79,58 @@ export const Nodebalancers = () => {
               this WAF. You can choose to exclude specific hostnames or paths
               from protection as needed.
             </Typography>
-            <Controller
-              control={control}
-              name="hosts"
-              render={({ field }) => (
-                <TagsInput
-                  disableOptions={true}
-                  label="Exclude hostnames"
-                  onChange={(selected) =>
-                    field.onChange(
-                      selected.map((item) => ({
-                        hostname: item.value,
-                        path: '',
-                        type: 'exclude',
-                      }))
-                    )
-                  }
-                  value={
-                    field.value?.map((host) => ({
-                      label: host.hostname,
-                      value: host.hostname,
-                    })) || []
-                  }
-                />
-              )}
-            />
-            <Controller
-              control={control}
-              name="paths"
-              render={({ field }) => (
-                <TagsInput
-                  disableOptions={true}
-                  label="Exclude paths"
-                  onChange={(selected) =>
-                    field.onChange(
-                      selected.map((item) => ({
-                        hostname: '*',
-                        path: item.value,
-                        type: 'exclude',
-                      }))
-                    )
-                  }
-                  value={
-                    field.value?.map((host) => ({
-                      label: host.path,
-                      value: host.path,
-                    })) || []
-                  }
-                />
-              )}
-            />
+            <Box sx={{ width: '462px' }}>
+              <Controller
+                control={control}
+                name="hosts"
+                render={({ field }) => (
+                  <TagsInput
+                    label="Exclude hostnames"
+                    onChange={(selected) =>
+                      field.onChange(
+                        selected.map((item) => ({
+                          hostname: item.value,
+                          path: '',
+                          type: 'exclude',
+                        }))
+                      )
+                    }
+                    value={
+                      field.value?.map((host) => ({
+                        label: host.hostname,
+                        value: host.hostname,
+                      })) || []
+                    }
+                  />
+                )}
+              />
+            </Box>
+            <Box sx={{ width: '462px' }}>
+              <Controller
+                control={control}
+                name="paths"
+                render={({ field }) => (
+                  <TagsInput
+                    label="Exclude paths"
+                    onChange={(selected) =>
+                      field.onChange(
+                        selected.map((item) => ({
+                          hostname: '*',
+                          path: item.value,
+                          type: 'exclude',
+                        }))
+                      )
+                    }
+                    value={
+                      field.value?.map((host) => ({
+                        label: host.path,
+                        value: host.path,
+                      })) || []
+                    }
+                  />
+                )}
+              />
+            </Box>
           </>
         )}
       </Box>
