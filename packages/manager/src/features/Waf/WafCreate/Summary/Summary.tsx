@@ -1,4 +1,3 @@
-// import { Box, Paper, Typography } from '@linode/ui';
 import * as React from 'react';
 
 import { CheckoutSummary } from 'src/components/CheckoutSummary/CheckoutSummary';
@@ -13,6 +12,7 @@ interface SummaryProps {
 export const Summary = (props: SummaryProps) => {
   const { wafLabel, isWafLabelSet, isNodebalancersSet, isHostsSet } = props;
 
+  //add a placeholder item to ensure there is no zero state with the "Linode" text in the CheckoutSummary component
   const summaryItems = [{ title: '', details: '' }];
   const removePlaceholderItem = () => {
     if (summaryItems.length === 1 && summaryItems[0].title === '') {
@@ -40,18 +40,6 @@ export const Summary = (props: SummaryProps) => {
 
   return (
     <div>
-      {/*<Paper sx={{ marginBottom: '20px' }}>*/}
-      {/*  <Box display="flex" flexDirection="column">*/}
-      {/*    <Typography variant="h2">Summary</Typography>*/}
-      {/*    <Box display="flex" sx={{ marginTop: '20px' }}>*/}
-      {/*      {isWafLabelSet && <Typography>WAF {wafLabel}</Typography>}*/}
-      {/*      {isNodebalancersSet && (*/}
-      {/*        <Typography>NodeBalancers Assigned</Typography>*/}
-      {/*      )}*/}
-      {/*      {isHostsSet && <Typography>Protected Resources Defined</Typography>}*/}
-      {/*    </Box>*/}
-      {/*  </Box>*/}
-      {/*</Paper>*/}
       <CheckoutSummary displaySections={summaryItems} heading="Summary" />
     </div>
   );
