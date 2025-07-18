@@ -23,7 +23,6 @@ export interface TagsInputProps {
    * @default false
    */
   disabled?: boolean;
-  disableOptions?: boolean;
   /**
    * If true, the label is hidden, yet still accessible to screen readers.
    */
@@ -59,16 +58,8 @@ export interface TagsInputProps {
 }
 
 export const TagsInput = (props: TagsInputProps) => {
-  const {
-    disabled,
-    hideLabel,
-    label,
-    noMarginTop,
-    onChange,
-    tagError,
-    value,
-    disableOptions,
-  } = props;
+  const { disabled, hideLabel, label, noMarginTop, onChange, tagError, value } =
+    props;
 
   const [errors, setErrors] = React.useState<APIError[]>([]);
 
@@ -181,7 +172,7 @@ export const TagsInput = (props: TagsInputProps) => {
           onChange(newValue);
         }
       }}
-      options={disableOptions ? [] : accountTagItems}
+      options={accountTagItems}
       placeholder={value.length === 0 ? 'Type to choose or create a tag.' : ''}
       renderTags={(tagValue, getTagProps) => {
         return tagValue.map((option, index) => (
