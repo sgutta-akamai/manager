@@ -18,18 +18,6 @@ export const Nodebalancers = () => {
   const isAdjustProtectedResourcesEnabled = watch(
     'isAdjustProtectedResourcesEnabled'
   );
-  // const [
-  //   isAdjustProtectedResourcesEnabled,
-  //   setIsAdjustProtectedResourcesEnabled,
-  // ] = React.useState<boolean>(false);
-  //
-  // const handleAdjustProtectResourcesChanged = (
-  //   event: React.ChangeEvent<HTMLInputElement>,
-  //   value: boolean
-  // ) => {
-  //   setIsAdjustProtectedResourcesEnabled(value);
-  // };
-
   const deviceOptions: Device[] = [
     { id: '1', label: 'NodeBalancer 1', type: 'nodebalancer' },
     { id: '2', label: 'NodeBalancer 2', type: 'nodebalancer' },
@@ -83,16 +71,6 @@ export const Nodebalancers = () => {
             />
           )}
         />
-        {/*<FormControlLabel*/}
-        {/*  control={*/}
-        {/*    <Toggle*/}
-        {/*      checked={isAdjustProtectedResourcesEnabled}*/}
-        {/*      onChange={handleAdjustProtectResourcesChanged}*/}
-        {/*    />*/}
-        {/*  }*/}
-        {/*  label="Adjust protected resources"*/}
-        {/*  sx={{ marginTop: '10px' }}*/}
-        {/*></FormControlLabel>*/}
         {isAdjustProtectedResourcesEnabled && (
           <>
             <Typography sx={{ marginTop: '10px' }}>
