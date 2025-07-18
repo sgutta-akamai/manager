@@ -9,11 +9,15 @@ import { Summary } from 'src/features/Waf/WafCreate/Summary/Summary';
 import { WafName } from 'src/features/Waf/WafCreate/WafName/WafName';
 
 export const WafCreate = () => {
-  const methods = useForm<WafCreateForm>();
-  const onSubmit = (_data: WafCreateForm) => {
+  const methods = useForm<WafCreateForm>({
+    defaultValues: {
+      isAdjustProtectedResourcesEnabled: false,
+    },
+  });
+  const onSubmit = (data: WafCreateForm) => {
     //TODO - add proper event handler
     // console.log(data);
-    getTransformedData(_data);
+    getTransformedData(data);
   };
 
   const labelValue = methods.watch('label') || '';
@@ -29,10 +33,12 @@ export const WafCreate = () => {
       label: formData.label,
       attack_groups: formData.attackGroups,
       devices: formData.devices,
-      hosts: [...(formData.hosts || []), ...(formData.paths || [])],
       advanced_settings: {
         custom_rules_enabled: formData.advancedSettings?.customRulesEnabled,
       },
+      ...(formData.isAdjustProtectedResourcesEnabled && {
+        hosts: [...(formData.hosts || []), ...(formData.paths || [])],
+      }),
     };
   };
 

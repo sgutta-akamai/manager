@@ -14,18 +14,21 @@ import { TagsInput } from 'src/components/TagsInput/TagsInput';
 import { Device, WafCreateForm } from 'src/features/Waf/utils';
 
 export const Nodebalancers = () => {
-  const { control } = useFormContext<WafCreateForm>();
-  const [
-    isAdjustProtectedResourcesEnabled,
-    setIsAdjustProtectedResourcesEnabled,
-  ] = React.useState<boolean>(false);
-
-  const handleAdjustProtectResourcesChanged = (
-    event: React.ChangeEvent<HTMLInputElement>,
-    value: boolean
-  ) => {
-    setIsAdjustProtectedResourcesEnabled(value);
-  };
+  const { control, watch } = useFormContext<WafCreateForm>();
+  const isAdjustProtectedResourcesEnabled = watch(
+    'isAdjustProtectedResourcesEnabled'
+  );
+  // const [
+  //   isAdjustProtectedResourcesEnabled,
+  //   setIsAdjustProtectedResourcesEnabled,
+  // ] = React.useState<boolean>(false);
+  //
+  // const handleAdjustProtectResourcesChanged = (
+  //   event: React.ChangeEvent<HTMLInputElement>,
+  //   value: boolean
+  // ) => {
+  //   setIsAdjustProtectedResourcesEnabled(value);
+  // };
 
   const deviceOptions: Device[] = [
     { id: '1', label: 'NodeBalancer 1', type: 'nodebalancer' },
@@ -62,16 +65,34 @@ export const Nodebalancers = () => {
             />
           )}
         />
-        <FormControlLabel
-          control={
-            <Toggle
-              checked={isAdjustProtectedResourcesEnabled}
-              onChange={handleAdjustProtectResourcesChanged}
+        <Controller
+          control={control}
+          name="isAdjustProtectedResourcesEnabled"
+          render={({ field }) => (
+            <FormControlLabel
+              control={
+                <Toggle
+                  checked={field.value}
+                  onChange={(_, value) => {
+                    field.onChange(value);
+                  }}
+                />
+              }
+              label="Adjust protected resources"
+              sx={{ marginTop: '10px' }}
             />
-          }
-          label="Adjust protected resources"
-          sx={{ marginTop: '10px' }}
-        ></FormControlLabel>
+          )}
+        />
+        {/*<FormControlLabel*/}
+        {/*  control={*/}
+        {/*    <Toggle*/}
+        {/*      checked={isAdjustProtectedResourcesEnabled}*/}
+        {/*      onChange={handleAdjustProtectResourcesChanged}*/}
+        {/*    />*/}
+        {/*  }*/}
+        {/*  label="Adjust protected resources"*/}
+        {/*  sx={{ marginTop: '10px' }}*/}
+        {/*></FormControlLabel>*/}
         {isAdjustProtectedResourcesEnabled && (
           <>
             <Typography sx={{ marginTop: '10px' }}>

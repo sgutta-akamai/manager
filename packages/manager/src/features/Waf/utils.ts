@@ -5,6 +5,7 @@ export interface WafCreateForm {
   attackGroups?: AttackGroup[];
   devices?: Device[];
   hosts?: Host[];
+  isAdjustProtectedResourcesEnabled: boolean;
   label: string;
   paths?: Host[];
 }
