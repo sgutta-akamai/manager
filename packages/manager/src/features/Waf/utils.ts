@@ -36,3 +36,9 @@ export interface Host {
   path: string;
   type: string;
 }
+
+export enum PathType {
+  EXCLUDE = 'exclude',
+}
+
+export const WILDCARD_HOSTNAME = '*';

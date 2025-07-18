@@ -11,7 +11,12 @@ import * as React from 'react';
 import { Controller, useFormContext } from 'react-hook-form';
 
 import { TagsInput } from 'src/components/TagsInput/TagsInput';
-import { Device, WafCreateForm } from 'src/features/Waf/utils';
+import {
+  Device,
+  PathType,
+  WafCreateForm,
+  WILDCARD_HOSTNAME,
+} from 'src/features/Waf/utils';
 
 export const Nodebalancers = () => {
   const { control, watch } = useFormContext<WafCreateForm>();
@@ -90,7 +95,7 @@ export const Nodebalancers = () => {
                         selected.map((item) => ({
                           hostname: item.value,
                           path: '',
-                          type: 'exclude',
+                          type: PathType.EXCLUDE,
                         }))
                       )
                     }
@@ -114,9 +119,9 @@ export const Nodebalancers = () => {
                     onChange={(selected) =>
                       field.onChange(
                         selected.map((item) => ({
-                          hostname: '*',
+                          hostname: WILDCARD_HOSTNAME,
                           path: item.value,
-                          type: 'exclude',
+                          type: PathType.EXCLUDE,
                         }))
                       )
                     }

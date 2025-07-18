@@ -61,6 +61,7 @@ export const WafCreate = () => {
             isWafLabelSet={!!labelValue}
             wafLabel={labelValue}
           />
+          {/*for debugging form values TODO - remove later once integrated with attack groups table and backend*/}
           {JSON.stringify(methods.getValues())}
           <Box display="flex" flexDirection="row" justifyContent="flex-end">
             <Button buttonType="primary" type="submit">
