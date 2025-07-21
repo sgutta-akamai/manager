@@ -7,8 +7,10 @@ import { renderWithTheme } from 'src/utilities/testHelpers';
 
 import { UsersActionMenu } from './UsersActionMenu';
 
+const navigate = vi.fn();
 const queryMocks = vi.hoisted(() => ({
   useProfile: vi.fn().mockReturnValue({}),
+  useNavigate: vi.fn(() => navigate),
 }));
 
 // Mock useProfile
@@ -20,17 +22,11 @@ vi.mock('@linode/queries', async () => {
   };
 });
 
-const mockHistory = {
-  push: vi.fn(),
-  replace: vi.fn(),
-};
-
-// Mock useHistory
-vi.mock('react-router-dom', async () => {
-  const actual = await vi.importActual<any>('react-router-dom');
+vi.mock('@tanstack/react-router', async () => {
+  const actual = await vi.importActual('@tanstack/react-router');
   return {
     ...actual,
-    useHistory: vi.fn(() => mockHistory),
+    useNavigate: queryMocks.useNavigate,
   };
 });
 
@@ -65,7 +61,12 @@ describe('UsersActionMenu', () => {
 
     // Click "Manage Access" and verify history.push is called with the correct URL
     await userEvent.click(manageAccessButton);
-    expect(mockHistory.push).toHaveBeenCalledWith('/iam/users/test_user/roles');
+    expect(navigate).toHaveBeenCalledWith({
+      params: {
+        username: 'test_user',
+      },
+      to: '/iam/users/$username/roles',
+    });
   });
 
   it('should render non-proxy user actions correctly', async () => {
@@ -91,9 +92,12 @@ describe('UsersActionMenu', () => {
 
     // Click "View User Details" and verify history.push is called with the correct URL
     await userEvent.click(viewDetailsButton);
-    expect(mockHistory.push).toHaveBeenCalledWith(
-      '/iam/users/test_user/details'
-    );
+    expect(navigate).toHaveBeenCalledWith({
+      params: {
+        username: 'test_user',
+      },
+      to: '/iam/users/$username/details',
+    });
 
     // Check if "View Assigned Roles" action is present
     const viewRolesButton = screen.getByText('View Assigned Roles');
@@ -101,7 +105,12 @@ describe('UsersActionMenu', () => {
 
     // Click "View Assigned Roles" and verify history.push is called with the correct URL
     await userEvent.click(viewRolesButton);
-    expect(mockHistory.push).toHaveBeenCalledWith('/iam/users/test_user/roles');
+    expect(navigate).toHaveBeenCalledWith({
+      params: {
+        username: 'test_user',
+      },
+      to: '/iam/users/$username/roles',
+    });
 
     // Check if "Delete User" action is present
     const deleteUserButton = screen.getByText('Delete User');

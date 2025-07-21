@@ -8,16 +8,25 @@ import { LinodeBackups } from './LinodeBackups';
 
 import type { LinodeBackupsResponse } from '@linode/api-v4';
 
-// I'm so sorry, but I don't know a better way to mock react-router-dom params.
-vi.mock('react-router-dom', async () => {
-  const actual = await vi.importActual<any>('react-router-dom');
+const queryMocks = vi.hoisted(() => ({
+  useParams: vi.fn(),
+}));
+
+vi.mock('@tanstack/react-router', async () => {
+  const actual = await vi.importActual('@tanstack/react-router');
   return {
     ...actual,
-    useParams: vi.fn(() => ({ linodeId: 1 })),
+    useParams: queryMocks.useParams,
   };
 });
 
 describe('LinodeBackups', () => {
+  beforeEach(() => {
+    queryMocks.useParams.mockReturnValue({
+      linodeId: '1',
+    });
+  });
+
   it('renders a list of different types of backups if backups are enabled', async () => {
     server.use(
       http.get('*/linode/instances/1', () => {
@@ -46,7 +55,9 @@ describe('LinodeBackups', () => {
       })
     );
 
-    const { findByText, getByText } = renderWithTheme(<LinodeBackups />);
+    const { findByText, getByText } = renderWithTheme(
+      <LinodeBackups />
+    );
 
     // Verify an automated backup renders
     await findByText('current-snapshot');

@@ -9,8 +9,24 @@ import {
 } from '../constants';
 import { NoAssignedRoles } from './NoAssignedRoles';
 
+const queryProps = vi.hoisted(() => ({
+  useParams: vi.fn(),
+}));
+
+vi.mock('@tanstack/react-router', async () => {
+  const actual = await vi.importActual('@tanstack/react-router');
+  return {
+    ...actual,
+    useParams: queryProps.useParams,
+  };
+});
+
 describe('NoAssignedRoles', () => {
-  it('renders with correct text for the Assigned Roles tab', () => {
+  beforeEach(() => {
+    queryProps.useParams.mockReturnValue({ username: 'testuser' });
+  });
+
+  it('renders with correct text for the Assigned Roles tab', async () => {
     renderWithTheme(
       <NoAssignedRoles
         hasAssignNewRoleDrawer={true}
@@ -24,7 +40,7 @@ describe('NoAssignedRoles', () => {
     ).toBeVisible();
   });
 
-  it('renders with correct text for the Assigned Entities tab', () => {
+  it('renders with correct text for the Assigned Entities tab', async () => {
     renderWithTheme(
       <NoAssignedRoles
         hasAssignNewRoleDrawer={false}

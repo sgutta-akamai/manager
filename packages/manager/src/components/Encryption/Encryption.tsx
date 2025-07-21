@@ -1,6 +1,7 @@
 import { Box, Checkbox, Notice, Typography } from '@linode/ui';
 import { List, ListItem } from '@mui/material';
 import * as React from 'react';
+import type { JSX } from 'react';
 
 import { checkboxTestId, descriptionTestId, headerTestId } from './constants';
 
@@ -50,14 +51,7 @@ export const Encryption = (props: EncryptionProps) => {
           </List>
         </Notice>
       )}
-      <Box
-        alignItems="center"
-        display="flex"
-        flexDirection="row"
-        sx={{
-          marginLeft: '4px',
-        }}
-      >
+      <Box alignItems="center" display="flex" flexDirection="row">
         <Checkbox
           checked={isEncryptEntityChecked}
           data-testid={checkboxTestId}

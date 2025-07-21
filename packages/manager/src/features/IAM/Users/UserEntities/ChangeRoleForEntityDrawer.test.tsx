@@ -11,16 +11,25 @@ import { ChangeRoleForEntityDrawer } from './ChangeRoleForEntityDrawer';
 import type { EntitiesRole } from '../../Shared/types';
 
 const queryMocks = vi.hoisted(() => ({
+  useParams: vi.fn().mockReturnValue({}),
   useAccountRoles: vi.fn().mockReturnValue({}),
   useUserRoles: vi.fn().mockReturnValue({}),
 }));
 
-vi.mock('src/queries/iam/iam', async () => {
-  const actual = await vi.importActual<any>('src/queries/iam/iam');
+vi.mock('@linode/queries', async () => {
+  const actual = await vi.importActual<any>('@linode/queries');
   return {
     ...actual,
     useAccountRoles: queryMocks.useAccountRoles,
     useUserRoles: queryMocks.useUserRoles,
+  };
+});
+
+vi.mock('@tanstack/react-router', async () => {
+  const actual = await vi.importActual('@tanstack/react-router');
+  return {
+    ...actual,
+    useParams: queryMocks.useParams,
   };
 });
 
@@ -52,13 +61,19 @@ vi.mock('@linode/api-v4', async () => {
 });
 
 describe('ChangeRoleForEntityDrawer', () => {
+  beforeEach(() => {
+    queryMocks.useParams.mockReturnValue({
+      username: 'test_user',
+    });
+  });
+
   it('should render', async () => {
     renderWithTheme(<ChangeRoleForEntityDrawer {...props} />);
 
     // Verify title renders
     expect(screen.getByText('Change Role')).toBeVisible();
     expect(
-      screen.getByText('Select a role you want the entity to be attached to.')
+      screen.getByText(/Select a role you want the entity to be attached to/i)
     ).toBeVisible();
   });
 

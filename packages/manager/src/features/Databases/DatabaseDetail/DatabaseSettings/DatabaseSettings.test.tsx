@@ -2,8 +2,9 @@ import * as React from 'react';
 
 import { databaseFactory } from 'src/factories/databases';
 import {
+  getShadowRootElement,
   mockMatchMedia,
-  renderWithThemeAndRouter,
+  renderWithTheme,
 } from 'src/utilities/testHelpers';
 
 import * as utils from '../../utilities';
@@ -52,12 +53,12 @@ describe('DatabaseSettings Component', () => {
   const database = databaseFactory.build({ platform: 'rdbms-default' });
   it('Should exist and be renderable', async () => {
     expect(DatabaseSettings).toBeDefined();
-    await renderWithThemeAndRouter(<DatabaseSettings database={database} />);
+    renderWithTheme(<DatabaseSettings database={database} />);
   });
 
   it('should render a Paper component with headers for Manage Access, Resetting the Root password, and Deleting the Cluster', async () => {
     spy.mockReturnValue(v2GA());
-    const { container, getAllByRole } = await renderWithThemeAndRouter(
+    const { container, getAllByRole } = renderWithTheme(
       <DatabaseSettings database={database} />
     );
     const paper = container.querySelector('.MuiPaper-root');
@@ -74,7 +75,7 @@ describe('DatabaseSettings Component', () => {
     const defaultDatabase = databaseFactory.build({
       platform: 'rdbms-default',
     });
-    const { getAllByRole } = await renderWithThemeAndRouter(
+    const { getAllByRole } = renderWithTheme(
       <DatabaseSettings database={defaultDatabase} />,
       { flags: { databaseVpc: true } }
     );
@@ -87,7 +88,7 @@ describe('DatabaseSettings Component', () => {
     const legacyDatabase = databaseFactory.build({
       platform: 'rdbms-legacy',
     });
-    const { getAllByRole } = await renderWithThemeAndRouter(
+    const { getAllByRole } = renderWithTheme(
       <DatabaseSettings database={legacyDatabase} />,
       { flags: { databaseVpc: true } }
     );
@@ -99,20 +100,30 @@ describe('DatabaseSettings Component', () => {
     ['disable', true],
     ['enable', false],
   ])('should %s buttons when disabled is %s', async (_, isDisabled) => {
-    const { getByRole, getByTitle } = await renderWithThemeAndRouter(
+    const { getByTestId } = renderWithTheme(
       <DatabaseSettings database={database} disabled={isDisabled} />
     );
-    const button1 = getByTitle('Reset Root Password');
-    const button2 = getByTitle('Save Changes');
-    const button3 = getByRole('button', { name: 'Manage Access' });
+
+    const resetPasswordButtonHost = getByTestId(
+      'settings-button-Reset Root Password'
+    );
+    const resetPasswordButton = await getShadowRootElement(
+      resetPasswordButtonHost,
+      'button'
+    );
+
+    const manageAccessButtonHost = getByTestId('button-access-control');
+    const manageAccessButton = await getShadowRootElement(
+      manageAccessButtonHost,
+      'button'
+    );
 
     if (isDisabled) {
-      expect(button1).toBeDisabled();
-      expect(button2).toBeDisabled();
-      expect(button3).toBeDisabled();
+      expect(resetPasswordButton).toBeDisabled();
+      expect(manageAccessButton).toBeDisabled();
     } else {
-      expect(button1).toBeEnabled();
-      expect(button3).toBeEnabled();
+      expect(resetPasswordButton).toBeEnabled();
+      expect(manageAccessButton).toBeEnabled();
     }
   });
 
@@ -125,7 +136,7 @@ describe('DatabaseSettings Component', () => {
       version: '14.6',
     });
 
-    const { container } = await renderWithThemeAndRouter(
+    const { container } = renderWithTheme(
       <DatabaseSettings database={database} />
     );
 
@@ -145,7 +156,7 @@ describe('DatabaseSettings Component', () => {
       version: '14.6',
     });
 
-    const { container } = await renderWithThemeAndRouter(
+    const { container } = renderWithTheme(
       <DatabaseSettings database={database} />
     );
 
@@ -165,7 +176,7 @@ describe('DatabaseSettings Component', () => {
       version: '14.6',
     });
 
-    const { container } = await renderWithThemeAndRouter(
+    const { container } = renderWithTheme(
       <DatabaseSettings database={database} />
     );
 
@@ -185,7 +196,7 @@ describe('DatabaseSettings Component', () => {
       version: '14.6',
     });
 
-    const { container } = await renderWithThemeAndRouter(
+    const { container } = renderWithTheme(
       <DatabaseSettings database={database} />
     );
 
@@ -205,7 +216,7 @@ describe('DatabaseSettings Component', () => {
       version: '14.6',
     });
 
-    const { container } = await renderWithThemeAndRouter(
+    const { container } = renderWithTheme(
       <DatabaseSettings database={database} />
     );
 
@@ -220,7 +231,7 @@ describe('DatabaseSettings Component', () => {
     const database = databaseFactory.build({
       platform: 'rdbms-legacy',
     });
-    const { getByRole, queryByText } = await renderWithThemeAndRouter(
+    const { getByRole, queryByText } = renderWithTheme(
       <DatabaseSettings database={database} />
     );
     const radioInput = getByRole('radiogroup');
@@ -233,7 +244,7 @@ describe('DatabaseSettings Component', () => {
     const database = databaseFactory.build({
       platform: 'rdbms-default',
     });
-    const { queryByText } = await renderWithThemeAndRouter(
+    const { queryByText } = renderWithTheme(
       <DatabaseSettings database={database} />
     );
 
@@ -263,7 +274,7 @@ describe('DatabaseSettings Component', () => {
       isUserNewBeta: false,
     });
 
-    const { container, getAllByRole } = await renderWithThemeAndRouter(
+    const { container, getAllByRole } = renderWithTheme(
       <DatabaseSettings database={mockNewDatabase} />,
       { flags }
     );
@@ -299,14 +310,20 @@ describe('DatabaseSettings Component', () => {
       isUserNewBeta: false,
     });
 
-    const { getAllByText } = await renderWithThemeAndRouter(
+    const { getByTestId } = renderWithTheme(
       <DatabaseSettings database={mockNewDatabase} />,
       { flags }
     );
 
-    const suspendElements = getAllByText(/Suspend Cluster/i);
-    const suspendButton = suspendElements[1].closest('button');
-    expect(suspendButton).toHaveAttribute('aria-disabled', 'true');
+    const suspendClusterButtonHost = getByTestId(
+      'settings-button-Suspend Cluster'
+    );
+    const suspendClusterButton = await getShadowRootElement(
+      suspendClusterButtonHost,
+      'button'
+    );
+
+    expect(suspendClusterButton).toBeDisabled();
   });
 
   it('should enable suspend when database status is active', async () => {
@@ -331,13 +348,19 @@ describe('DatabaseSettings Component', () => {
       isUserNewBeta: false,
     });
 
-    const { getAllByText } = await renderWithThemeAndRouter(
+    const { getByTestId } = renderWithTheme(
       <DatabaseSettings database={mockNewDatabase} />,
       { flags }
     );
 
-    const suspendElements = getAllByText(/Suspend Cluster/i);
-    const suspendButton = suspendElements[1].closest('button');
-    expect(suspendButton).toHaveAttribute('aria-disabled', 'false');
+    const suspendClusterButtonHost = getByTestId(
+      'settings-button-Suspend Cluster'
+    );
+    const suspendClusterButton = await getShadowRootElement(
+      suspendClusterButtonHost,
+      'button'
+    );
+
+    expect(suspendClusterButton).toBeEnabled();
   });
 });

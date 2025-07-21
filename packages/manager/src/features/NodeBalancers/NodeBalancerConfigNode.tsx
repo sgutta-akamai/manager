@@ -27,7 +27,13 @@ export interface NodeBalancerConfigNodeProps {
   idx: number;
   node: NodeBalancerConfigNodeFields;
   nodeBalancerRegion?: string;
-  onNodeAddressChange: (nodeIdx: number, value: string) => void;
+  nodeBalancerSubnetId?: number;
+  nodeBalancerVpcId?: number;
+  onNodeAddressChange: (
+    nodeIdx: number,
+    value: string,
+    subnetId?: number
+  ) => void;
   onNodeLabelChange: (e: React.ChangeEvent<HTMLInputElement>) => void;
   onNodeModeChange: (nodeId: number, mode: NodeBalancerConfigNodeMode) => void;
   onNodePortChange: (e: React.ChangeEvent<HTMLInputElement>) => void;
@@ -61,6 +67,8 @@ export const NodeBalancerConfigNode = React.memo(
       idx,
       node,
       nodeBalancerRegion,
+      nodeBalancerVpcId,
+      nodeBalancerSubnetId,
       onNodeAddressChange,
       onNodeLabelChange,
       onNodeModeChange,
@@ -81,7 +89,7 @@ export const NodeBalancerConfigNode = React.memo(
 
     return (
       <React.Fragment>
-        <Grid data-qa-node size={12} sx={{ padding: 1 }}>
+        <Grid data-qa-node size={12}>
           {idx !== 0 && (
             <Grid size={12}>
               <Divider
@@ -138,12 +146,12 @@ export const NodeBalancerConfigNode = React.memo(
             )}
           </Grid>
         </Grid>
-        <Grid size={12} sx={{ padding: 1 }}>
+        <Grid size={12}>
           <Grid container data-qa-node key={idx} spacing={2}>
             <Grid
               size={{
-                lg: 3,
-                sm: 4,
+                lg: 4,
+                sm: 6,
                 xs: 12,
               }}
             >
@@ -155,6 +163,8 @@ export const NodeBalancerConfigNode = React.memo(
                 nodeAddress={node.address}
                 nodeIndex={idx}
                 region={nodeBalancerRegion}
+                subnetId={nodeBalancerSubnetId}
+                vpcId={nodeBalancerVpcId}
               />
             </Grid>
             <Grid
@@ -220,7 +230,7 @@ export const NodeBalancerConfigNode = React.memo(
               </Grid>
             )}
             {!disallowRemoval && (
-              <Box alignSelf="flex-end" paddingBottom={1}>
+              <Box alignSelf="flex-end">
                 <Button disabled={disabled} onClick={() => removeNode(idx)}>
                   Remove
                 </Button>

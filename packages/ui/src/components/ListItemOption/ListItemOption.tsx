@@ -1,6 +1,6 @@
 import { styled } from '@mui/material/styles';
 import { visuallyHidden } from '@mui/utils';
-import React from 'react';
+import React, { type JSX } from 'react';
 
 import { SelectedIcon } from '../Autocomplete';
 import { Box } from '../Box';
@@ -15,7 +15,7 @@ export interface ListItemOptionProps<T> {
   item: T & { id: number | string };
   maxHeight?: number;
   props: React.HTMLAttributes<HTMLLIElement>;
-  selected?: boolean;
+  selected: boolean;
 }
 
 export interface DisableItemOption {

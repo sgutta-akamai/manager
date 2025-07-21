@@ -3,6 +3,7 @@ import AccordionDetails from '@mui/material/AccordionDetails';
 import AccordionSummary from '@mui/material/AccordionSummary';
 import Grid from '@mui/material/Grid';
 import * as React from 'react';
+import type { JSX } from 'react';
 import { makeStyles } from 'tss-react/mui';
 
 import { ChevronDownIcon } from '../../assets';
@@ -59,7 +60,7 @@ export interface AccordionProps extends _AccordionProps {
   /**
    * A chip to render in the heading
    */
-  headingChip?: React.JSX.Element;
+  headingChip?: null | React.JSX.Element;
   /**
    * A number to display in the Accordion's heading
    */

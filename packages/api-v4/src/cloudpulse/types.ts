@@ -1,7 +1,10 @@
+import type { AccountCapability } from 'src/account';
+
 export type AlertSeverityType = 0 | 1 | 2 | 3;
 export type MetricAggregationType = 'avg' | 'count' | 'max' | 'min' | 'sum';
 export type MetricOperatorType = 'eq' | 'gt' | 'gte' | 'lt' | 'lte';
 export type AlertServiceType = 'dbaas' | 'linode';
+export type MetricsServiceType = 'dbaas' | 'linode' | 'nodebalancer';
 export type AlertClass = 'dedicated' | 'shared';
 export type DimensionFilterOperatorType =
   | 'endswith'
@@ -10,6 +13,7 @@ export type DimensionFilterOperatorType =
   | 'startswith';
 export type AlertDefinitionType = 'system' | 'user';
 export type AlertStatusType = 'disabled' | 'enabled' | 'failed' | 'in progress';
+export type AlertDefinitionScope = 'account' | 'entity' | 'region';
 export type CriteriaConditionType = 'ALL';
 export type MetricUnitType =
   | 'bit_per_second'
@@ -163,20 +167,21 @@ export interface CloudPulseMetricsList {
   values: [number, string][];
 }
 
-export interface ServiceTypes {
-  alert: {
-    evaluation_periods_seconds: number[];
-    polling_interval_seconds: number[];
-    scope: string[];
-  };
-  is_beta: boolean;
+export interface ServiceAlert {
+  evaluation_period_seconds: number[];
+  polling_interval_seconds: number[];
+  scope: AlertDefinitionScope[];
+}
+
+export interface Service {
+  alert: ServiceAlert;
   label: string;
   regions: string;
   service_type: string;
 }
 
 export interface ServiceTypesList {
-  data: ServiceTypes[];
+  data: Service[];
 }
 
 export interface CreateAlertDefinitionPayload {
@@ -236,9 +241,11 @@ export interface Alert {
   has_more_resources: boolean;
   id: number;
   label: string;
+  regions?: string[];
   rule_criteria: {
     rules: AlertDefinitionMetricCriteria[];
   };
+  scope: AlertDefinitionScope;
   service_type: AlertServiceType;
   severity: AlertSeverityType;
   status: AlertStatusType;
@@ -326,6 +333,7 @@ export interface EditAlertDefinitionPayload {
   rule_criteria?: {
     rules: MetricCriteria[];
   };
+  scope: AlertDefinitionScope;
   severity?: AlertSeverityType;
   status?: AlertStatusType;
   tags?: string[];
@@ -349,3 +357,31 @@ export interface DeleteAlertPayload {
   alertId: number;
   serviceType: string;
 }
+
+/**
+ * Represents the payload for CloudPulse alerts, included only when the ACLP beta mode is enabled.
+ *
+ * In Beta mode, the `alerts` object contains enabled system and user alert IDs.
+ * - Legacy mode: `alerts` is not included (read-only mode).
+ * - Beta mode: `alerts` is passed and editable.
+ */
+export interface CloudPulseAlertsPayload {
+  /**
+   * Array of enabled system alert IDs in ACLP (Beta) mode.
+   * Only included in Beta mode.
+   */
+  system?: number[];
+  /**
+   * Array of enabled user alert IDs in ACLP (Beta) mode.
+   * Only included in Beta mode.
+   */
+  user?: number[];
+}
+export const capabilityServiceTypeMapping: Record<
+  MetricsServiceType,
+  AccountCapability
+> = {
+  linode: 'Linodes',
+  dbaas: 'Managed Databases',
+  nodebalancer: 'NodeBalancers',
+};

@@ -2,7 +2,6 @@ import { capitalize } from '@linode/utilities';
 import { render } from '@testing-library/react';
 import * as React from 'react';
 
-import { firewalls } from 'src/__data__/firewalls';
 import { accountFactory } from 'src/factories';
 import {
   firewallDeviceFactory,
@@ -21,6 +20,8 @@ import {
   getRuleString,
 } from './FirewallRow';
 
+import type { FirewallDeviceEntityType } from '@linode/api-v4';
+
 const queryMocks = vi.hoisted(() => ({
   useAccount: vi.fn().mockReturnValue({}),
   useFirewallSettingsQuery: vi.fn().mockReturnValue({}),
@@ -35,13 +36,60 @@ vi.mock('@linode/queries', async () => {
   };
 });
 
+vi.mock('src/features/IAM/hooks/usePermissions', () => ({
+  usePermissions: vi.fn(() => ({
+    permissions: { delete_firewall: true, update_firewall: true },
+  })),
+}));
+
 beforeAll(() => mockMatchMedia());
 
 describe('FirewallRow', () => {
   describe('Utility functions', () => {
     it('should return correct number of inbound and outbound rules', () => {
-      expect(getCountOfRules(firewalls[0].rules)).toEqual([1, 1]);
-      expect(getCountOfRules(firewalls[1].rules)).toEqual([0, 2]);
+      const firewall1 = firewallFactory.build({
+        rules: {
+          inbound: [
+            {
+              action: 'ACCEPT',
+              ports: '443',
+              protocol: 'ALL',
+            },
+          ],
+          outbound: [
+            {
+              action: 'ACCEPT',
+              addresses: {
+                ipv4: ['12.12.12.12'],
+                ipv6: ['192.168.12.12'],
+              },
+              ports: '22',
+              protocol: 'UDP',
+            },
+          ],
+        },
+      });
+
+      const firewall2 = firewallFactory.build({
+        rules: {
+          inbound: [],
+          outbound: [
+            {
+              action: 'ACCEPT',
+              ports: '443',
+              protocol: 'ALL',
+            },
+            {
+              action: 'ACCEPT',
+              ports: '80',
+              protocol: 'ALL',
+            },
+          ],
+        },
+      });
+
+      expect(getCountOfRules(firewall1.rules)).toEqual([1, 1]);
+      expect(getCountOfRules(firewall2.rules)).toEqual([0, 2]);
     });
 
     it('should return the correct string given an array of numbers', () => {
@@ -110,19 +158,39 @@ describe('FirewallRow', () => {
       const device = firewallDeviceFactory.build();
       const links = getDeviceLinks({
         entities: [device.entity],
-        isLoading: false,
-        linodesWithInterfaceDevices: undefined,
       });
       const { getByText } = renderWithTheme(links);
       expect(getByText(device.entity.label ?? ''));
+    });
+
+    it('should show the Linode label for a link for an interface device', () => {
+      const device = firewallDeviceFactory.build({
+        entity: {
+          id: 10,
+          label: null,
+          type: 'linode_interface' as FirewallDeviceEntityType,
+          url: '/linodes/11/interfaces/10',
+          parent_entity: {
+            id: 11,
+            label: 'test-linode-label',
+            type: 'linode' as FirewallDeviceEntityType,
+            url: '/linodes/11',
+            parent_entity: null,
+          },
+        },
+      });
+
+      const links = getDeviceLinks({
+        entities: [device.entity],
+      });
+      const { getByText } = renderWithTheme(links);
+      expect(getByText('test-linode-label')).toBeVisible();
     });
 
     it('should render up to three comma-separated links', () => {
       const devices = firewallDeviceFactory.buildList(3);
       const links = getDeviceLinks({
         entities: devices.map((device) => device.entity),
-        isLoading: false,
-        linodesWithInterfaceDevices: undefined,
       });
       const { queryAllByTestId } = renderWithTheme(links);
       expect(queryAllByTestId('firewall-row-link')).toHaveLength(3);
@@ -132,8 +200,6 @@ describe('FirewallRow', () => {
       const devices = firewallDeviceFactory.buildList(13);
       const links = getDeviceLinks({
         entities: devices.map((device) => device.entity),
-        isLoading: false,
-        linodesWithInterfaceDevices: undefined,
       });
       const { getByText, queryAllByTestId } = renderWithTheme(links);
       expect(queryAllByTestId('firewall-row-link')).toHaveLength(3);

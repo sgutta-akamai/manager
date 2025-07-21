@@ -1,3 +1,62 @@
+## [2025-07-15] - v0.144.0
+
+
+### Changed:
+
+- ACLP:Alerting - fixed the typo from evaluation_periods_seconds to evaluation_period_seconds ([#12466](https://github.com/linode/manager/pull/12466))
+- Use `v4beta` for `/maintenance` endpoint ([#12519](https://github.com/linode/manager/pull/12519))
+
+### Fixed:
+
+- Unnecessary 404 errors when components attempt to fetch deleted resources ([#12474](https://github.com/linode/manager/pull/12474))
+
+### Upcoming Features:
+
+- CloudPulse: Update types in `alerts.ts` and `types.ts`; Linode: Update type in `types.ts` ([#12393](https://github.com/linode/manager/pull/12393))
+- CloudPulse: Update service type in `types.ts` ([#12401](https://github.com/linode/manager/pull/12401))
+- Add `regions` in `Alert` interface in `types.ts` file for cloudpulse ([#12435](https://github.com/linode/manager/pull/12435))
+
+## [2025-07-01] - v0.143.0
+
+### Changed:
+
+- Allow `authorized_keys`  to be null in  `Profile` type ([#12390](https://github.com/linode/manager/pull/12390))
+
+### Removed:
+
+- `is_beta` flag from ServiceTypes interface in cloudpulse types ([#12386](https://github.com/linode/manager/pull/12386))
+
+### Upcoming Features:
+
+- Add Beta ACLP alerts property to the `CreateLinodeRequest` type ([#12248](https://github.com/linode/manager/pull/12248))
+- Add `parent_entity` field to `FirewallDeviceEntity` ([#12283](https://github.com/linode/manager/pull/12283))
+- Fix `getMaintenancePolicies` to properly handle pagination params and return all maintenance policies ([#12334](https://github.com/linode/manager/pull/12334))
+- Add `scope` in `Alert` and `EditAlertDefinitionPayload` interfaces, rename `ServiceTypes` interface to `Service`, add `ServiceAlert` interface ([#12377](https://github.com/linode/manager/pull/12377))
+- Add maintenance policy types for VM maintenance API ([#12417](https://github.com/linode/manager/pull/12417))
+- Add `monitors` field to the `Region` type ([#12375](https://github.com/linode/manager/pull/12375))
+- Add CRUD CloudNAT types ([#12379](https://github.com/linode/manager/pull/12379))
+
+## [2025-06-17] - v0.142.0
+
+
+### Added:
+
+- `has_user_data` to `Linode` type ([#12352](https://github.com/linode/manager/pull/12352))
+
+### Changed:
+
+- Make AccountMaintenance description field type more specific ([#12293](https://github.com/linode/manager/pull/12293))
+- Include `private_network` in BaseDatabase type ([#12324](https://github.com/linode/manager/pull/12324))
+- Make `placement_group` defined but nullable in `Linode` type ([#12352](https://github.com/linode/manager/pull/12352))
+- Make PrivateNetwork public_access property optional and UpdateDatabasePayload private_network property optional ([#12354](https://github.com/linode/manager/pull/12354))
+
+### Upcoming Features:
+
+- IAM RBAC: Add role and new entity types ([#12296](https://github.com/linode/manager/pull/12296))
+- Add ACLP `getCloudPulseServiceByServiceType` service and update `ServiceTypes` per API specs ([#12307](https://github.com/linode/manager/pull/12307))
+- IAM RBAC: implement the two new APIs and renamed old endpoints and queries to align terminology with the current focus on roles ([#12344](https://github.com/linode/manager/pull/12344))
+- Change references of `interface` to `linode_interface` for firewall types ([#12367](https://github.com/linode/manager/pull/12367))
+
 ## [2025-06-03] - v0.141.0
 
 ### Added:

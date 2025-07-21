@@ -4,9 +4,12 @@ import React from 'react';
 
 import { alertFactory } from 'src/factories';
 import { formatDate } from 'src/utilities/formatDate';
-import { renderWithThemeAndRouter } from 'src/utilities/testHelpers';
+import { renderWithTheme } from 'src/utilities/testHelpers';
 
-import { UPDATE_ALERT_SUCCESS_MESSAGE } from '../constants';
+import {
+  DELETE_ALERT_SUCCESS_MESSAGE,
+  UPDATE_ALERT_SUCCESS_MESSAGE,
+} from '../constants';
 import { AlertsListTable } from './AlertListTable';
 
 const queryMocks = vi.hoisted(() => ({
@@ -34,7 +37,7 @@ queryMocks.useDeleteAlertDefinitionMutation.mockReturnValue({
 
 describe('Alert List Table test', () => {
   it('should render the alert landing table ', async () => {
-    const { getByText } = await renderWithThemeAndRouter(
+    const { getByText } = renderWithTheme(
       <AlertsListTable
         alerts={[]}
         isLoading={false}
@@ -50,7 +53,7 @@ describe('Alert List Table test', () => {
   });
 
   it('should render the error message', async () => {
-    const { getByText } = await renderWithThemeAndRouter(
+    const { getByText } = renderWithTheme(
       <AlertsListTable
         alerts={[]}
         error={[{ reason: 'Error in fetching the alerts' }]}
@@ -72,7 +75,7 @@ describe('Alert List Table test', () => {
       updated,
       updated_by: 'user2',
     });
-    const { getByTestId, getByText } = await renderWithThemeAndRouter(
+    const { getByTestId, getByText } = renderWithTheme(
       <AlertsListTable
         alerts={[alert]}
         isLoading={false}
@@ -97,7 +100,7 @@ describe('Alert List Table test', () => {
   it('should show success snackbar when enabling alert succeeds', async () => {
     const alert = alertFactory.build({ status: 'disabled', type: 'user' });
     const { getByLabelText, getByRole, getByTestId, getByText } =
-      await renderWithThemeAndRouter(
+      renderWithTheme(
         <AlertsListTable
           alerts={[alert]}
           isLoading={false}
@@ -120,7 +123,7 @@ describe('Alert List Table test', () => {
   it('should show success snackbar when disabling alert succeeds', async () => {
     const alert = alertFactory.build({ status: 'enabled', type: 'user' });
     const { getByLabelText, getByRole, getByTestId, getByText } =
-      await renderWithThemeAndRouter(
+      renderWithTheme(
         <AlertsListTable
           alerts={[alert]}
           isLoading={false}
@@ -149,7 +152,7 @@ describe('Alert List Table test', () => {
 
     const alert = alertFactory.build({ status: 'disabled', type: 'user' });
     const { getByLabelText, getByRole, getByTestId, getByText } =
-      await renderWithThemeAndRouter(
+      renderWithTheme(
         <AlertsListTable
           alerts={[alert]}
           isLoading={false}
@@ -178,7 +181,7 @@ describe('Alert List Table test', () => {
 
     const alert = alertFactory.build({ status: 'enabled', type: 'user' });
     const { getByLabelText, getByRole, getByTestId, getByText } =
-      await renderWithThemeAndRouter(
+      renderWithTheme(
         <AlertsListTable
           alerts={[alert]}
           isLoading={false}
@@ -199,7 +202,7 @@ describe('Alert List Table test', () => {
   });
 
   it('should toggle alerts grouped by tag', async () => {
-    await renderWithThemeAndRouter(
+    renderWithTheme(
       <AlertsListTable
         alerts={[alertFactory.build({ label: 'Test Alert' })]}
         isGroupedByTag={true}
@@ -214,5 +217,60 @@ describe('Alert List Table test', () => {
     expect(screen.getByText('tag1')).toBeVisible();
     expect(screen.getByText('tag2')).toBeVisible();
   });
-  // TODO: Add tests for the delete alert functionality once API's are available
+
+  it('should show success snackbar when deleting alert succeeds', async () => {
+    const alert = alertFactory.build({ type: 'user' });
+    renderWithTheme(
+      <AlertsListTable
+        alerts={[alert]}
+        isLoading={false}
+        scrollToElement={mockScroll}
+        services={[{ label: 'Linode', value: 'linode' }]}
+      />
+    );
+
+    const actionMenu = screen.getByLabelText(
+      `Action menu for Alert ${alert.label}`
+    );
+    await userEvent.click(actionMenu);
+    await userEvent.click(screen.getByText('Delete'));
+
+    expect(screen.getByText(`Delete ${alert.label}?`)).toBeVisible();
+    const textInput = screen.getByTestId('textfield-input');
+    await userEvent.type(textInput, alert.label);
+    await userEvent.click(screen.getByRole('button', { name: 'Delete' }));
+
+    expect(screen.getByText(DELETE_ALERT_SUCCESS_MESSAGE)).toBeVisible();
+  });
+
+  it('should show the proper api error message in error snackbar when deleting alert fails with a reason', async () => {
+    queryMocks.useDeleteAlertDefinitionMutation.mockReturnValue({
+      mutateAsync: vi
+        .fn()
+        .mockRejectedValue([{ reason: 'Deleting alert failed.' }]),
+    });
+
+    const alert = alertFactory.build({ type: 'user' });
+    renderWithTheme(
+      <AlertsListTable
+        alerts={[alert]}
+        isLoading={false}
+        scrollToElement={mockScroll}
+        services={[{ label: 'Linode', value: 'linode' }]}
+      />
+    );
+
+    const actionMenu = screen.getByLabelText(
+      `Action menu for Alert ${alert.label}`
+    );
+    await userEvent.click(actionMenu);
+    await userEvent.click(screen.getByText('Delete'));
+
+    expect(screen.getByText(`Delete ${alert.label}?`)).toBeVisible();
+    const textInput = screen.getByTestId('textfield-input');
+    await userEvent.type(textInput, alert.label);
+    await userEvent.click(screen.getByRole('button', { name: 'Delete' }));
+
+    expect(screen.getByText('Deleting alert failed.')).toBeVisible();
+  });
 });

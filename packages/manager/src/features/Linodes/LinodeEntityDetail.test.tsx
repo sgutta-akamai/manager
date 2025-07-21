@@ -17,7 +17,10 @@ import {
 } from 'src/factories';
 import { makeResourcePage } from 'src/mocks/serverHandlers';
 import { http, HttpResponse, server } from 'src/mocks/testServer';
-import { mockMatchMedia, renderWithTheme } from 'src/utilities/testHelpers';
+import {
+  mockMatchMedia,
+  renderWithTheme,
+} from 'src/utilities/testHelpers';
 
 import { encryptionStatusTestId } from '../Kubernetes/KubernetesClusterDetail/NodePoolsDisplay/NodeTable';
 import { LinodeEntityDetail } from './LinodeEntityDetail';
@@ -25,6 +28,18 @@ import { getSubnetsString, getVPCIPv4 } from './LinodeEntityDetailBody';
 
 import type { LinodeHandlers } from './LinodesLanding/LinodesLanding';
 import type { AccountCapability } from '@linode/api-v4';
+
+const queryMocks = vi.hoisted(() => ({
+  userPermissions: vi.fn(() => ({
+    permissions: {
+      update_linode: false,
+    },
+  })),
+}));
+
+vi.mock('src/features/IAM/hooks/usePermissions', () => ({
+  usePermissions: queryMocks.userPermissions,
+}));
 
 beforeAll(() => mockMatchMedia());
 
@@ -325,7 +340,7 @@ describe('Linode Entity Detail', () => {
     });
   });
 
-  it('should not display the encryption status of the linode if the account lacks the capability or the feature flag is off', () => {
+  it('should not display the encryption status of the linode if the account lacks the capability or the feature flag is off', async () => {
     // situation where isDiskEncryptionFeatureEnabled === false
     const { queryByTestId } = renderWithTheme(
       <LinodeEntityDetail handlers={handlers} id={10} linode={linode} />
@@ -335,7 +350,7 @@ describe('Linode Entity Detail', () => {
     expect(encryptionStatusFragment).not.toBeInTheDocument();
   });
 
-  it('should display the encryption status of the linode when Disk Encryption is enabled and the user has the account capability', () => {
+  it('should display the encryption status of the linode when Disk Encryption is enabled and the user has the account capability', async () => {
     mocks.useIsDiskEncryptionFeatureEnabled.mockImplementationOnce(() => {
       return {
         isDiskEncryptionFeatureEnabled: true,
@@ -348,6 +363,36 @@ describe('Linode Entity Detail', () => {
     const encryptionStatusFragment = queryByTestId(encryptionStatusTestId);
 
     expect(encryptionStatusFragment).toBeInTheDocument();
+  });
+
+  it('should disable "Add A Tag" button if the user does not have update_linode permission', async () => {
+    queryMocks.userPermissions.mockReturnValue({
+      permissions: {
+        update_linode: false,
+      },
+    });
+
+    const { getByText } = renderWithTheme(
+      <LinodeEntityDetail handlers={handlers} id={5} linode={linode} />
+    );
+    const addTagBtn = getByText('Add a tag');
+    expect(addTagBtn).toBeInTheDocument();
+    expect(addTagBtn).toBeDisabled();
+  });
+
+  it('should enable "Add A Tag" button if the user has update_linode permission', async () => {
+    queryMocks.userPermissions.mockReturnValue({
+      permissions: {
+        update_linode: true,
+      },
+    });
+
+    const { getByText } = renderWithTheme(
+      <LinodeEntityDetail handlers={handlers} id={5} linode={linode} />
+    );
+    const addTagBtn = getByText('Add a tag');
+    expect(addTagBtn).toBeInTheDocument();
+    expect(addTagBtn).toBeEnabled();
   });
 });
 

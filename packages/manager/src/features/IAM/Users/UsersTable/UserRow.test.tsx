@@ -16,7 +16,7 @@ import { UserRow } from './UserRow';
 beforeAll(() => mockMatchMedia());
 
 describe('UserRow', () => {
-  it('renders a username and email', () => {
+  it('renders a username and email', async () => {
     const user = accountUserFactory.build();
 
     const { getByText } = renderWithTheme(
@@ -57,7 +57,7 @@ describe('UserRow', () => {
     expect(queryByText('2022-02-09T16:19:26')).not.toBeInTheDocument();
   });
 
-  it('renders "Never" if last_login is null', () => {
+  it('renders "Never" if last_login is null', async () => {
     const user = accountUserFactory.build({ last_login: null });
 
     const { getByText } = renderWithTheme(

@@ -4,12 +4,35 @@ import { renderWithTheme } from 'src/utilities/testHelpers';
 
 import { UserDataHeading } from './UserDataHeading';
 
+const queryMocks = vi.hoisted(() => ({
+  useSearch: vi.fn(),
+  useParams: vi.fn(),
+}));
+
+vi.mock('@tanstack/react-router', async () => {
+  const actual = await vi.importActual('@tanstack/react-router');
+  return {
+    ...actual,
+    useSearch: queryMocks.useSearch,
+    useParams: queryMocks.useParams,
+  };
+});
+
 describe('UserDataHeading', () => {
-  it('should display a warning in the header for cloning', () => {
+  beforeEach(() => {
+    queryMocks.useSearch.mockReturnValue({});
+    queryMocks.useParams.mockReturnValue({
+      linodeId: '123',
+    });
+  });
+
+  it('should display a warning in the header for cloning', async () => {
+    queryMocks.useSearch.mockReturnValue({
+      type: 'Clone Linode',
+    });
+
     const { getByText } = renderWithTheme(<UserDataHeading />, {
-      MemoryRouter: {
-        initialEntries: ['/linodes/create?type=Clone+Linode'],
-      },
+      initialRoute: '/linodes/create',
     });
 
     expect(
@@ -19,11 +42,13 @@ describe('UserDataHeading', () => {
     ).toBeVisible();
   });
 
-  it('should display a warning in the header for creating from a Linode backup', () => {
+  it('should display a warning in the header for creating from a Linode backup', async () => {
+    queryMocks.useSearch.mockReturnValue({
+      type: 'Backups',
+    });
+
     const { getByText } = renderWithTheme(<UserDataHeading />, {
-      MemoryRouter: {
-        initialEntries: ['/linodes/create?type=Backups'],
-      },
+      initialRoute: '/linodes/create',
     });
 
     expect(

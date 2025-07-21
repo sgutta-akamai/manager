@@ -12,16 +12,25 @@ import type { ExtendedRoleView } from '../types';
 
 const queryMocks = vi.hoisted(() => ({
   useAccountEntities: vi.fn().mockReturnValue({}),
+  useParams: vi.fn().mockReturnValue({}),
   useAccountRoles: vi.fn().mockReturnValue({}),
   useUserRoles: vi.fn().mockReturnValue({}),
 }));
 
-vi.mock('src/queries/iam/iam', async () => {
-  const actual = await vi.importActual<any>('src/queries/iam/iam');
+vi.mock('@linode/queries', async () => {
+  const actual = await vi.importActual<any>('@linode/queries');
   return {
     ...actual,
     useAccountRoles: queryMocks.useAccountRoles,
     useUserRoles: queryMocks.useUserRoles,
+  };
+});
+
+vi.mock('@tanstack/react-router', async () => {
+  const actual = await vi.importActual('@tanstack/react-router');
+  return {
+    ...actual,
+    useParams: queryMocks.useParams,
   };
 });
 
@@ -39,7 +48,7 @@ const mockEntities = [
 ];
 
 vi.mock('src/queries/entities/entities', async () => {
-  const actual = await vi.importActual<any>('src/queries/entities/entities');
+  const actual = await vi.importActual('src/queries/entities/entities');
   return {
     ...actual,
     useAccountEntities: queryMocks.useAccountEntities,
@@ -75,7 +84,13 @@ vi.mock('@linode/api-v4', async () => {
 });
 
 describe('UpdateEntitiesDrawer', () => {
-  it('should render correctly', () => {
+  beforeEach(() => {
+    queryMocks.useParams.mockReturnValue({
+      username: 'test_user',
+    });
+  });
+
+  it('should render correctly', async () => {
     renderWithTheme(<UpdateEntitiesDrawer {...props} />);
 
     // Verify the title renders
@@ -90,7 +105,7 @@ describe('UpdateEntitiesDrawer', () => {
     expect(screen.getByText(mockRole.name)).toBeVisible();
   });
 
-  it('should prefill the form with assigned entities', () => {
+  it('should prefill the form with assigned entities', async () => {
     renderWithTheme(<UpdateEntitiesDrawer {...props} />);
 
     // Verify the prefilled entities

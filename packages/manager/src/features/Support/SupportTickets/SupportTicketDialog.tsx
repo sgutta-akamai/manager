@@ -13,8 +13,8 @@ import {
 } from '@linode/ui';
 import { reduceAsync, scrollErrorIntoViewV2 } from '@linode/utilities';
 import { useLocation as useLocationTanstack } from '@tanstack/react-router';
-import { update } from 'ramda';
 import * as React from 'react';
+import type { JSX } from 'react';
 import { Controller, FormProvider, useForm } from 'react-hook-form';
 // eslint-disable-next-line no-restricted-imports
 import { useLocation as useLocationRouterDom } from 'react-router-dom';
@@ -27,6 +27,7 @@ import { storage, supportTicketStorageDefaults } from 'src/utilities/storage';
 import { AttachFileForm } from '../AttachFileForm';
 import { MarkdownReference } from '../SupportTicketDetail/TabbedReply/MarkdownReference';
 import { TabbedReply } from '../SupportTicketDetail/TabbedReply/TabbedReply';
+import { updateFileAtIndex } from '../ticketUtils';
 import {
   ENTITY_ID_TO_NAME_MAP,
   SCHEMA_MAP,
@@ -282,12 +283,13 @@ export const SupportTicketDialog = (props: SupportTicketDialogProps) => {
     return uploadAttachment(attachment.ticketId, attachment.file)
       .then(() => {
         /* null out an uploaded file after upload */
-        setFiles((oldFiles: FileAttachment[]) =>
-          update(
-            idx,
-            { file: null, name: '', uploaded: true, uploading: false },
-            oldFiles
-          )
+        setFiles((oldFiles) =>
+          updateFileAtIndex(oldFiles, idx, {
+            file: null,
+            name: '',
+            uploaded: true,
+            uploading: false,
+          })
         );
         return accumulator;
       })
@@ -297,7 +299,9 @@ export const SupportTicketDialog = (props: SupportTicketDialogProps) => {
          * fail! Don't try to aggregate errors!
          */
         setFiles((oldFiles) =>
-          update(idx, { ...oldFiles[idx], uploading: false }, oldFiles)
+          updateFileAtIndex(oldFiles, idx, {
+            uploading: false,
+          })
         );
         const newError = getErrorStringOrDefault(
           attachmentErrors,
@@ -319,7 +323,9 @@ export const SupportTicketDialog = (props: SupportTicketDialogProps) => {
       .filter((file) => !file.uploaded)
       .map((file, idx) => {
         setFiles((oldFiles) =>
-          update(idx, { ...oldFiles[idx], uploading: true }, oldFiles)
+          updateFileAtIndex(oldFiles, idx, {
+            uploading: true,
+          })
         );
         const formData = new FormData();
         formData.append('file', file.file ?? ''); // Safety check for TS only

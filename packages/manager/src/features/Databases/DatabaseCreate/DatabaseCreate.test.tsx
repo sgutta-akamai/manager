@@ -6,8 +6,9 @@ import { accountFactory, databaseTypeFactory } from 'src/factories';
 import { makeResourcePage } from 'src/mocks/serverHandlers';
 import { http, HttpResponse, server } from 'src/mocks/testServer';
 import {
+  getShadowRootElement,
   mockMatchMedia,
-  renderWithThemeAndRouter,
+  renderWithTheme,
 } from 'src/utilities/testHelpers';
 
 import { DatabaseCreate } from './DatabaseCreate';
@@ -30,12 +31,12 @@ beforeAll(() => mockMatchMedia());
 
 describe('Database Create', () => {
   it('should render loading state', async () => {
-    const { getByTestId } = await renderWithThemeAndRouter(<DatabaseCreate />);
+    const { getByTestId } = renderWithTheme(<DatabaseCreate />);
     expect(getByTestId(loadingTestId)).toBeInTheDocument();
   });
 
   it('should render inputs', async () => {
-    const { getAllByTestId, getAllByText } = await renderWithThemeAndRouter(
+    const { getAllByTestId, getAllByText } = renderWithTheme(
       <DatabaseCreate />
     );
     await waitForElementToBeRemoved(getAllByTestId(loadingTestId));
@@ -50,7 +51,7 @@ describe('Database Create', () => {
   });
 
   it('should render VPC content when feature flag is present', async () => {
-    const { getAllByTestId, getAllByText } = await renderWithThemeAndRouter(
+    const { getAllByTestId, getAllByText } = renderWithTheme(
       <DatabaseCreate />,
       {
         flags: { databaseVpc: true },
@@ -82,7 +83,7 @@ describe('Database Create', () => {
     );
 
     const { getAllByText, getByTestId, getByLabelText, getByText } =
-      await renderWithThemeAndRouter(<DatabaseCreate />);
+      renderWithTheme(<DatabaseCreate />);
 
     await waitForElementToBeRemoved(getByTestId(loadingTestId));
 
@@ -117,7 +118,7 @@ describe('Database Create', () => {
       getByTestId,
       getByLabelText,
       getByText,
-    } = await renderWithThemeAndRouter(<DatabaseCreate />);
+    } = renderWithTheme(<DatabaseCreate />);
 
     await waitForElementToBeRemoved(getByTestId(loadingTestId));
 
@@ -143,17 +144,18 @@ describe('Database Create', () => {
   it('should have the "Create Database Cluster" button disabled for restricted users', async () => {
     queryMocks.useProfile.mockReturnValue({ data: { restricted: true } });
 
-    const { findByText, getByTestId } = await renderWithThemeAndRouter(
-      <DatabaseCreate />
-    );
+    const { getByTestId } = renderWithTheme(<DatabaseCreate />);
 
     expect(getByTestId(loadingTestId)).toBeInTheDocument();
 
     await waitForElementToBeRemoved(getByTestId(loadingTestId));
-    const createClusterButtonSpan = await findByText('Create Database Cluster');
-    const createClusterButton = createClusterButtonSpan.closest('button');
 
-    expect(createClusterButton).toBeInTheDocument();
+    const buttonHost = getByTestId('create-database-cluster');
+    const createClusterButton = buttonHost
+      ? await getShadowRootElement(buttonHost, 'button')
+      : null;
+
+    expect(buttonHost).toBeInTheDocument();
     expect(createClusterButton).toBeDisabled();
   });
 
@@ -165,7 +167,7 @@ describe('Database Create', () => {
       findAllByTestId,
       findByPlaceholderText,
       getByTestId,
-    } = await renderWithThemeAndRouter(<DatabaseCreate />);
+    } = renderWithTheme(<DatabaseCreate />);
 
     expect(getByTestId(loadingTestId)).toBeInTheDocument();
 
@@ -191,17 +193,18 @@ describe('Database Create', () => {
   it('should have the "Create Database Cluster" button enabled for users with full access', async () => {
     queryMocks.useProfile.mockReturnValue({ data: { restricted: false } });
 
-    const { findByText, getByTestId } = await renderWithThemeAndRouter(
-      <DatabaseCreate />
-    );
+    const { getByTestId } = renderWithTheme(<DatabaseCreate />);
 
     expect(getByTestId(loadingTestId)).toBeInTheDocument();
 
     await waitForElementToBeRemoved(getByTestId(loadingTestId));
-    const createClusterButtonSpan = await findByText('Create Database Cluster');
-    const createClusterButton = createClusterButtonSpan.closest('button');
 
-    expect(createClusterButton).toBeInTheDocument();
+    const buttonHost = getByTestId('create-database-cluster');
+    const createClusterButton = buttonHost
+      ? await getShadowRootElement(buttonHost, 'button')
+      : null;
+
+    expect(buttonHost).toBeInTheDocument();
     expect(createClusterButton).toBeEnabled();
   });
 
@@ -213,7 +216,7 @@ describe('Database Create', () => {
       findAllByTestId,
       findByPlaceholderText,
       getByTestId,
-    } = await renderWithThemeAndRouter(<DatabaseCreate />);
+    } = renderWithTheme(<DatabaseCreate />);
 
     expect(getByTestId(loadingTestId)).toBeInTheDocument();
 

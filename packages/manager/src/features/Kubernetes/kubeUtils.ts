@@ -171,17 +171,12 @@ export const getKubeHighAvailability = (
   account: Account | undefined,
   cluster?: KubernetesCluster | null
 ) => {
-  const showHighAvailability = account?.capabilities.includes(
-    'LKE HA Control Planes'
-  );
-
   const isClusterHighlyAvailable = Boolean(
-    showHighAvailability && cluster?.control_plane.high_availability
+    cluster?.control_plane.high_availability
   );
 
   return {
     isClusterHighlyAvailable,
-    showHighAvailability,
   };
 };
 
@@ -217,17 +212,10 @@ export const getKubeControlPlaneACL = (
   account: Account | undefined,
   cluster?: KubernetesCluster | null
 ) => {
-  const showControlPlaneACL = account?.capabilities.includes(
-    'LKE Network Access Control List (IP ACL)'
-  );
-
-  const isClusterControlPlaneACLd = Boolean(
-    showControlPlaneACL && cluster?.control_plane.acl
-  );
+  const isClusterControlPlaneACLd = Boolean(cluster?.control_plane.acl);
 
   return {
     isClusterControlPlaneACLd,
-    showControlPlaneACL,
   };
 };
 
@@ -282,6 +270,9 @@ export const useIsLkeEnterpriseEnabled = () => {
   const isLkeEnterpriseLAFlagEnabled = Boolean(
     flags?.lkeEnterprise?.enabled && flags.lkeEnterprise.la
   );
+  const isLkeEnterprisePostLAFlagEnabled = Boolean(
+    flags?.lkeEnterprise?.enabled && flags.lkeEnterprise.postLa
+  );
   const isLkeEnterpriseGAFlagEnabled = Boolean(
     flags.lkeEnterprise?.enabled && flags.lkeEnterprise.ga
   );
@@ -289,6 +280,12 @@ export const useIsLkeEnterpriseEnabled = () => {
   const isLkeEnterpriseLAFeatureEnabled = isFeatureEnabledV2(
     'Kubernetes Enterprise',
     isLkeEnterpriseLAFlagEnabled,
+    account?.capabilities ?? []
+  );
+  // For feature-flagged update strategy and firewall work
+  const isLkeEnterprisePostLAFeatureEnabled = isFeatureEnabledV2(
+    'Kubernetes Enterprise',
+    isLkeEnterprisePostLAFlagEnabled,
     account?.capabilities ?? []
   );
   const isLkeEnterpriseGAFeatureEnabled = isFeatureEnabledV2(
@@ -302,6 +299,7 @@ export const useIsLkeEnterpriseEnabled = () => {
     isLkeEnterpriseGAFlagEnabled,
     isLkeEnterpriseLAFeatureEnabled,
     isLkeEnterpriseLAFlagEnabled,
+    isLkeEnterprisePostLAFeatureEnabled,
   };
 };
 

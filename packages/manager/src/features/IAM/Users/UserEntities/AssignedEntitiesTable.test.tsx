@@ -11,11 +11,13 @@ import { AssignedEntitiesTable } from '../../Users/UserEntities/AssignedEntities
 
 const queryMocks = vi.hoisted(() => ({
   useAccountEntities: vi.fn().mockReturnValue({}),
+  useParams: vi.fn().mockReturnValue({}),
+  useSearch: vi.fn().mockReturnValue({}),
   useUserRoles: vi.fn().mockReturnValue({}),
 }));
 
-vi.mock('src/queries/iam/iam', async () => {
-  const actual = await vi.importActual<any>('src/queries/iam/iam');
+vi.mock('@linode/queries', async () => {
+  const actual = await vi.importActual<any>('@linode/queries');
   return {
     ...actual,
     useUserRoles: queryMocks.useUserRoles,
@@ -23,10 +25,19 @@ vi.mock('src/queries/iam/iam', async () => {
 });
 
 vi.mock('src/queries/entities/entities', async () => {
-  const actual = await vi.importActual<any>('src/queries/entities/entities');
+  const actual = await vi.importActual('src/queries/entities/entities');
   return {
     ...actual,
     useAccountEntities: queryMocks.useAccountEntities,
+  };
+});
+
+vi.mock('@tanstack/react-router', async () => {
+  const actual = await vi.importActual('@tanstack/react-router');
+  return {
+    ...actual,
+    useParams: queryMocks.useParams,
+    useSearch: queryMocks.useSearch,
   };
 });
 
@@ -39,6 +50,15 @@ const mockEntities = [
 ];
 
 describe('AssignedEntitiesTable', () => {
+  beforeEach(() => {
+    queryMocks.useParams.mockReturnValue({
+      username: 'test_user',
+    });
+    queryMocks.useSearch.mockReturnValue({
+      query: '',
+    });
+  });
+
   it('should display no roles text if there are no roles assigned to user', async () => {
     queryMocks.useUserRoles.mockReturnValue({
       data: {},

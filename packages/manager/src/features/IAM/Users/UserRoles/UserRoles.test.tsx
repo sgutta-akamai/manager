@@ -23,12 +23,14 @@ const mockEntities = [
 
 const queryMocks = vi.hoisted(() => ({
   useAccountEntities: vi.fn().mockReturnValue({}),
+  useParams: vi.fn().mockReturnValue({}),
+  useSearch: vi.fn().mockReturnValue({}),
   useAccountRoles: vi.fn().mockReturnValue({}),
   useUserRoles: vi.fn().mockReturnValue({}),
 }));
 
-vi.mock('src/queries/iam/iam', async () => {
-  const actual = await vi.importActual('src/queries/iam/iam');
+vi.mock('@linode/queries', async () => {
+  const actual = await vi.importActual('@linode/queries');
   return {
     ...actual,
     useAccountRoles: queryMocks.useAccountRoles,
@@ -44,7 +46,25 @@ vi.mock('src/queries/entities/entities', async () => {
   };
 });
 
+vi.mock('@tanstack/react-router', async () => {
+  const actual = await vi.importActual('@tanstack/react-router');
+  return {
+    ...actual,
+    useParams: queryMocks.useParams,
+    useSearch: queryMocks.useSearch,
+  };
+});
+
 describe('UserRoles', () => {
+  beforeEach(() => {
+    queryMocks.useParams.mockReturnValue({
+      username: 'test-user',
+    });
+    queryMocks.useSearch.mockReturnValue({
+      selectedRole: '',
+    });
+  });
+
   it('should display no roles text if no roles are assigned to user', async () => {
     queryMocks.useUserRoles.mockReturnValue({
       data: userRolesFactory.build({

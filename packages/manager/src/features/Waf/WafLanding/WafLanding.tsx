@@ -1,3 +1,4 @@
+// TODO: import { useWafsQuery } from '@linode/queries';
 import {
   CircleProgress,
   CloseIcon,
@@ -12,56 +13,28 @@ import * as React from 'react';
 import { debounce } from 'throttle-debounce';
 
 import { LandingHeader } from 'src/components/LandingHeader';
+import { wafConfigurationsFactory } from 'src/factories/wafs';
 import { getRestrictedResourceText } from 'src/features/Account/utils';
 import { WafEmptyState } from 'src/features/Waf/WafLanding/WafEmptyState';
 import { WafLandingTable } from 'src/features/Waf/WafLanding/WafLandingTable';
 import { useOrderV2 } from 'src/hooks/useOrderV2';
 import { usePaginationV2 } from 'src/hooks/usePaginationV2';
-// TODO: import { useWafQuery } from 'src/queries/wafs/wafs';
 import { getAPIErrorOrDefault } from 'src/utilities/errorUtils';
 
 import type { Filter } from '@linode/api-v4';
 import type { WafSearchParams } from 'src/routes/waf';
 
-// --- Mocked useWafQuery hook ---
-const useWafQuery = (pagination: {}, filter: Filter) => {
+// --- Mocked useWafsQuery hook ---
+const waf_configs = wafConfigurationsFactory.buildList(10);
+const useWafsQuery = (pagination: {}, filter: Filter) => {
   const isLoading = false;
   const error = undefined;
   const isFetching = true;
 
   const dummyData = {
     // waf_configs: [] /*Simulating empty WAF data*/,
-    waf_configs: [
-      {
-        config_id: 101,
-        label: 'Production WAF',
-        status: 'active',
-        resources: ['NodeBalancer-01', 'NodeBalancer-02'],
-        update_dt: '2025-06-10T12:00:00Z',
-      },
-      {
-        config_id: 102,
-        label: 'Staging WAF',
-        status: 'active',
-        resources: ['NodeBalancer-03'],
-        update_dt: '2025-06-11T08:30:00Z',
-      },
-      {
-        config_id: 103,
-        label: 'Develop WAF',
-        status: 'inactive',
-        resources: ['NodeBalancer-04'],
-        update_dt: '2025-02-18T08:30:00Z',
-      },
-      {
-        config_id: 104,
-        label: 'UAT WAF',
-        status: 'inactive',
-        resources: ['NodeBalancer-05', 'NodeBalancer-06'],
-        update_dt: '2025-04-22T08:30:00Z',
-      },
-    ],
-    results: 4,
+    waf_configs,
+    results: waf_configs.length,
   };
 
   return { data: dummyData, error, isFetching, isLoading };
@@ -108,7 +81,7 @@ export const WafLanding = () => {
     }),
   };
 
-  const { data, error, isFetching, isLoading } = useWafQuery(
+  const { data, error, isFetching, isLoading } = useWafsQuery(
     {
       page: pagination.page,
       page_size: pagination.pageSize,

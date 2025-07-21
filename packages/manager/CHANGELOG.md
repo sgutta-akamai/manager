@@ -4,6 +4,259 @@ All notable changes to this project will be documented in this file.
 
 The format is based on [Keep a Changelog](http://keepachangelog.com/) and this project adheres to [Semantic Versioning](http://semver.org/).
 
+## [2025-07-16] - v1.146.1
+
+
+### Fixed:
+
+- IAM RBAC: Fix a permission check for notification banner in Linode details component ([#12525](https://github.com/linode/manager/pull/12525))
+
+## [2025-07-15] - v1.146.0
+
+
+### Added:
+
+- Unsaved Changes modal for Legacy Alerts on Linode Details page ([#12385](https://github.com/linode/manager/pull/12385))
+- 'New' Badge to APL section of Create Cluster flow ([#12461](https://github.com/linode/manager/pull/12461))
+
+### Changed:
+
+- Replace the button component under DBAAS with Akamai CDS button web component ([#12148](https://github.com/linode/manager/pull/12148))
+- TooltipIcon help to info icon ([#12348](https://github.com/linode/manager/pull/12348))
+- Improve VLANSelect component behavior when creating a new VLAN ([#12380](https://github.com/linode/manager/pull/12380))
+- Alerts banner text in Legacy and Beta modes to match latest UX mocks ([#12419](https://github.com/linode/manager/pull/12419))
+- Update Linode and NodeBalancer create summary text ([#12455](https://github.com/linode/manager/pull/12455))
+- Use `Paper` in create page sidebars ([#12463](https://github.com/linode/manager/pull/12463))
+- Alerts subheading text in Legacy and Beta modes to match latest UX mocks ([#12465](https://github.com/linode/manager/pull/12465))
+
+### Fixed:
+
+- Console error in Create NodeBalancer page and columns misalignment in Subnet NodeBalancers Table ([#12428](https://github.com/linode/manager/pull/12428))
+- Disable kubeconfig and upgrade options for users with read-only access ([#12430](https://github.com/linode/manager/pull/12430))
+- TOD payload script encoding error ([#12434](https://github.com/linode/manager/pull/12434))
+- Upgrade cluster version modal for LKE-E ([#12443](https://github.com/linode/manager/pull/12443))
+- Newly created VLANs not showing up in the VLAN select after creation when using Linode Interfaces ([#12448](https://github.com/linode/manager/pull/12448))
+- Extra background on code block copy icon ([#12456](https://github.com/linode/manager/pull/12456))
+- Unexpected Linode Create deep link behavior ([#12457](https://github.com/linode/manager/pull/12457))
+- Unsaved changes modal for upload image feature ([#12459](https://github.com/linode/manager/pull/12459))
+- APL header bolding in Create Cluster flow and GA code clean up ([#12461](https://github.com/linode/manager/pull/12461))
+- ACLP-Alerting: added fallback to the AlertsResources and DisplayAlertResources components ([#12467](https://github.com/linode/manager/pull/12467))
+- Volumes upgrade banner alignment ([#12471](https://github.com/linode/manager/pull/12471))
+- ACLP-Alerting: spacing instead of using sx: gap for DimensionFilter, add flexWrap, remove unnecessary Box spacing in Metric ([#12475](https://github.com/linode/manager/pull/12475))
+- Region select missing selected icon ([#12481](https://github.com/linode/manager/pull/12481))
+
+### Removed:
+
+- Move EntityTransfers queries and dependencies to shared `queries` package ([#12406](https://github.com/linode/manager/pull/12406))
+- Move Databases queries and dependencies to shared `queries` package ([#12426](https://github.com/linode/manager/pull/12426))
+- Move Status Page queries and dependencies to shared `queries` package ([#12468](https://github.com/linode/manager/pull/12468))
+
+### Tech Stories:
+
+- Reroute Linodes ([#12363](https://github.com/linode/manager/pull/12363))
+- Clean up authentication code post PKCE and decoupling of Redux ([#12405](https://github.com/linode/manager/pull/12405))
+- Use `REACT_APP_ENVIRONMENT_NAME` to set the Sentry environment ([#12450](https://github.com/linode/manager/pull/12450))
+- Clean up getLinodeXFilter function ([#12452](https://github.com/linode/manager/pull/12452))
+- Enhance devtools to support `aclpBetaServices` nested feature flags ([#12478](https://github.com/linode/manager/pull/12478))
+- Improve contribution guidelines related to CI checks ([#12480](https://github.com/linode/manager/pull/12480))
+- Clean up unused mock data and constants ([#12482](https://github.com/linode/manager/pull/12482))
+- Update usePagination hook to use TanStack router instead of react router ([#12424](https://github.com/linode/manager/pull/12424))
+
+### Tests:
+
+- Add smoke tests for when aclpIntegration is disabled given varying user preferences ([#12310](https://github.com/linode/manager/pull/12310))
+- Clean up VPC unit tests and mock queries over relying on server handlers ([#12429](https://github.com/linode/manager/pull/12429))
+- Add Host Maintenance Policy account settings Cypress tests ([#12433](https://github.com/linode/manager/pull/12433))
+- Block analytics requests in Cypress tests by default ([#12438](https://github.com/linode/manager/pull/12438))
+- Add integration test to confirm manually assigning a VPC IPv4 when assigning a Linode to subnet ([#12445](https://github.com/linode/manager/pull/12445))
+
+### Upcoming Features:
+
+- Add region filtering for VLANSelect in AddInterface form ([#12380](https://github.com/linode/manager/pull/12380))
+- Add scope column, handle bulk alert enablement in `AlertInformationActionTable.tsx`, add new alerts mutation query in `alerts.tsx` ([#12393](https://github.com/linode/manager/pull/12393))
+- CloudPulse: Add new port filter config in `FilterConfig.ts`, add new component `CloudPulsePortFilter.tsx`, update utilities in `utils.ts` ([#12401](https://github.com/linode/manager/pull/12401))
+- Show when public IPs are unreachable more accurately for Linode Interfaces ([#12408](https://github.com/linode/manager/pull/12408))
+- Add support for `nodebalancerIpv6` feature flag for NodeBalancer Dual Stack Support ([#12420](https://github.com/linode/manager/pull/12420))
+- DataStream: add Destinations empty state and Create Destination views ([#12422](https://github.com/linode/manager/pull/12422))
+- Add `CloudPulseModifyAlertRegions`, `AlertRegions` and `DisplayAlertRegions` component, add `getSupportedRegions` function in alert utils.ts file, add `regions` key in `CreateAlertDefinitionForm` ([#12435](https://github.com/linode/manager/pull/12435))
+- Add alerts object to `View Code Snippets` for beta Alerts opt-in users in Create Linode flow ([#12446](https://github.com/linode/manager/pull/12446))
+- Implement the new RBAC permission hook in Linodes configuration tab ([#12447](https://github.com/linode/manager/pull/12447))
+- Updating Stream Summary on form values change ([#12451](https://github.com/linode/manager/pull/12451))
+- Implement the new RBAC permission hook in Linode Network tab ([#12458](https://github.com/linode/manager/pull/12458))
+- Add "New" badge for VM Host Maintenance; Fix maintenance table loading state; Fix maintenance policy responsive behavior for Linode Create ([#12460](https://github.com/linode/manager/pull/12460))
+- CloudPulse: Add filters for new service - `nodebalancer` at `FilterConfig.ts` in metrics ([#12464](https://github.com/linode/manager/pull/12464))
+- ACLP-Alerting: using latest /services api data to fetch the evaluation period and polling interval time options ([#12466](https://github.com/linode/manager/pull/12466))
+- Add notice when changing policies for scheduled maintenances for VM Host Maintenance ([#12472](https://github.com/linode/manager/pull/12472))
+- Implement the new RBAC permission hook in Linodes alerts and settings tabs ([#12476](https://github.com/linode/manager/pull/12476))
+- Update legacy/beta toggle behavior for Metrics, Alerts and Banners ([#12479](https://github.com/linode/manager/pull/12479))
+- Implement the new RBAC permission hook in Linodes storage tab ([#12484](https://github.com/linode/manager/pull/12484))
+- Implement the new RBAC permission hook in Linodes Landing Page ([#12485](https://github.com/linode/manager/pull/12485))
+
+## [2025-07-01] - v1.145.0
+
+
+### Changed:
+
+- Kubernetes cluster details to show restricted access warnings and disabled actions ([#12360](https://github.com/linode/manager/pull/12360))
+- Improve LISH Console Settings page ([#12390](https://github.com/linode/manager/pull/12390))
+- Use white icons for Marketplace dark mode ([#12414](https://github.com/linode/manager/pull/12414))
+
+### Fixed:
+
+- ACLP-Alerting: UI misalignments in Alert Create/Edit form in the Criteria section ([#12402](https://github.com/linode/manager/pull/12402))
+- Incorrect checkbox colors in dark mode causing check icon to appear white instead of black ([#12409](https://github.com/linode/manager/pull/12409))
+- Incorrectly styled Linode Disk row action menu and buttons ([#12413](https://github.com/linode/manager/pull/12413))
+- Incorrectly styled LKE cluster node row action button ([#12413](https://github.com/linode/manager/pull/12413))
+
+### Removed:
+
+- Move IAM queries and dependencies to shared `queries` package ([#12370](https://github.com/linode/manager/pull/12370))
+- Move network transfer queries and dependencies to shared `queries` package ([#12381](https://github.com/linode/manager/pull/12381))
+
+### Tech Stories:
+
+- Reroute Kubernetes ([#12294](https://github.com/linode/manager/pull/12294))
+- Reroute IAM ([#12312](https://github.com/linode/manager/pull/12312))
+- Reroute Profile ([#12338](https://github.com/linode/manager/pull/12338))
+- Disable `no-await-in-loop` ESLint rule ([#12362](https://github.com/linode/manager/pull/12362))
+- Disable `prefer-screen-queries` ESLint rule ([#12362](https://github.com/linode/manager/pull/12362))
+- Update to Storybook v9 ([#12416](https://github.com/linode/manager/pull/12416))
+- TextField and Autocomplete components to wrap startAdornment and endAdornment props using InputAdornment ([#12387](https://github.com/linode/manager/pull/12387))
+
+### Tests:
+
+- Add Cypress tests for Linode details metrics when beta is disabled ([#12337](https://github.com/linode/manager/pull/12337))
+- Fix test flake in `bucket-create-multicluster.spec.ts` ([#12347](https://github.com/linode/manager/pull/12347))
+- Attempt to fix `Select.test.tsx` test flake ([#12362](https://github.com/linode/manager/pull/12362))
+- Account for region availability when selecting regions for tests ([#12378](https://github.com/linode/manager/pull/12378))
+- Disable `nodebalancerVpc` flag in cypress tests ([#12389](https://github.com/linode/manager/pull/12389))
+- Fix Cypress Linode clone test ([#12403](https://github.com/linode/manager/pull/12403))
+- Allow Cypress test resource label prefix to be set via `CY_TEST_RESOURCE_PREFIX` env var ([#12407](https://github.com/linode/manager/pull/12407))
+- Fix flaky test in `VPCSubnetsTable.test.tsx` ([#12425](https://github.com/linode/manager/pull/12425))
+
+### Upcoming Features:
+
+- Assign alert definitions to a Linode during creation ([#12248](https://github.com/linode/manager/pull/12248))
+- Streamline Linode Interface logic for Firewall Landing and Device tables to use new API fields ([#12283](https://github.com/linode/manager/pull/12283))
+- Add VM Host Maintenance Policy selection and display sections to Linode detail view ([#12334](https://github.com/linode/manager/pull/12334))
+- IAM RBAC: Standardize drawer error messages, add an error message for the lasc account admin ([#12371](https://github.com/linode/manager/pull/12371))
+- Update ACLP region support logic for Beta ACLP features based on `/regions` endpoint ([#12375](https://github.com/linode/manager/pull/12375))
+- ACLP - Alerts: enabled and integrated Delete API, added test cases to verify the deletion ([#12376](https://github.com/linode/manager/pull/12376))
+- Add `EntityScopeSelect` component, add `serviceAlertFactory` in services.ts factory file ([#12377](https://github.com/linode/manager/pull/12377))
+- Change `AclpBetaServices` interface in `featureFlags.ts`, add `beta chip` in `metrics & alerts` components based on the `AclpBetaServices` feature flag in cloudpulse ([#12386](https://github.com/linode/manager/pull/12386))
+- Add feature flag support for Cloud NAT ([#12388](https://github.com/linode/manager/pull/12388))
+- Add beta `Alerts Assigned +n` count to Linode Create flow Summary ([#12396](https://github.com/linode/manager/pull/12396))
+- Make copy updates to VM Host Maintenance Banners ([#12397](https://github.com/linode/manager/pull/12397))
+- Add new maintenance policy icons to linode rows ([#12398](https://github.com/linode/manager/pull/12398))
+- IAM RBAC: add the docs links, fix typo and styling issue ([#12410](https://github.com/linode/manager/pull/12410))
+- Add maintenance policy support for VM maintenance API ([#12417](https://github.com/linode/manager/pull/12417))
+- Add VM Host Maintenance support to Linode headers and rows ([#12418](https://github.com/linode/manager/pull/12418))
+- Fix incorrect filter for in-progress maintenance ([#12436](https://github.com/linode/manager/pull/12436))
+- Add CRUD CloudNAT factories and mocks ([#12379](https://github.com/linode/manager/pull/12379))
+- ACLP: change `scope` in `CreateAlertDefinitionForm` to optional ([#12441](https://github.com/linode/manager/pull/12441))
+
+## [2025-06-17] - v1.144.0
+
+
+### Added:
+
+- Subheading Support to MUI Accordion Component ([#12286](https://github.com/linode/manager/pull/12286))
+- Netfoundry app to Marketplace ([#12316](https://github.com/linode/manager/pull/12316))
+- `aria-sort` to TableSortCell component to improve accessibility ([#12346](https://github.com/linode/manager/pull/12346))
+
+### Changed:
+
+- Hide `gb-lon`, `au-mel`, `sg-sin-2`, and `jp-tyo-3` for Image upload and replication ([#12257](https://github.com/linode/manager/pull/12257))
+- Replace node pool autoscaler dialog with drawer  ([#12325](https://github.com/linode/manager/pull/12325))
+- Disable "Reuse user data previously provided" checkbox in Linode rebuild dialog if the Linode does not have existing user data ([#12352](https://github.com/linode/manager/pull/12352))
+- Expand "Add User Data" section by default in the Linode rebuild dialog if the Linode has existing user data ([#12352](https://github.com/linode/manager/pull/12352))
+
+### Fixed:
+
+- Inability for restricted users to configure High Availability or IP ACLs on LKE clusters ([#12374](https://github.com/linode/manager/pull/12374))
+- Radio button size in plans table ([#12261](https://github.com/linode/manager/pull/12261))
+- Styling issues in `DomainRecords` and `forwardRef` console errors in Object Storage Access ([#12279](https://github.com/linode/manager/pull/12279))
+- Radio button styling inconsistencies across themes and states ([#12284](https://github.com/linode/manager/pull/12284))
+- Destructive actions to use `Danger` button styling ([#12299](https://github.com/linode/manager/pull/12299))
+- Custom styling for SMS Notice ([#12301](https://github.com/linode/manager/pull/12301))
+- Broken spacing in Dropdown component ([#12314](https://github.com/linode/manager/pull/12314))
+- Long DNS records in domains section ([#12320](https://github.com/linode/manager/pull/12320))
+- Existing minor bugs in autoscaler form ([#12325](https://github.com/linode/manager/pull/12325))
+- Broken Spacing for Banner Component and link missing accessible aria label on NodeBalancer summary page ([#12328](https://github.com/linode/manager/pull/12328))
+- Queries from search not properly converting to strings ([#12336](https://github.com/linode/manager/pull/12336))
+- Provisioning nodes appearing when filtering for running nodes only ([#12339](https://github.com/linode/manager/pull/12339))
+- Incorrect permissions showing after cloning a Linode as a restricted users ([#12351](https://github.com/linode/manager/pull/12351))
+- Notifications not dismissing when closing a support ticket ([#12351](https://github.com/linode/manager/pull/12351))
+- Typo in Linode rebuild dialog ([#12352](https://github.com/linode/manager/pull/12352))
+- Routing issue when clicking port links on Nodebalancer Summary Page ([#12366](https://github.com/linode/manager/pull/12366))
+
+### Removed:
+
+- Deprecate Phpmyadmin, Owncloud, Jetbackups, OpenLiteSpeed Rails, Superinsight, and ClusterControl Marketplace apps ([#12298](https://github.com/linode/manager/pull/12298))
+- Move types queries and dependencies to shared `queries` package ([#12330](https://github.com/linode/manager/pull/12330))
+- Move betas queries and dependencies to shared `queries` package ([#12358](https://github.com/linode/manager/pull/12358))
+
+### Tech Stories:
+
+- Reroute CloudPulse (metrics & alerts) ([#12262](https://github.com/linode/manager/pull/12262))
+- Reroute Databases ([#12285](https://github.com/linode/manager/pull/12285))
+- Remove `recompose` from NodeBalancers ([#12288](https://github.com/linode/manager/pull/12288))
+- Reroute Kubernetes ([#12289](https://github.com/linode/manager/pull/12289))
+- `bypassAccountCapabilities` property to `aclp` feature flag ([#12302](https://github.com/linode/manager/pull/12302))
+- Add docs link for Add a Disk on Linode Details ([#12311](https://github.com/linode/manager/pull/12311))
+- Upgrade `@linode/eslint-plugin-cloud-manager` to `0.0.11` ([#12319](https://github.com/linode/manager/pull/12319))
+- Upgrade `qrcode.react` to `4.2.0` ([#12322](https://github.com/linode/manager/pull/12322))
+- Reroute Account & Billing ([#12323](https://github.com/linode/manager/pull/12323))
+- Remove ramda from random places throughout the app ([#12327](https://github.com/linode/manager/pull/12327))
+- Remove authentication from Redux ([#12331](https://github.com/linode/manager/pull/12331))
+- Reroute Events ([#12333](https://github.com/linode/manager/pull/12333))
+- Add ability to edit user account and entity permissions in the dev tools ([#12361](https://github.com/linode/manager/pull/12361))
+- Change `aclpIntegration` feature flag to `aclpBetaServices` and update related references ([#12364](https://github.com/linode/manager/pull/12364))
+
+### Tests:
+
+- Add Cypress test for suspending and resuming database clusters ([#12152](https://github.com/linode/manager/pull/12152))
+- Update/Add integration tests for Create Linode ([#12187](https://github.com/linode/manager/pull/12187))
+- Add tests for Quotas tab endpoint selection ([#12271](https://github.com/linode/manager/pull/12271))
+- Add tests for requesting quota increase ([#12290](https://github.com/linode/manager/pull/12290))
+- Replace OBJ factory secret mocks with fake looking data ([#12292](https://github.com/linode/manager/pull/12292))
+- Add Cypress test for advanced configuration database cluster feature ([#12326](https://github.com/linode/manager/pull/12326))
+- Fix pricing and region select issues in flaky `lke-create.spec.ts` test ([#12329](https://github.com/linode/manager/pull/12329))
+- Remove duplicate flaky tests ([#12340](https://github.com/linode/manager/pull/12340))
+- Fix `linode-storage.spec.ts` failure ([#12349](https://github.com/linode/manager/pull/12349))
+
+### Upcoming Features:
+
+- Refactor AddLinodeDrawer to remove useEffect when filtering interface devices ([#12220](https://github.com/linode/manager/pull/12220))
+- IAM RBAC: fix bugs for the assign roles drawer ([#12270](https://github.com/linode/manager/pull/12270))
+- Update Account Maintenance table ([#12277](https://github.com/linode/manager/pull/12277))
+- DataStream: add General Information and Data Sets forms in Create Stream view ([#12278](https://github.com/linode/manager/pull/12278))
+- Display VPC IPs while selecting the Backend Nodes in the Nodebalancer flow ([#12287](https://github.com/linode/manager/pull/12287))
+- Update maintenance banners ([#12293](https://github.com/linode/manager/pull/12293))
+- Update `metric` from `label` in CloudPulseWidgetRenderer for comparison, update CSS in CloudPulseWidget ([#12295](https://github.com/linode/manager/pull/12295))
+- IAM RBAC: Handle API error state, fix entity links for Cluster and Placement Group, and update role count and table on entity removal ([#12296](https://github.com/linode/manager/pull/12296))
+- IAM RBAC: Permissions - fix hidden count in "Expand (+N)", keep button visible after collapse, and hide it when all permissions are shown ([#12297](https://github.com/linode/manager/pull/12297))
+- Hide Networking section in new UI when cloning a Linode and change chip color in Interface detail drawer ([#12304](https://github.com/linode/manager/pull/12304))
+- Restrict beta Alerts, Metrics and preference toggle to aclp supported regions ([#12307](https://github.com/linode/manager/pull/12307))
+- IAM RBAC: Add the pagination to the Assigned Roles and Assigned Entities tables ([#12308](https://github.com/linode/manager/pull/12308))
+- IAM RBAC: Roles Table - Hide pagination when results are empty or only one short page, fix styling issues in Assign Roles Drawer ([#12317](https://github.com/linode/manager/pull/12317))
+- IAM RBAC: update an empty state screen and add a missing drawer ([#12318](https://github.com/linode/manager/pull/12318))
+- Add Networking tab for database cluster details, add Connection Type field to Summary, and move Manage Access to Networking tab ([#12324](https://github.com/linode/manager/pull/12324))
+- Add Error State for NodeBalancer Table Cells under Subnets Table in VPC Details ([#12315](https://github.com/linode/manager/pull/12315))
+- Update Upgrade Interfaces dialog height ([#12332](https://github.com/linode/manager/pull/12332))
+- Update copy for public IP addresses tooltip for Linode Interfaces ([#12332](https://github.com/linode/manager/pull/12332))
+- Exclude tags column and filter from entity table for Linode-based Alerts in Cloudpulse Alerting ([#12335](https://github.com/linode/manager/pull/12335))
+- IAM RBAC: implement the two new APIs and renamed old endpoints and queries to align terminology with the current focus on roles ([#12344](https://github.com/linode/manager/pull/12344))
+- Remove client-side filtering for MTC plans to simplify region availability logic ([#12345](https://github.com/linode/manager/pull/12345))
+- Update `aria-label` for action menus in Assigned Roles and Entity Access tables, fix spacing issues in the Change Role Drawer ([#12346](https://github.com/linode/manager/pull/12346))
+- DataStream: add Delivery form in Create Stream view ([#12350](https://github.com/linode/manager/pull/12350))
+- Add Manage Access functionality to Networking tab that allows users to access the Manage Access drawer to manage VPCs ([#12354](https://github.com/linode/manager/pull/12354))
+- Add “Additional Options” section and display Legacy Alerts (`read-only`) on Create Linode page ([#12355](https://github.com/linode/manager/pull/12355))
+- Fix inconsistent layout when entity names are long and previously assigned roles reappear when reopening the Assign New Roles Drawer ([#12356](https://github.com/linode/manager/pull/12356))
+- Fix delete button not disabled for subnets associated with a NodeBalancer on the VPC Subnet page ([#12365](https://github.com/linode/manager/pull/12365))
+- Update `interface` firewall entity type to `linode_interface` ([#12367](https://github.com/linode/manager/pull/12367))
+- UX description changes for VPC section on Create NodeBalancers page ([#12368](https://github.com/linode/manager/pull/12368))
+
 ## [2025-06-03] - v1.143.0
 
 ### Changed:

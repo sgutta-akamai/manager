@@ -1,5 +1,6 @@
 import { TooltipIcon } from '@linode/ui';
 import * as React from 'react';
+import type { JSX } from 'react';
 
 import { TableBody } from 'src/components/TableBody';
 import { TableHead } from 'src/components/TableHead';
@@ -137,12 +138,12 @@ export const PlanSelectionTable = (props: PlanSelectionTableProps) => {
                   : cellName}
                 {showTransferTooltip(cellName) &&
                   showTooltip(
-                    'help',
+                    'info',
                     'Some plans do not include bundled network transfer. If the transfer allotment is 0, all outbound network transfer is subject to charges.'
                   )}
                 {showUsableStorageTooltip(cellName) &&
                   showTooltip(
-                    'help',
+                    'info',
                     'Usable storage is smaller than the actual plan storage due to the overhead from the database platform.',
                     240
                   )}

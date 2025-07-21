@@ -2,6 +2,7 @@ import type { FieldPath } from 'react-hook-form';
 
 import type { CreateAlertDefinitionForm } from './CreateAlert/types';
 import type {
+  AlertDefinitionScope,
   AlertSeverityType,
   AlertStatusType,
   ChannelType,
@@ -103,25 +104,11 @@ export const dimensionOperatorOptions: Item<
 
 export const textFieldOperators = ['endswith', 'startswith'];
 
-export const evaluationPeriodOptions = {
-  dbaas: [{ label: '5 min', value: 300 }],
-  linode: [
-    { label: '1 min', value: 60 },
-    { label: '5 min', value: 300 },
-    { label: '15 min', value: 900 },
-    { label: '30 min', value: 1800 },
-    { label: '1 hr', value: 3600 },
-  ],
-};
-
-export const pollingIntervalOptions = {
-  dbaas: [{ label: '5 min', value: 300 }],
-  linode: [
-    { label: '1 min', value: 60 },
-    { label: '5 min', value: 300 },
-    { label: '10 min', value: 600 },
-  ],
-};
+export const entityGroupingOptions: Item<string, AlertDefinitionScope>[] = [
+  { label: 'Account', value: 'account' },
+  { label: 'Region', value: 'region' },
+  { label: 'Entity', value: 'entity' },
+];
 
 export const severityMap: Record<AlertSeverityType, string> = {
   0: 'Severe',
@@ -202,3 +189,13 @@ export const CREATE_ALERT_SUCCESS_MESSAGE =
 
 export const UPDATE_ALERT_SUCCESS_MESSAGE =
   'Alert successfully updated. It may take a few minutes for your changes to take effect.';
+
+export const ALERT_SCOPE_TOOLTIP_CONTEXTUAL =
+  'Indicates whether the alert applies to all Linodes in the account, Linodes in specific regions, or just this Linode (entity).';
+
+export const ALERT_SCOPE_TOOLTIP_TEXT =
+  'The set of entities to which the alert applies: account-wide, specific regions, or individual entities.';
+
+export type AlertFormMode = 'create' | 'edit' | 'view';
+
+export const DELETE_ALERT_SUCCESS_MESSAGE = 'Alert successfully deleted.';

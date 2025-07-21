@@ -9,8 +9,10 @@ import { renderWithTheme } from 'src/utilities/testHelpers';
 import { EmailForm } from './EmailForm';
 
 describe('EmailForm', () => {
-  it('renders a label and input', () => {
-    const { getByLabelText, getByText } = renderWithTheme(<EmailForm />);
+  it('renders a label and input', async () => {
+    const { getByLabelText, getByText } = renderWithTheme(
+      <EmailForm />
+    );
 
     expect(getByLabelText('Email')).toBeVisible();
     expect(getByText('Update Email')).toBeVisible();
@@ -21,7 +23,9 @@ describe('EmailForm', () => {
 
     server.use(http.get('*/v4/profile', () => HttpResponse.json(profile)));
 
-    const { findByDisplayValue } = renderWithTheme(<EmailForm />);
+    const { findByDisplayValue } = renderWithTheme(
+      <EmailForm />
+    );
 
     await findByDisplayValue(profile.email);
   });
@@ -47,9 +51,8 @@ describe('EmailForm', () => {
 
     server.use(http.get('*/v4/profile', () => HttpResponse.json(profile)));
 
-    const { findByDisplayValue, getByLabelText, getByText } = renderWithTheme(
-      <EmailForm />
-    );
+    const { findByDisplayValue, getByLabelText, getByText } =
+      renderWithTheme(<EmailForm />);
 
     await findByDisplayValue(profile.email);
 

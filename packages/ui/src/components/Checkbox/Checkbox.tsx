@@ -1,6 +1,7 @@
 import _Checkbox from '@mui/material/Checkbox';
 import { styled } from '@mui/material/styles';
 import * as React from 'react';
+import type { JSX } from 'react';
 
 import {
   CheckboxCheckedIcon,
@@ -76,7 +77,7 @@ export const Checkbox = (props: Props) => {
   return (
     <>
       {CheckboxComponent}
-      {toolTipText ? <TooltipIcon status="help" text={toolTipText} /> : null}
+      {toolTipText ? <TooltipIcon status="info" text={toolTipText} /> : null}
     </>
   );
 };
@@ -111,7 +112,7 @@ const StyledCheckbox = styled(_Checkbox, {
     props.readOnly && {
       svg: {
         'g rect:nth-of-type(2)': {
-          fill: theme.tokens.component.Checkbox.Indeterminated.ReadOnly.Icon,
+          fill: `${theme.tokens.component.Checkbox.Indeterminated.ReadOnly.Icon} !important`,
         },
         border: `1px solid ${theme.tokens.component.Checkbox.Indeterminated.ReadOnly.Border}`,
       },

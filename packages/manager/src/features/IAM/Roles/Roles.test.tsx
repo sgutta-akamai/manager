@@ -10,8 +10,8 @@ const queryMocks = vi.hoisted(() => ({
   useAccountRoles: vi.fn().mockReturnValue({}),
 }));
 
-vi.mock('src/queries/iam/iam', async () => {
-  const actual = await vi.importActual<any>('src/queries/iam/iam');
+vi.mock('@linode/queries', async () => {
+  const actual = await vi.importActual<any>('@linode/queries');
   return {
     ...actual,
     useAccountRoles: queryMocks.useAccountRoles,
@@ -33,7 +33,7 @@ beforeEach(() => {
 });
 
 describe('RolesLanding', () => {
-  it('renders loading state when permissions are loading', () => {
+  it('renders loading state when permissions are loading', async () => {
     queryMocks.useAccountRoles.mockReturnValue({
       data: null,
       isLoading: true,
@@ -44,7 +44,7 @@ describe('RolesLanding', () => {
     expect(screen.getByRole('progressbar')).toBeInTheDocument();
   });
 
-  it('renders roles table when permissions are loaded', () => {
+  it('renders roles table when permissions are loaded', async () => {
     const mockPermissions = accountRolesFactory.build();
     queryMocks.useAccountRoles.mockReturnValue({
       data: mockPermissions,

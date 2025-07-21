@@ -12,12 +12,13 @@ import { AssignedRolesTable } from './AssignedRolesTable';
 
 const queryMocks = vi.hoisted(() => ({
   useAccountEntities: vi.fn().mockReturnValue({}),
+  useParams: vi.fn().mockReturnValue({}),
   useAccountRoles: vi.fn().mockReturnValue({}),
   useUserRoles: vi.fn().mockReturnValue({}),
 }));
 
-vi.mock('src/queries/iam/iam', async () => {
-  const actual = await vi.importActual<any>('src/queries/iam/iam');
+vi.mock('@linode/queries', async () => {
+  const actual = await vi.importActual<any>('@linode/queries');
   return {
     ...actual,
     useAccountRoles: queryMocks.useAccountRoles,
@@ -30,6 +31,14 @@ vi.mock('src/queries/entities/entities', async () => {
   return {
     ...actual,
     useAccountEntities: queryMocks.useAccountEntities,
+  };
+});
+
+vi.mock('@tanstack/react-router', async () => {
+  const actual = await vi.importActual('@tanstack/react-router');
+  return {
+    ...actual,
+    useParams: queryMocks.useParams,
   };
 });
 
@@ -46,6 +55,12 @@ const mockEntities = [
 ];
 
 describe('AssignedRolesTable', () => {
+  beforeEach(() => {
+    queryMocks.useParams.mockReturnValue({
+      username: 'test_user',
+    });
+  });
+
   it('should display no roles text if there are no roles assigned to user', async () => {
     queryMocks.useUserRoles.mockReturnValue({
       data: {},
@@ -149,7 +164,7 @@ describe('AssignedRolesTable', () => {
     await userEvent.type(autocomplete, 'Firewall Roles');
 
     await waitFor(() => {
-      expect(screen.queryByText('firewall_creator')).toBeVisible();
+      expect(screen.queryByText('account_firewall_creator')).toBeVisible();
     });
   });
 });

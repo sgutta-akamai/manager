@@ -6,7 +6,7 @@ import React from 'react';
 import { imageFactory, linodeDiskFactory } from 'src/factories';
 import { makeResourcePage } from 'src/mocks/serverHandlers';
 import { http, HttpResponse, server } from 'src/mocks/testServer';
-import { renderWithThemeAndRouter } from 'src/utilities/testHelpers';
+import { renderWithTheme } from 'src/utilities/testHelpers';
 
 import { CreateImageTab } from './CreateImageTab';
 
@@ -24,7 +24,7 @@ vi.mock('@tanstack/react-router', async () => {
 
 describe('CreateImageTab', () => {
   it('should render fields, titles, and buttons in their default state', async () => {
-    const { getByLabelText, getByText } = await renderWithThemeAndRouter(
+    const { getByLabelText, getByText } = renderWithTheme(
       <CreateImageTab />
     );
 
@@ -56,10 +56,10 @@ describe('CreateImageTab', () => {
     const disk = linodeDiskFactory.build();
 
     server.use(
-      http.get('*/v4/linode/instances', () => {
+      http.get('*/v4*/linode/instances', () => {
         return HttpResponse.json(makeResourcePage([linode]));
       }),
-      http.get('*/v4/linode/instances/:id/disks', () => {
+      http.get('*/v4*/linode/instances/:id/disks', () => {
         return HttpResponse.json(makeResourcePage([disk]));
       })
     );
@@ -69,7 +69,7 @@ describe('CreateImageTab', () => {
       selectedLinode: linode.id,
     });
 
-    const { getByLabelText } = await renderWithThemeAndRouter(
+    const { getByLabelText } = renderWithTheme(
       <CreateImageTab />
     );
 
@@ -84,7 +84,7 @@ describe('CreateImageTab', () => {
       selectedDisk: undefined,
       selectedLinode: undefined,
     });
-    const { getByText } = await renderWithThemeAndRouter(<CreateImageTab />);
+    const { getByText } = renderWithTheme(<CreateImageTab />);
 
     const submitButton = getByText('Create Image').closest('button');
 
@@ -99,10 +99,10 @@ describe('CreateImageTab', () => {
     const image = imageFactory.build();
 
     server.use(
-      http.get('*/v4/linode/instances', () => {
+      http.get('*/v4*/linode/instances', () => {
         return HttpResponse.json(makeResourcePage([linode]));
       }),
-      http.get('*/v4/linode/instances/:id/disks', () => {
+      http.get('*/v4*/linode/instances/:id/disks', () => {
         return HttpResponse.json(makeResourcePage([disk]));
       }),
       http.post('*/v4/images', () => {
@@ -111,7 +111,7 @@ describe('CreateImageTab', () => {
     );
 
     const { findByText, getByLabelText, getByText, queryByText } =
-      await renderWithThemeAndRouter(<CreateImageTab />);
+      renderWithTheme(<CreateImageTab />);
 
     const linodeSelect = getByLabelText('Linode');
 
@@ -146,18 +146,18 @@ describe('CreateImageTab', () => {
     const linode = linodeFactory.build({ region: region.id });
 
     server.use(
-      http.get('*/v4/linode/instances', () => {
+      http.get('*/v4*/linode/instances', () => {
         return HttpResponse.json(makeResourcePage([linode]));
       }),
-      http.get('*/v4/linode/instances/:id', () => {
+      http.get('*/v4*/linode/instances/:id', () => {
         return HttpResponse.json(linode);
       }),
-      http.get('*/v4/regions', () => {
+      http.get('*/v4*/regions', () => {
         return HttpResponse.json(makeResourcePage([region]));
       })
     );
 
-    const { findByText, getByLabelText } = await renderWithThemeAndRouter(
+    const { findByText, getByLabelText } = renderWithTheme(
       <CreateImageTab />
     );
 
@@ -182,13 +182,13 @@ describe('CreateImageTab', () => {
     const image = imageFactory.build();
 
     server.use(
-      http.get('*/v4/linode/instances', () => {
+      http.get('*/v4*/linode/instances', () => {
         return HttpResponse.json(makeResourcePage([linode]));
       }),
-      http.get('*/v4/linode/instances/:id', () => {
+      http.get('*/v4*/linode/instances/:id', () => {
         return HttpResponse.json(linode);
       }),
-      http.get('*/v4/linode/instances/:id/disks', () => {
+      http.get('*/v4*/linode/instances/:id/disks', () => {
         return HttpResponse.json(makeResourcePage([disk1, disk2]));
       }),
       http.post('*/v4/images', () => {
@@ -197,7 +197,7 @@ describe('CreateImageTab', () => {
     );
 
     const { findByText, getByLabelText, queryByText } =
-      await renderWithThemeAndRouter(<CreateImageTab />);
+      renderWithTheme(<CreateImageTab />);
 
     const linodeSelect = getByLabelText('Linode');
 

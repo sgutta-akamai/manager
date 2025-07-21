@@ -2,13 +2,25 @@ import { linodeFactory } from '@linode/utilities';
 import userEvent from '@testing-library/user-event';
 import * as React from 'react';
 
-import { renderWithTheme, wrapWithTableBody } from 'src/utilities/testHelpers';
+import {
+  renderWithTheme,
+  wrapWithTableBody,
+} from 'src/utilities/testHelpers';
 
 import { LinodeRow, RenderFlag } from './LinodeRow';
 
+const queryMocks = vi.hoisted(() => ({
+  userPermissions: vi.fn(() => ({
+    permissions: {},
+  })),
+}));
+
+vi.mock('src/features/IAM/hooks/usePermissions', () => ({
+  usePermissions: queryMocks.userPermissions,
+}));
 describe('LinodeRow', () => {
   describe('when Linode has mutation', () => {
-    it('should render a Flag', () => {
+    it('should render a Flag', async () => {
       const { getByLabelText } = renderWithTheme(
         <RenderFlag mutationAvailable={true} />
       );
@@ -23,37 +35,15 @@ describe('LinodeRow', () => {
     const linode = linodeFactory.build();
     const renderedLinode = (
       <LinodeRow
-        alerts={linode.alerts}
-        backups={linode.backups}
-        capabilities={linode.capabilities}
-        created={linode.created}
-        group={linode.group}
         handlers={{
           onOpenDeleteDialog: () => {},
           onOpenMigrateDialog: () => {},
-          onOpenPowerDialog: (action) => {},
+          onOpenPowerDialog: () => {},
           onOpenRebuildDialog: () => {},
           onOpenRescueDialog: () => {},
           onOpenResizeDialog: () => {},
         }}
-        hypervisor={linode.hypervisor}
-        id={linode.id}
-        image={linode.image}
-        interface_generation="legacy_config"
-        ipv4={linode.ipv4}
-        ipv6={linode.ipv6 || ''}
-        key={`linode-row-${1}`}
-        label={linode.label}
-        lke_cluster_id={linode.lke_cluster_id}
-        placement_group={linode.placement_group}
-        region={linode.region}
-        site_type={linode.site_type}
-        specs={linode.specs}
-        status={linode.status}
-        tags={linode.tags}
-        type={linode.type}
-        updated={linode.updated}
-        watchdog_enabled={linode.watchdog_enabled}
+        {...linode}
       />
     );
 
