@@ -21,6 +21,9 @@ describe('WafLandingEmptyState', () => {
       initialRoute: '/waf',
     });
 
+    // Check for the WAF-specific title
+    expect(getByText(/akamai cloud waf/i)).toBeInTheDocument();
+    // Check for the description text
     expect(getByText(/safeguard your web applications/i)).toBeInTheDocument();
   });
 });

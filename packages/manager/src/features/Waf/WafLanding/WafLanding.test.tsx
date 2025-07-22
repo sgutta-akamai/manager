@@ -78,16 +78,16 @@ describe('Waf Landing', () => {
     );
 
     // Check to see if the row rendered some data
-    getByText(waf.label);
-    getByText(capitalize(waf.status));
-    getByText(formatDate(waf.update_dt));
+    expect(getByText(waf.label)).toBeVisible();
+    expect(getByText(capitalize(waf.status))).toBeVisible();
+    expect(getByText(formatDate(waf.update_dt))).toBeVisible();
   });
 
   it('should open an action menu', async () => {
     const waf = wafConfigurationsFactory.build();
     queryMocks.useWafsQuery.mockReturnValueOnce({
       data: {
-        waf_configs: waf,
+        waf_configs: [waf],
         page: 1,
         pages: 1,
         results: 1,
