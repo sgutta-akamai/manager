@@ -15,8 +15,8 @@ import type {
 
 export const headers: ResourcesHeaders = {
   description:
-    'Safeguard your web applications and APIs with Akamai’s Cloud Protector service - delivering robust Layer 7 protection, seamless integration with Linode Cloud Manager, and a strong foundation for your cloud security strategy.',
-  subtitle: 'Essential Layer 7 Setup',
+    'Safeguard your web applications and APIs with Akamai’s Cloud Protector service - delivering robust Layer 7 protection, seamless integration with Cloud Manager, and a strong foundation for your cloud security strategy.',
+  subtitle: 'Essential Layer 7 Firewall',
   title: 'Akamai Cloud WAF',
 };
 

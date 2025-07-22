@@ -12,7 +12,7 @@ export interface FilterCondition {
   values: string[];
 }
 
-export interface Filter {
+export interface FilterType {
   conditions: FilterCondition[];
   match_type: string;
 }
@@ -20,6 +20,6 @@ export interface Filter {
 export interface CreateCustomRulePayload {
   action: string;
   description: string;
-  filters: Filter[];
+  filters: FilterType[];
   label: string;
 }
