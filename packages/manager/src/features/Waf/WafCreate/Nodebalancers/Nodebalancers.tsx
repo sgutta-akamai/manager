@@ -10,7 +10,7 @@ import {
 import * as React from 'react';
 import { Controller, useFormContext } from 'react-hook-form';
 
-import { TagsInput } from 'src/components/TagsInput/TagsInput';
+import { TagOption, TagsInput } from 'src/components/TagsInput/TagsInput';
 import {
   Device,
   ExclusionType,
@@ -27,6 +27,27 @@ export const Nodebalancers = () => {
     { id: '1', label: 'NodeBalancer 1', type: 'nodebalancer' },
     { id: '2', label: 'NodeBalancer 2', type: 'nodebalancer' },
   ];
+
+  //TODO - add proper type for field
+  const handleHostnamesOnChange = (selected: TagOption[], field: any) => {
+    field.onChange(
+      selected.map((item) => ({
+        hostname: item.value,
+        path: '',
+        exclusionType: ExclusionType.EXCLUDED,
+      }))
+    );
+  };
+
+  const handlePathsOnChange = (selected: TagOption[], field: any) => {
+    field.onChange(
+      selected.map((item) => ({
+        hostname: WILDCARD_HOSTNAME,
+        path: item.value,
+        exclusionType: ExclusionType.EXCLUDED,
+      }))
+    );
+  };
 
   return (
     <Paper sx={{ marginBottom: '20px' }}>
@@ -91,13 +112,7 @@ export const Nodebalancers = () => {
                   <TagsInput
                     label="Exclude hostnames"
                     onChange={(selected) =>
-                      field.onChange(
-                        selected.map((item) => ({
-                          hostname: item.value,
-                          path: '',
-                          exclusionType: ExclusionType.EXCLUDED,
-                        }))
-                      )
+                      handleHostnamesOnChange(selected, field)
                     }
                     value={
                       field.value?.map((host) => ({
@@ -117,13 +132,7 @@ export const Nodebalancers = () => {
                   <TagsInput
                     label="Exclude paths"
                     onChange={(selected) =>
-                      field.onChange(
-                        selected.map((item) => ({
-                          hostname: WILDCARD_HOSTNAME,
-                          path: item.value,
-                          exclusionType: ExclusionType.EXCLUDED,
-                        }))
-                      )
+                      handlePathsOnChange(selected, field)
                     }
                     value={
                       field.value?.map((host) => ({
