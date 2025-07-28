@@ -32,7 +32,7 @@ describe('WAF Create Name', () => {
     expect(getByPlaceholderText('WAF Label')).toBeVisible();
   });
 
-  it('updates form context when typing in the label field', async () => {
+  it('checks input field is enabled', async () => {
     const { getByLabelText } = renderWithThemeAndHookFormContext({
       component: <WafName />,
     });

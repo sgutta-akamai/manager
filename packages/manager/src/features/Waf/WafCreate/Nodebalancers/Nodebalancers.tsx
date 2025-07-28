@@ -13,7 +13,7 @@ import { Controller, useFormContext } from 'react-hook-form';
 import { TagsInput } from 'src/components/TagsInput/TagsInput';
 import {
   Device,
-  PathType,
+  ExclusionType,
   WafCreateForm,
   WILDCARD_HOSTNAME,
 } from 'src/features/Waf/utils';
@@ -95,7 +95,7 @@ export const Nodebalancers = () => {
                         selected.map((item) => ({
                           hostname: item.value,
                           path: '',
-                          type: PathType.EXCLUDE,
+                          exclusionType: ExclusionType.EXCLUDED,
                         }))
                       )
                     }
@@ -121,7 +121,7 @@ export const Nodebalancers = () => {
                         selected.map((item) => ({
                           hostname: WILDCARD_HOSTNAME,
                           path: item.value,
-                          type: PathType.EXCLUDE,
+                          exclusionType: ExclusionType.EXCLUDED,
                         }))
                       )
                     }

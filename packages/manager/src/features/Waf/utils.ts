@@ -22,7 +22,8 @@ export interface WafCreateFormDTO {
 
 export interface AttackGroup {
   action: string;
-  attackGroupName: string;
+  attack_group_label: string;
+  attack_group_name: string;
 }
 
 export interface Device {
@@ -32,13 +33,14 @@ export interface Device {
 }
 
 export interface Host {
+  exclusionType: ExclusionType;
   hostname: string;
   path: string;
-  type: string;
 }
 
-export enum PathType {
-  EXCLUDE = 'exclude',
+export enum ExclusionType {
+  EXCLUDED = 'excluded',
+  INCLUDED = 'included',
 }
 
 export const WILDCARD_HOSTNAME = '*';
