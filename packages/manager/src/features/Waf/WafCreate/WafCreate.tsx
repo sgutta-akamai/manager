@@ -20,15 +20,10 @@ export const WafCreate = () => {
     getTransformedData(data);
   };
 
-  const labelValue = methods.watch('label') || '';
-  const devicesValue = methods.watch('devices') || [];
-  const hostnamesValue = methods.watch('hosts') || [];
-  const pathsValue = methods.watch('paths') || [];
-
-  const isNodebalancersSet = devicesValue.length > 0;
-  const isHostsSet = hostnamesValue.length > 0 || pathsValue.length > 0;
-
   const getTransformedData = (formData: WafCreateForm): WafCreateFormDTO => {
+    const excludedHosts = formData.hosts || [];
+    const excludedPaths = formData.paths || [];
+
     return {
       label: formData.label,
       attack_groups: formData.attackGroups,
@@ -37,7 +32,7 @@ export const WafCreate = () => {
         custom_rules_enabled: formData.advancedSettings?.customRulesEnabled,
       },
       ...(formData.isAdjustProtectedResourcesEnabled && {
-        hosts: [...(formData.hosts || []), ...(formData.paths || [])],
+        hosts: [...excludedHosts, ...excludedPaths],
       }),
     };
   };
@@ -55,12 +50,7 @@ export const WafCreate = () => {
         <form onSubmit={methods.handleSubmit(onSubmit)}>
           <WafName />
           <Nodebalancers />
-          <Summary
-            isHostsSet={isHostsSet}
-            isNodebalancersSet={isNodebalancersSet}
-            isWafLabelSet={!!labelValue}
-            wafLabel={labelValue}
-          />
+          <Summary />
           {/*for debugging form values TODO - remove later once integrated with attack groups table and backend*/}
           {JSON.stringify(methods.getValues())}
           <Box display="flex" flexDirection="row" justifyContent="flex-end">

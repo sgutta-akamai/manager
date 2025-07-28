@@ -1,86 +1,40 @@
+import { screen, waitFor } from '@testing-library/react';
+import userEvent from '@testing-library/user-event';
 import React from 'react';
 
-import { renderWithThemeAndHookFormContext } from 'src/utilities/testHelpers';
+import { WafCreate } from 'src/features/Waf/WafCreate/WafCreate';
+import {
+  renderWithTheme,
+  renderWithThemeAndHookFormContext,
+} from 'src/utilities/testHelpers';
 
 import { Summary } from './Summary';
 
 describe('WAF Create Summary', () => {
   it('renders the summary section with header', () => {
     const { getByText } = renderWithThemeAndHookFormContext({
-      component: (
-        <Summary
-          isHostsSet={false}
-          isNodebalancersSet={false}
-          isWafLabelSet={false}
-          wafLabel=""
-        />
-      ),
+      component: <Summary />,
     });
 
     expect(getByText('Summary')).toBeVisible();
   });
 
-  it('displays WAF label when set', () => {
-    const { getByText } = renderWithThemeAndHookFormContext({
-      component: (
-        <Summary
-          isHostsSet={false}
-          isNodebalancersSet={false}
-          isWafLabelSet={true}
-          wafLabel="Test WAF"
-        />
-      ),
-    });
+  it('updates summary when WAF name is entered', async () => {
+    renderWithTheme(<WafCreate />);
 
-    expect(getByText('WAF')).toBeVisible();
-    expect(getByText('Test WAF')).toBeVisible();
+    const nameInput = screen.getByLabelText('WAF Label');
+    await userEvent.type(nameInput, 'Test WAF');
+
+    await waitFor(() => {
+      expect(screen.getByText('Test WAF')).toBeVisible();
+    });
   });
 
-  it('displays NodeBalancers section when set', () => {
-    const { getByText } = renderWithThemeAndHookFormContext({
-      component: (
-        <Summary
-          isHostsSet={false}
-          isNodebalancersSet={true}
-          isWafLabelSet={false}
-          wafLabel=""
-        />
-      ),
+  it('does not display zero state with "Linode" text', () => {
+    const { queryByText } = renderWithThemeAndHookFormContext({
+      component: <Summary />,
     });
 
-    expect(getByText('NodeBalancers Assigned')).toBeVisible();
-  });
-
-  it('displays Protected Resources section when set', () => {
-    const { getByText } = renderWithThemeAndHookFormContext({
-      component: (
-        <Summary
-          isHostsSet={true}
-          isNodebalancersSet={false}
-          isWafLabelSet={false}
-          wafLabel=""
-        />
-      ),
-    });
-
-    expect(getByText('Protected Resources Defined')).toBeVisible();
-  });
-
-  it('displays all sections when everything is set', () => {
-    const { getByText } = renderWithThemeAndHookFormContext({
-      component: (
-        <Summary
-          isHostsSet={true}
-          isNodebalancersSet={true}
-          isWafLabelSet={true}
-          wafLabel=""
-        />
-      ),
-    });
-
-    expect(getByText('WAF')).toBeVisible();
-    expect(getByText('My WAF')).toBeVisible();
-    expect(getByText('NodeBalancers Assigned')).toBeVisible();
-    expect(getByText('Protected Resources Defined')).toBeVisible();
+    expect(queryByText('Linode')).not.toBeInTheDocument();
   });
 });

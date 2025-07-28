@@ -7,7 +7,7 @@ export interface WafCreateForm {
   hosts?: Host[];
   isAdjustProtectedResourcesEnabled: boolean;
   label: string;
-  paths?: Host[];
+  paths?: Path[];
 }
 
 export interface WafCreateFormDTO {
@@ -42,5 +42,7 @@ export enum ExclusionType {
   EXCLUDED = 'excluded',
   INCLUDED = 'included',
 }
+
+type Path = Host;
 
 export const WILDCARD_HOSTNAME = '*';
