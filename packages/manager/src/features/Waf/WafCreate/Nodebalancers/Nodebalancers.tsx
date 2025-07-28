@@ -8,7 +8,11 @@ import {
   Typography,
 } from '@linode/ui';
 import * as React from 'react';
-import { Controller, useFormContext } from 'react-hook-form';
+import {
+  Controller,
+  ControllerRenderProps,
+  useFormContext,
+} from 'react-hook-form';
 
 import { TagOption, TagsInput } from 'src/components/TagsInput/TagsInput';
 import {
@@ -28,8 +32,10 @@ export const Nodebalancers = () => {
     { id: '2', label: 'NodeBalancer 2', type: 'nodebalancer' },
   ];
 
-  //TODO - add proper type for field
-  const handleHostnamesOnChange = (selected: TagOption[], field: any) => {
+  const handleHostnamesOnChange = (
+    selected: TagOption[],
+    field: ControllerRenderProps<WafCreateForm, 'hosts'>
+  ) => {
     field.onChange(
       selected.map((item) => ({
         hostname: item.value,
@@ -39,7 +45,10 @@ export const Nodebalancers = () => {
     );
   };
 
-  const handlePathsOnChange = (selected: TagOption[], field: any) => {
+  const handlePathsOnChange = (
+    selected: TagOption[],
+    field: ControllerRenderProps<WafCreateForm, 'paths'>
+  ) => {
     field.onChange(
       selected.map((item) => ({
         hostname: WILDCARD_HOSTNAME,
