@@ -1,4 +1,4 @@
-import { Box, Paper, Select } from '@linode/ui';
+import { Box, Notice, Paper, Select } from '@linode/ui';
 import { styled } from '@mui/material/styles';
 import * as React from 'react';
 import { Controller, useFieldArray, useFormContext } from 'react-hook-form';
@@ -51,6 +51,11 @@ export const AttackGroupsTable = () => {
 
   return (
     <div style={{ width: '100%' }}>
+      <Notice
+        sx={{ marginTop: '10px' }}
+        text="Use Alert mode to inspect WAF-triggered events before enabling Deny."
+        variant="info"
+      />
       <Paper sx={{ width: '100%', padding: '0', marginTop: '20px' }}>
         <Box>
           <Table striped={false}>
