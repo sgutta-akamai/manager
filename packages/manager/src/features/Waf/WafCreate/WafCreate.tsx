@@ -3,7 +3,14 @@ import * as React from 'react';
 import { FormProvider, useForm } from 'react-hook-form';
 
 import { LandingHeader } from 'src/components/LandingHeader';
-import { WafCreateForm, WafCreateFormDTO } from 'src/features/Waf/utils';
+import {
+  AttackGroup,
+  AttackGroupAction,
+  defaultAttackGroups,
+  WafCreateForm,
+  WafCreateFormDTO,
+} from 'src/features/Waf/utils';
+import { AttackProtections } from 'src/features/Waf/WafCreate/AttackProtections/AttackProtections';
 import { Nodebalancers } from 'src/features/Waf/WafCreate/Nodebalancers/Nodebalancers';
 import { Summary } from 'src/features/Waf/WafCreate/Summary/Summary';
 import { WafName } from 'src/features/Waf/WafCreate/WafName/WafName';
@@ -12,12 +19,22 @@ export const WafCreate = () => {
   const methods = useForm<WafCreateForm>({
     defaultValues: {
       isAdjustProtectedResourcesEnabled: false,
+      attack_groups: defaultAttackGroups,
     },
   });
+
   const onSubmit = (data: WafCreateForm) => {
     //TODO - add proper event handler
     // console.log(data);
     getTransformedData(data);
+  };
+
+  const isAttackProtectionsModified = (formData: AttackGroup[]): boolean => {
+    return (
+      formData.filter(
+        (attackGroup) => attackGroup.action === AttackGroupAction.DENY
+      ).length > 0
+    );
   };
 
   const getTransformedData = (formData: WafCreateForm): WafCreateFormDTO => {
@@ -26,7 +43,6 @@ export const WafCreate = () => {
 
     return {
       label: formData.label,
-      attack_groups: formData.attackGroups,
       devices: formData.devices,
       advanced_settings: {
         custom_rules_enabled: formData.advancedSettings?.customRulesEnabled,
@@ -34,6 +50,10 @@ export const WafCreate = () => {
       ...(formData.isAdjustProtectedResourcesEnabled && {
         hosts: [...excludedHosts, ...excludedPaths],
       }),
+      ...(formData.attack_groups &&
+        isAttackProtectionsModified(formData.attack_groups) && {
+          attack_groups: formData.attack_groups,
+        }),
     };
   };
 
@@ -50,6 +70,7 @@ export const WafCreate = () => {
         <form onSubmit={methods.handleSubmit(onSubmit)}>
           <WafName />
           <Nodebalancers />
+          <AttackProtections />
           <Summary />
           {/*for debugging form values TODO - remove later once integrated with attack groups table and backend*/}
           {JSON.stringify(methods.getValues())}
