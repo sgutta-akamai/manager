@@ -25,7 +25,7 @@ import {
 export const Nodebalancers = () => {
   const { control, watch } = useFormContext<WafCreateForm>();
   const isAdjustProtectedResourcesEnabled = watch(
-    'is_adjust_protected_resources_enabled'
+    'isAdjustProtectedResourcesEnabled'
   );
   const deviceOptions: Device[] = [
     { id: '1', label: 'NodeBalancer 1', type: 'nodebalancer' },
@@ -90,7 +90,7 @@ export const Nodebalancers = () => {
         />
         <Controller
           control={control}
-          name="is_adjust_protected_resources_enabled"
+          name="isAdjustProtectedResourcesEnabled"
           render={({ field }) => (
             <FormControlLabel
               control={

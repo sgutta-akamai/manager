@@ -18,8 +18,8 @@ import { WafName } from 'src/features/Waf/WafCreate/WafName/WafName';
 export const WafCreate = () => {
   const methods = useForm<WafCreateForm>({
     defaultValues: {
-      is_adjust_protected_resources_enabled: false,
-      attack_groups: defaultAttackGroups,
+      isAdjustProtectedResourcesEnabled: false,
+      attackGroups: defaultAttackGroups,
     },
   });
 
@@ -40,16 +40,16 @@ export const WafCreate = () => {
     const excludedPaths = formData.paths || [];
     const getAttackGroups = () => {
       return (
-        formData.attack_groups &&
-        isAttackProtectionsModified(formData.attack_groups) && {
-          attack_groups: formData.attack_groups,
+        formData.attackGroups &&
+        isAttackProtectionsModified(formData.attackGroups) && {
+          attack_groups: formData.attackGroups,
         }
       );
     };
 
     const getHosts = () => {
       return (
-        formData.is_adjust_protected_resources_enabled && {
+        formData.isAdjustProtectedResourcesEnabled && {
           hosts: [...excludedHosts, ...excludedPaths],
         }
       );
@@ -59,7 +59,7 @@ export const WafCreate = () => {
       label: formData.label,
       devices: formData.devices,
       advanced_settings: {
-        custom_rules_enabled: formData.advanced_settings?.custom_rules_enabled,
+        custom_rules_enabled: formData.advancedSettings?.customRulesEnabled,
       },
       ...getHosts(),
       ...getAttackGroups(),

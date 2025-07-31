@@ -27,7 +27,7 @@ export const AttackGroupsTable = () => {
 
   const { fields } = useFieldArray({
     control,
-    name: 'attack_groups',
+    name: 'attackGroups',
   });
 
   const [order, setOrder] = React.useState<'asc' | 'desc'>('asc');
@@ -39,15 +39,13 @@ export const AttackGroupsTable = () => {
   const handleSort = () => {
     const newOrder = order === 'asc' ? 'desc' : 'asc';
 
-    const sortedFields = [...(getValues('attack_groups') ?? [])].sort(
-      (a, b) => {
-        return newOrder === 'asc'
-          ? a.attack_group_label.localeCompare(b.attack_group_label)
-          : b.attack_group_label.localeCompare(a.attack_group_label);
-      }
-    );
+    const sortedFields = [...(getValues('attackGroups') ?? [])].sort((a, b) => {
+      return newOrder === 'asc'
+        ? a.attack_group_label.localeCompare(b.attack_group_label)
+        : b.attack_group_label.localeCompare(a.attack_group_label);
+    });
 
-    setValue('attack_groups', sortedFields, { shouldDirty: true });
+    setValue('attackGroups', sortedFields, { shouldDirty: true });
     setOrder(newOrder);
   };
 
@@ -112,7 +110,7 @@ export const AttackGroupsTable = () => {
                   <TableCell>
                     <Controller
                       control={control}
-                      name={`attack_groups.${index}.action`}
+                      name={`attackGroups.${index}.action`}
                       render={({ field: { onChange, value } }) => (
                         <Select
                           hideLabel={true}
@@ -120,7 +118,7 @@ export const AttackGroupsTable = () => {
                           onChange={(e, selected) => {
                             onChange(selected.value);
                             //force setting form state. Fixes issue of form not registering first change unless another change is made. TODO - find better fix
-                            setValue('attack_groups', watch('attack_groups'), {
+                            setValue('attackGroups', watch('attackGroups'), {
                               shouldDirty: true,
                             });
                           }}

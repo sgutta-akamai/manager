@@ -12,7 +12,7 @@ export const Summary = () => {
   const hostnamesValue = watch('hosts') || [];
   const pathsValue = watch('paths') || [];
   const isAdjustProtectedResourcesEnabled = watch(
-    'is_adjust_protected_resources_enabled'
+    'isAdjustProtectedResourcesEnabled'
   );
 
   const isWafLabelSet = !!labelValue;
