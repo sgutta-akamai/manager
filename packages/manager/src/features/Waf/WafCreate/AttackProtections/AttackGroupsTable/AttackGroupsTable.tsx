@@ -39,7 +39,6 @@ export const AttackGroupsTable = () => {
   const handleSort = () => {
     const newOrder = order === 'asc' ? 'desc' : 'asc';
 
-    //TODO - check if watch can be replaced by getValue
     const sortedFields = [...(getValues('attack_groups') ?? [])].sort(
       (a, b) => {
         return newOrder === 'asc'
@@ -125,7 +124,6 @@ export const AttackGroupsTable = () => {
                           onChange={(e, selected) => {
                             onChange(selected.value);
                             //force setting form state. Fixes issue of form not registering first change unless another change is made. TODO - find better fix
-                            //TODO - check if watch can be replaced by getValue
                             setValue('attack_groups', watch('attack_groups'), {
                               shouldDirty: true,
                             });
