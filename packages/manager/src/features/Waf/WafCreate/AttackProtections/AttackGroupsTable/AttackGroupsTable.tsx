@@ -16,6 +16,11 @@ import {
 } from 'src/features/Waf/utils';
 import { AttackGroupDrawer } from 'src/features/Waf/WafCreate/AttackProtections/AttackGroupsTable/AttackGroupDrawer/AttackGroupDrawer';
 
+const StyledAttackGroupLabel = styled('span')({
+  color: '#0174BC',
+  cursor: 'pointer',
+});
+
 export const AttackGroupsTable = () => {
   const { control, setValue, watch } = useFormContext<WafCreateForm>();
 
@@ -43,11 +48,6 @@ export const AttackGroupsTable = () => {
     setValue('attack_groups', sortedFields, { shouldDirty: true });
     setOrder(newOrder);
   };
-
-  const AttackGroupLabel = styled('span')({
-    color: '#0174BC',
-    cursor: 'pointer',
-  });
 
   const attackGroupOptions = [
     {
@@ -97,14 +97,14 @@ export const AttackGroupsTable = () => {
               {fields.map((field, index) => (
                 <TableRow key={field.attack_group_name}>
                   <TableCell>
-                    <AttackGroupLabel
+                    <StyledAttackGroupLabel
                       onClick={() => {
                         setIsDrawerOpen(true);
                         setSelectedAttackGroup(field.attack_group_name);
                       }}
                     >
                       {field.attack_group_label}
-                    </AttackGroupLabel>
+                    </StyledAttackGroupLabel>
                   </TableCell>
                   <TableCell>
                     <Controller
