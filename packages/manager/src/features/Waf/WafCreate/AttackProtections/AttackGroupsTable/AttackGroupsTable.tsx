@@ -49,6 +49,26 @@ export const AttackGroupsTable = () => {
     cursor: 'pointer',
   });
 
+  const attackGroupOptions = [
+    {
+      label: 'Alert',
+      value: AttackGroupAction.ALERT,
+    },
+    {
+      label: 'Deny',
+      value: AttackGroupAction.DENY,
+    },
+    {
+      label: 'Not used',
+      value: AttackGroupAction.NOT_USED,
+    },
+  ];
+
+  const getLabel = (value: AttackGroupAction) => {
+    const option = attackGroupOptions.find((option) => option.value === value);
+    return option ? option.label : '';
+  };
+
   return (
     <div style={{ width: '100%' }}>
       <Notice
@@ -102,17 +122,10 @@ export const AttackGroupsTable = () => {
                               shouldDirty: true,
                             });
                           }}
-                          options={[
-                            {
-                              label: AttackGroupAction.ALERT,
-                              value: AttackGroupAction.ALERT,
-                            },
-                            {
-                              label: AttackGroupAction.DENY,
-                              value: AttackGroupAction.DENY,
-                            },
-                          ]}
-                          value={value ? { label: value, value } : null}
+                          options={attackGroupOptions}
+                          value={
+                            value ? { label: getLabel(value), value } : null
+                          }
                         />
                       )}
                     />

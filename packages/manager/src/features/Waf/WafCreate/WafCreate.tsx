@@ -32,7 +32,7 @@ export const WafCreate = () => {
   const isAttackProtectionsModified = (formData: AttackGroup[]): boolean => {
     return (
       formData.filter(
-        (attackGroup) => attackGroup.action === AttackGroupAction.DENY
+        (attackGroup) => attackGroup.action !== AttackGroupAction.ALERT
       ).length > 0
     );
   };

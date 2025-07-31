@@ -51,6 +51,7 @@ export enum ExclusionType {
 export enum AttackGroupAction {
   ALERT = 'alert',
   DENY = 'deny',
+  NOT_USED = 'not_used',
 }
 
 type Path = Host;
