@@ -22,7 +22,8 @@ const StyledAttackGroupLabel = styled('span')({
 });
 
 export const AttackGroupsTable = () => {
-  const { control, setValue, watch } = useFormContext<WafCreateForm>();
+  const { control, setValue, getValues, watch } =
+    useFormContext<WafCreateForm>();
 
   const { fields } = useFieldArray({
     control,
@@ -39,11 +40,13 @@ export const AttackGroupsTable = () => {
     const newOrder = order === 'asc' ? 'desc' : 'asc';
 
     //TODO - check if watch can be replaced by getValue
-    const sortedFields = [...(watch('attack_groups') ?? [])].sort((a, b) => {
-      return newOrder === 'asc'
-        ? a.attack_group_label.localeCompare(b.attack_group_label)
-        : b.attack_group_label.localeCompare(a.attack_group_label);
-    });
+    const sortedFields = [...(getValues('attack_groups') ?? [])].sort(
+      (a, b) => {
+        return newOrder === 'asc'
+          ? a.attack_group_label.localeCompare(b.attack_group_label)
+          : b.attack_group_label.localeCompare(a.attack_group_label);
+      }
+    );
 
     setValue('attack_groups', sortedFields, { shouldDirty: true });
     setOrder(newOrder);
@@ -64,9 +67,14 @@ export const AttackGroupsTable = () => {
     },
   ];
 
+  const attackGroupOptionsMap = {
+    [AttackGroupAction.ALERT]: 'Alert',
+    [AttackGroupAction.DENY]: 'Deny',
+    [AttackGroupAction.NOT_USED]: 'Not used',
+  };
+
   const getLabel = (value: AttackGroupAction) => {
-    const option = attackGroupOptions.find((option) => option.value === value);
-    return option ? option.label : '';
+    return attackGroupOptionsMap[value];
   };
 
   return (

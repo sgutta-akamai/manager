@@ -58,6 +58,7 @@ type Path = Host;
 
 export const WILDCARD_HOSTNAME = '*';
 
+//TODO - replace with values from backend data during integration
 export const defaultAttackGroups: AttackGroup[] = [
   {
     attack_group_label: 'Command Injection',

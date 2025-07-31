@@ -17,7 +17,8 @@ export const AttackProtections = () => {
           monitoring traffic without blocking.
           <br />
           Attack Categories: injection attacks, scripting & file inclusion,
-          protocol violations, abuse tools & crawlers, and know CVEs & exploits.
+          protocol violations, abuse tools & crawlers, and known CVEs &
+          exploits.
         </Typography>
         <FormControlLabel
           control={

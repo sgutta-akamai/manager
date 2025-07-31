@@ -30,16 +30,30 @@ export const WafCreate = () => {
   };
 
   const isAttackProtectionsModified = (formData: AttackGroup[]): boolean => {
-    return (
-      formData.filter(
-        (attackGroup) => attackGroup.action !== AttackGroupAction.ALERT
-      ).length > 0
+    return formData.some(
+      (attackGroup) => attackGroup.action !== AttackGroupAction.ALERT
     );
   };
 
   const getTransformedData = (formData: WafCreateForm): WafCreateFormDTO => {
     const excludedHosts = formData.hosts || [];
     const excludedPaths = formData.paths || [];
+    const getAttackGroups = () => {
+      return (
+        formData.attack_groups &&
+        isAttackProtectionsModified(formData.attack_groups) && {
+          attack_groups: formData.attack_groups,
+        }
+      );
+    };
+
+    const getHosts = () => {
+      return (
+        formData.isAdjustProtectedResourcesEnabled && {
+          hosts: [...excludedHosts, ...excludedPaths],
+        }
+      );
+    };
 
     return {
       label: formData.label,
@@ -47,13 +61,8 @@ export const WafCreate = () => {
       advanced_settings: {
         custom_rules_enabled: formData.advancedSettings?.customRulesEnabled,
       },
-      ...(formData.isAdjustProtectedResourcesEnabled && {
-        hosts: [...excludedHosts, ...excludedPaths],
-      }),
-      ...(formData.attack_groups &&
-        isAttackProtectionsModified(formData.attack_groups) && {
-          attack_groups: formData.attack_groups,
-        }),
+      ...getHosts(),
+      ...getAttackGroups(),
     };
   };
 
