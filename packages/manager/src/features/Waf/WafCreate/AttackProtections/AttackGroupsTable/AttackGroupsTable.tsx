@@ -72,10 +72,6 @@ export const AttackGroupsTable = () => {
     [AttackGroupAction.NOT_USED]: 'Not used',
   };
 
-  const getLabel = (value: AttackGroupAction) => {
-    return attackGroupOptionsMap[value];
-  };
-
   return (
     <div style={{ width: '100%' }}>
       <Notice
@@ -130,7 +126,9 @@ export const AttackGroupsTable = () => {
                           }}
                           options={attackGroupOptions}
                           value={
-                            value ? { label: getLabel(value), value } : null
+                            value
+                              ? { label: attackGroupOptionsMap[value], value }
+                              : null
                           }
                         />
                       )}
