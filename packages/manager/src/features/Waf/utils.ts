@@ -1,11 +1,11 @@
 export interface WafCreateForm {
-  advancedSettings?: {
-    customRulesEnabled?: boolean;
+  advanced_settings?: {
+    custom_rules_enabled?: boolean;
   };
   attack_groups?: AttackGroup[];
   devices?: Device[];
   hosts?: Host[];
-  isAdjustProtectedResourcesEnabled: boolean;
+  is_adjust_protected_resources_enabled: boolean;
   label: string;
   paths?: Path[];
 }
