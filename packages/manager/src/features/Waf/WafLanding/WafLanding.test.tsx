@@ -80,7 +80,7 @@ describe('Waf Landing', () => {
     // Check to see if the row rendered some data
     expect(getByText(waf.label)).toBeVisible();
     expect(getByText(capitalize(waf.status))).toBeVisible();
-    expect(getByText(formatDate(waf.update_dt))).toBeVisible();
+    expect(getByText(formatDate(waf.updated))).toBeVisible();
   });
 
   it('should open an action menu', async () => {

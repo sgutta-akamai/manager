@@ -3,9 +3,6 @@ import * as React from 'react';
 import { Controller, useFormContext } from 'react-hook-form';
 
 import { TagsInput } from 'src/components/TagsInput/TagsInput';
-
-import type { CreateCustomRulePayload } from '@linode/api-v4';
-
 interface CustomRuleConditionProps {
   filterFields: string[];
   index: number;
@@ -15,7 +12,8 @@ interface CustomRuleConditionProps {
 
 export const CustomRuleCondition = (props: CustomRuleConditionProps) => {
   const { filterFields, index, onRemove, operators } = props;
-  const { control } = useFormContext<CreateCustomRulePayload>();
+  //TODO: Add CreateCustomRulePayload interface
+  const { control } = useFormContext<any>();
 
   const filterFieldOptions = React.useMemo(
     () => filterFields.map((f) => ({ label: f, value: f })),
@@ -88,7 +86,10 @@ export const CustomRuleCondition = (props: CustomRuleConditionProps) => {
                 onChange={(item) => field.onChange(item.map((i) => i.value))}
                 tagError={fieldState.error?.message}
                 value={
-                  field.value?.map((tag) => ({ label: tag, value: tag })) ?? []
+                  field.value?.map((tag: string) => ({
+                    label: tag,
+                    value: tag,
+                  })) ?? []
                 }
               />
             )}

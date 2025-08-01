@@ -53,7 +53,7 @@ export const DeleteWafDialog = (props: Props) => {
 
   const onDelete = () => {
     // TODO: Review the handling of 'id' in deleteWaf() mutation, to provide a better fix
-    deleteWaf({ id: waf?.config_id ?? -1 }).then(() => {
+    deleteWaf({ id: waf?.id ?? -1 }).then(() => {
       onClose();
       checkForNewEvents();
     });

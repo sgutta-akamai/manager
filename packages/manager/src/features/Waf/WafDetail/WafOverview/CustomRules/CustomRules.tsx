@@ -3,15 +3,13 @@ import * as React from 'react';
 
 import { CreateCustomRuleDrawer } from 'src/features/Waf/WafDetail/WafOverview/CustomRules/CreateCustomRules/CreateCustomRuleDrawer';
 
-import type { CreateCustomRulePayload } from '@linode/api-v4';
-
 export const CustomRules = () => {
   const [isCreateCustomRuleDrawerOpen, setIsCreateCustomRuleDrawerOpen] =
     React.useState<boolean>(false);
 
   // TODO: Remove the dummy data, once BE integration is finished
   // const initialJSON = undefined;  /* If there is no initial data for Custom rule drawer. */
-  const initialJSON: CreateCustomRulePayload = {
+  const initialJSON = {
     label: 'Custom Rule #01',
     description: 'Creating custom rules',
     filters: [
@@ -38,8 +36,8 @@ export const CustomRules = () => {
     ],
     action: 'alert',
   };
-
-  const handleSaveCustomRule = (formData: CreateCustomRulePayload) => {
+  //TODO: Add CreateCustomRulePayload interface
+  const handleSaveCustomRule = (formData: any) => {
     /* eslint-disable */
     // TODO: Remove the console log statement
     console.log('Parent received form data:', formData);
