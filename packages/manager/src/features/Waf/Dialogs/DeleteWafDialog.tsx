@@ -13,11 +13,10 @@ interface Props {
   open: boolean;
   // TODO: Review the handling of 'waf' prop later, to provide a better fix
   waf: undefined | WAF;
-  wafError?: APIError[] | null;
 }
 
 export const DeleteWafDialog = (props: Props) => {
-  const { isFetching, onClose, open, waf, wafError } = props;
+  const { onClose, open, waf } = props;
 
   // --- Mocked useDeleteWafMutation hook ---
   const useDeleteWafMutation = () => {
@@ -66,11 +65,9 @@ export const DeleteWafDialog = (props: Props) => {
         name: waf?.label,
         primaryBtnText: 'Delete',
         type: 'WAF configuration',
-        error: wafError,
       }}
       errors={error}
       expand
-      isFetching={isFetching}
       label="Waf Configuration Label"
       loading={isPending}
       onClick={onDelete}

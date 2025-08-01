@@ -33,9 +33,9 @@ export const WafRow = (props: Props) => {
         {capitalize(waf.status)}
       </TableCell>
       <TableCell>
-        {waf.devices
+        {waf.devices && waf.devices.length > 0
           ? waf.devices.map((device, index) => (
-              <React.Fragment key={index}>
+              <React.Fragment key={device.id}>
                 {device.label}
                 {index < (waf.devices?.length ?? 0) - 1 && ' | '}
               </React.Fragment>
