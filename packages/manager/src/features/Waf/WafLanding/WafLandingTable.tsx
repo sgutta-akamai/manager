@@ -24,7 +24,7 @@ interface Props {
   handleOrderChange: (newOrderBy: string, newOrder: Order) => void;
   order: 'asc' | 'desc';
   orderBy: string;
-  results: number | undefined;
+  results: number;
 }
 
 export const WafLandingTable = ({
@@ -38,41 +38,25 @@ export const WafLandingTable = ({
   const pagination = usePagination(1, preferenceKey);
 
   // Track selected WAF for delete dialog
-  const [selectedWafForDelete, setSelectedWafForDelete] = React.useState<
-    undefined | WAF
-  >(undefined);
+  const [selectedWafForDelete, setSelectedWafForDelete] = React.useState<WAF>();
 
   const closeDeleteDialog = () => {
     setSelectedWafForDelete(undefined);
   };
 
-  const handleWafAction = React.useCallback(
-    (action: WafAction, waf: WAF) => {
-      if (action === 'delete') {
-        setSelectedWafForDelete(waf);
-        return;
-      }
+  const handleWafAction = React.useCallback((action: WafAction, waf: WAF) => {
+    if (action === 'delete') {
+      setSelectedWafForDelete(waf);
+      return;
+    }
 
-      // Navigate to other actions
-      navigate({
-        params: { action, wafId: waf.id },
-        search: (prev) => prev,
-        to: `/waf/$wafId/$action`,
-      });
-    },
-    [navigate]
-  );
-
-  const createActionHandlers = React.useCallback(
-    (waf: WAF) => ({
-      handleAnalytics: () => handleWafAction('analytics', waf),
-      handleDelete: () => handleWafAction('delete', waf),
-      handleLogs: () => handleWafAction('logs', waf),
-      handleOverview: () => handleWafAction('overview', waf),
-      handleSettings: () => handleWafAction('settings', waf),
-    }),
-    [handleWafAction]
-  );
+    // Navigate to other actions
+    navigate({
+      params: { action, wafId: waf.id },
+      search: (prev) => prev,
+      to: `/waf/$wafId/$action`,
+    });
+  }, []);
 
   return (
     <>
@@ -100,7 +84,13 @@ export const WafLandingTable = ({
           ) : (
             data.map((waf) => (
               <WafRow
-                handlers={createActionHandlers(waf)}
+                handlers={{
+                  handleAnalytics: () => handleWafAction('analytics', waf),
+                  handleDelete: () => handleWafAction('delete', waf),
+                  handleLogs: () => handleWafAction('logs', waf),
+                  handleOverview: () => handleWafAction('overview', waf),
+                  handleSettings: () => handleWafAction('settings', waf),
+                }}
                 key={waf.id}
                 waf={waf}
               />
