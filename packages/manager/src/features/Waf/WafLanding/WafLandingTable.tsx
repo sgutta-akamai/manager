@@ -16,7 +16,7 @@ import { usePagination } from 'src/hooks/usePagination';
 
 import type { WAF } from '@linode/api-v4/lib/wafs/types';
 import type { Order } from '@linode/utilities';
-import type { WafAction } from 'src/routes/waf/index';
+import type { WafAction } from 'src/routes/waf';
 
 const preferenceKey = 'wafs';
 
@@ -46,7 +46,7 @@ export const WafLandingTable = ({
     const error = null;
 
     // Simulate fetching the WAF with the given ID
-    const selectedWaf = data.find((waf) => waf.config_id === wafId);
+    const selectedWaf = data.find((waf) => waf.id === wafId);
 
     return {
       data: selectedWaf,
@@ -70,7 +70,7 @@ export const WafLandingTable = ({
 
   const handleWafAction = (action: WafAction, waf: WAF) => {
     navigate({
-      params: { action, wafId: waf.config_id },
+      params: { action, wafId: waf.id },
       search: (prev) => prev,
       to: `/waf/$wafId/$action`,
     });
@@ -109,7 +109,7 @@ export const WafLandingTable = ({
                 handleOverview: () => handleWafAction('overview', waf),
                 handleSettings: () => handleWafAction('settings', waf),
               }}
-              key={waf.config_id}
+              key={waf.id}
               waf={waf}
             />
           ))}
