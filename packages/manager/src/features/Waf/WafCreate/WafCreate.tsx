@@ -3,7 +3,14 @@ import * as React from 'react';
 import { FormProvider, useForm } from 'react-hook-form';
 
 import { LandingHeader } from 'src/components/LandingHeader';
-import { WafCreateForm, WafCreateFormDTO } from 'src/features/Waf/utils';
+import {
+  AttackGroup,
+  AttackGroupAction,
+  defaultAttackGroups,
+  WafCreateForm,
+  WafCreateFormDTO,
+} from 'src/features/Waf/utils';
+import { AttackProtections } from 'src/features/Waf/WafCreate/AttackProtections/AttackProtections';
 import { Nodebalancers } from 'src/features/Waf/WafCreate/Nodebalancers/Nodebalancers';
 import { Summary } from 'src/features/Waf/WafCreate/Summary/Summary';
 import { WafName } from 'src/features/Waf/WafCreate/WafName/WafName';
@@ -12,28 +19,50 @@ export const WafCreate = () => {
   const methods = useForm<WafCreateForm>({
     defaultValues: {
       isAdjustProtectedResourcesEnabled: false,
+      attackGroups: defaultAttackGroups,
     },
   });
+
   const onSubmit = (data: WafCreateForm) => {
     //TODO - add proper event handler
     // console.log(data);
     getTransformedData(data);
   };
 
+  const isAttackProtectionsModified = (formData: AttackGroup[]): boolean => {
+    return formData.some(
+      (attackGroup) => attackGroup.action !== AttackGroupAction.ALERT
+    );
+  };
+
   const getTransformedData = (formData: WafCreateForm): WafCreateFormDTO => {
     const excludedHosts = formData.hosts || [];
     const excludedPaths = formData.paths || [];
+    const getAttackGroups = () => {
+      return (
+        formData.attackGroups &&
+        isAttackProtectionsModified(formData.attackGroups) && {
+          attack_groups: formData.attackGroups,
+        }
+      );
+    };
+
+    const getHosts = () => {
+      return (
+        formData.isAdjustProtectedResourcesEnabled && {
+          hosts: [...excludedHosts, ...excludedPaths],
+        }
+      );
+    };
 
     return {
       label: formData.label,
-      attack_groups: formData.attackGroups,
       devices: formData.devices,
       advanced_settings: {
         custom_rules_enabled: formData.advancedSettings?.customRulesEnabled,
       },
-      ...(formData.isAdjustProtectedResourcesEnabled && {
-        hosts: [...excludedHosts, ...excludedPaths],
-      }),
+      ...getHosts(),
+      ...getAttackGroups(),
     };
   };
 
@@ -50,6 +79,7 @@ export const WafCreate = () => {
         <form onSubmit={methods.handleSubmit(onSubmit)}>
           <WafName />
           <Nodebalancers />
+          <AttackProtections />
           <Summary />
           {/*for debugging form values TODO - remove later once integrated with attack groups table and backend*/}
           {JSON.stringify(methods.getValues())}
