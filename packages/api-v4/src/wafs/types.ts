@@ -52,3 +52,11 @@ export interface WAF {
   status: WafStatus;
   updated: string;
 }
+
+export interface CreateWafPayload {
+  advanced_settings?: WAFAdvancedSettings;
+  attack_groups?: WAFAttackGroup[];
+  devices?: WAFDevice[];
+  hosts?: WAFHost[];
+  label: string;
+}

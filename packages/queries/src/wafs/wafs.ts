@@ -1,56 +1,53 @@
-import { getWaf, getWafs } from '@linode/api-v4';
-import { getAll } from '@linode/utilities';
+import { createWaf, getWaf, getWafs } from '@linode/api-v4';
 import { createQueryKeys } from '@lukemorales/query-key-factory';
-import { keepPreviousData, useQuery } from '@tanstack/react-query';
+import {
+  keepPreviousData,
+  useMutation,
+  useQuery,
+  useQueryClient,
+} from '@tanstack/react-query';
 
 import type {
   APIError,
+  CreateWafPayload,
   Filter,
   Params,
   ResourcePage,
   WAF,
 } from '@linode/api-v4';
 
-const getAllWafsRequest = () =>
-  getAll<WAF>((passedParams, passedFilter) =>
-    getWafs(passedParams, passedFilter),
-  )().then((data) => data.data);
-
 export const wafQueries = createQueryKeys('wafs', {
   waf: (id: number) => ({
     queryFn: () => getWaf(id),
     queryKey: [id],
   }),
-  wafs: {
-    contextQueries: {
-      all: {
-        queryFn: getAllWafsRequest,
-        queryKey: null,
-      },
-      paginated: (params: Params = {}, filter: Filter = {}) => ({
-        queryFn: () => getWafs(params, filter),
-        queryKey: [params, filter],
-      }),
-    },
-    queryKey: null,
-  },
+  paginated: (params: Params = {}, filter: Filter = {}) => ({
+    queryFn: () => getWafs(params, filter),
+    queryKey: [params, filter],
+  }),
 });
 
 export const useWafsQuery = (params?: Params, filter?: Filter) => {
   return useQuery<ResourcePage<WAF>, APIError[]>({
-    ...wafQueries.wafs._ctx.paginated(params, filter),
+    ...wafQueries.paginated(params, filter),
     placeholderData: keepPreviousData,
   });
 };
 
-export const useWafQuery = (wafId: number, enabled: boolean = true) =>
+export const useWafQuery = (wafId: number) =>
   useQuery<WAF, APIError[]>({
     ...wafQueries.waf(wafId),
-    enabled,
   });
 
-export const useAllWafsQuery = (enabled: boolean = true) =>
-  useQuery<WAF[], APIError[]>({
-    ...wafQueries.wafs._ctx.all,
-    enabled,
+export const useCreateWafMutation = () => {
+  const queryClient = useQueryClient();
+
+  return useMutation<WAF, APIError[], CreateWafPayload>({
+    mutationFn: createWaf,
+    onSuccess: () => {
+      queryClient.invalidateQueries({
+        queryKey: wafQueries.paginated._def,
+      });
+    },
   });
+};

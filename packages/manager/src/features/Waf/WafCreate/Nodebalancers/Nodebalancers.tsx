@@ -1,3 +1,4 @@
+import { WAFExclusionType } from '@linode/api-v4';
 import {
   Autocomplete,
   Box,
@@ -17,7 +18,6 @@ import {
 import { TagOption, TagsInput } from 'src/components/TagsInput/TagsInput';
 import {
   Device,
-  ExclusionType,
   WafCreateForm,
   WILDCARD_HOSTNAME,
 } from 'src/features/Waf/utils';
@@ -40,7 +40,7 @@ export const Nodebalancers = () => {
       selected.map((item) => ({
         hostname: item.value,
         path: '',
-        exclusionType: ExclusionType.EXCLUDED,
+        exclusionType: WAFExclusionType.EXCLUDED,
       }))
     );
   };
@@ -53,7 +53,7 @@ export const Nodebalancers = () => {
       selected.map((item) => ({
         hostname: WILDCARD_HOSTNAME,
         path: item.value,
-        exclusionType: ExclusionType.EXCLUDED,
+        exclusionType: WAFExclusionType.EXCLUDED,
       }))
     );
   };

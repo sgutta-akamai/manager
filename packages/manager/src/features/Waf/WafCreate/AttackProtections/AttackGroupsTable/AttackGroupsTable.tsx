@@ -1,3 +1,4 @@
+import { WAFAction } from '@linode/api-v4';
 import { Box, Notice, Paper, Select } from '@linode/ui';
 import { styled } from '@mui/material/styles';
 import * as React from 'react';
@@ -9,12 +10,10 @@ import { TableCell } from 'src/components/TableCell';
 import { TableHead } from 'src/components/TableHead';
 import { TableRow } from 'src/components/TableRow';
 import { TableSortCell } from 'src/components/TableSortCell';
-import {
-  AttackGroupAction,
-  AttackGroupDescriptions,
-  WafCreateForm,
-} from 'src/features/Waf/utils';
+import { AttackGroupDescriptions } from 'src/features/Waf/utils';
 import { AttackGroupDrawer } from 'src/features/Waf/WafCreate/AttackProtections/AttackGroupsTable/AttackGroupDrawer/AttackGroupDrawer';
+
+import type { WafCreateForm } from 'src/features/Waf/utils';
 
 const StyledAttackGroupLabel = styled('span')({
   color: '#0174BC',
@@ -52,22 +51,22 @@ export const AttackGroupsTable = () => {
   const attackGroupOptions = [
     {
       label: 'Alert',
-      value: AttackGroupAction.ALERT,
+      value: WAFAction.ALERT,
     },
     {
       label: 'Deny',
-      value: AttackGroupAction.DENY,
+      value: WAFAction.DENY,
     },
     {
       label: 'Not used',
-      value: AttackGroupAction.NOT_USED,
+      value: WAFAction.NOT_USED,
     },
   ];
 
   const attackGroupOptionsMap = {
-    [AttackGroupAction.ALERT]: 'Alert',
-    [AttackGroupAction.DENY]: 'Deny',
-    [AttackGroupAction.NOT_USED]: 'Not used',
+    [WAFAction.ALERT]: 'Alert',
+    [WAFAction.DENY]: 'Deny',
+    [WAFAction.NOT_USED]: 'Not used',
   };
 
   return (
@@ -117,7 +116,7 @@ export const AttackGroupsTable = () => {
                           label="action"
                           onChange={(e, selected) => {
                             onChange(selected.value);
-                            //force setting form state. Fixes issue of form not registering first change unless another change is made. TODO - find better fix
+                            // force setting form state. Fixes issue of form not registering first change unless another change is made. TODO - find better fix
                             setValue('attackGroups', watch('attackGroups'), {
                               shouldDirty: true,
                             });
@@ -150,7 +149,7 @@ export const AttackGroupsTable = () => {
             setSelectedAttackGroup(undefined);
           }}
           open={isDrawerOpen}
-        ></AttackGroupDrawer>
+        />
       )}
     </div>
   );
