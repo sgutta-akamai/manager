@@ -8,7 +8,7 @@ import Request, {
 } from '../request';
 
 import type { Filter, Params, ResourcePage } from '../types';
-import type { CreateWafPayload, WAF } from './types';
+import type { CreateWafPayload, WAF, WAFDevice } from './types';
 
 /**
  * getWafs
@@ -52,7 +52,20 @@ export const createWaf = (data: CreateWafPayload) =>
  * Delete a WAF configuration.
  */
 export const deleteWaf = (wafId: number) =>
-  Request<{}>(
+  Request<object>(
     setURL(`${API_ROOT}/waf-configs/${encodeURIComponent(wafId)}`),
     setMethod('DELETE'),
+  );
+
+/**
+ * getAvailableWafDevices
+ *
+ * Return a paginated list of available devices for WAF.
+ */
+export const getAvailableWafDevices = (params?: Params, filter?: Filter) =>
+  Request<ResourcePage<WAFDevice>>(
+    setURL(`${API_ROOT}/waf-configs/devices`),
+    setMethod('GET'),
+    setParams(params),
+    setXFilter(filter),
   );

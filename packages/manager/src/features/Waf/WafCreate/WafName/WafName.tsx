@@ -2,7 +2,7 @@ import { Box, Paper, TextField, Typography } from '@linode/ui';
 import * as React from 'react';
 import { Controller, useFormContext } from 'react-hook-form';
 
-import { WafCreateForm } from 'src/features/Waf/utils';
+import type { WafCreateForm } from 'src/features/Waf/utils';
 
 export const WafName = () => {
   const { control } = useFormContext<WafCreateForm>();
@@ -21,7 +21,7 @@ export const WafName = () => {
               placeholder="WAF Label"
               sx={{ width: '462px' }}
               value={field.value}
-            ></TextField>
+            />
           )}
         />
       </Box>

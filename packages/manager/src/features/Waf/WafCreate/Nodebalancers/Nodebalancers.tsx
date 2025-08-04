@@ -1,4 +1,5 @@
 import { WAFExclusionType } from '@linode/api-v4';
+import { useAvailableWafDevicesInfiniteQuery } from '@linode/queries';
 import {
   Autocomplete,
   Box,
@@ -9,28 +10,30 @@ import {
   Typography,
 } from '@linode/ui';
 import * as React from 'react';
-import {
-  Controller,
-  ControllerRenderProps,
-  useFormContext,
-} from 'react-hook-form';
+import type { ControllerRenderProps } from 'react-hook-form';
+import { Controller, useFormContext } from 'react-hook-form';
 
-import { TagOption, TagsInput } from 'src/components/TagsInput/TagsInput';
-import {
-  Device,
-  WafCreateForm,
-  WILDCARD_HOSTNAME,
-} from 'src/features/Waf/utils';
+import { TagsInput } from 'src/components/TagsInput/TagsInput';
+import { WILDCARD_HOSTNAME } from 'src/features/Waf/utils';
+
+import type { WAFDevice } from '@linode/api-v4';
+import type { TagOption } from 'src/components/TagsInput/TagsInput';
+import type { WafCreateForm } from 'src/features/Waf/utils';
 
 export const Nodebalancers = () => {
   const { control, watch } = useFormContext<WafCreateForm>();
   const isAdjustProtectedResourcesEnabled = watch(
     'isAdjustProtectedResourcesEnabled'
   );
-  const deviceOptions: Device[] = [
-    { id: '1', label: 'NodeBalancer 1', type: 'nodebalancer' },
-    { id: '2', label: 'NodeBalancer 2', type: 'nodebalancer' },
-  ];
+
+  const [open, setOpen] = React.useState(false);
+
+  const { data, error, fetchNextPage, hasNextPage, isFetching } =
+    useAvailableWafDevicesInfiniteQuery({}, open);
+
+  const deviceOptions = React.useMemo(() => {
+    return data?.pages.flatMap((page) => page.data) ?? [];
+  }, [data]);
 
   const handleHostnamesOnChange = (
     selected: TagOption[],
@@ -71,11 +74,16 @@ export const Nodebalancers = () => {
           defaultValue={[]}
           name="devices"
           render={({ field }) => (
-            <Autocomplete<Device, true>
+            <Autocomplete<WAFDevice, true>
+              errorText={error?.[0]?.reason}
               isOptionEqualToValue={(option, value) => option.id === value.id}
               label=""
+              loading={isFetching}
               multiple
               onChange={(_, selected) => field.onChange(selected)}
+              onClose={() => setOpen(false)}
+              onOpen={() => setOpen(true)}
+              open={open}
               options={deviceOptions}
               renderInput={(params) => (
                 <TextField
@@ -84,6 +92,20 @@ export const Nodebalancers = () => {
                   sx={{ width: '462px' }}
                 />
               )}
+              slotProps={{
+                listbox: {
+                  onScroll: (event: React.SyntheticEvent) => {
+                    const listboxNode = event.currentTarget;
+                    if (
+                      listboxNode.scrollTop + listboxNode.clientHeight >=
+                        listboxNode.scrollHeight &&
+                      hasNextPage
+                    ) {
+                      fetchNextPage();
+                    }
+                  },
+                },
+              }}
               value={field.value || []}
             />
           )}

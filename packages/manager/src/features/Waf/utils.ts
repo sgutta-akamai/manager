@@ -1,4 +1,4 @@
-import { WAFAction } from '@linode/api-v4';
+import { WAFAction, WAFDevice } from '@linode/api-v4';
 
 import type { WAFExclusionType } from '@linode/api-v4';
 
@@ -7,21 +7,11 @@ export interface WafCreateForm {
     customRulesEnabled?: boolean;
   };
   attackGroups?: AttackGroup[];
-  devices?: Device[];
+  devices?: WAFDevice[];
   hosts?: Host[];
   isAdjustProtectedResourcesEnabled: boolean;
   label: string;
   paths?: Path[];
-}
-
-export interface WafCreateFormDTO {
-  advanced_settings?: {
-    custom_rules_enabled?: boolean;
-  };
-  attack_groups?: AttackGroup[];
-  devices?: Device[];
-  hosts?: Host[];
-  label: string;
 }
 
 export interface AttackGroup {
@@ -33,12 +23,6 @@ export interface AttackGroup {
 export interface AttackGroupDescription {
   attack_group_description: string;
   attack_group_label: string;
-}
-
-export interface Device {
-  id: string;
-  label: string;
-  type: string;
 }
 
 export interface Host {

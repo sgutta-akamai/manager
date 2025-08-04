@@ -1,7 +1,14 @@
-import { createWaf, deleteWaf, getWaf, getWafs } from '@linode/api-v4';
+import {
+  createWaf,
+  deleteWaf,
+  getAvailableWafDevices,
+  getWaf,
+  getWafs,
+} from '@linode/api-v4';
 import { createQueryKeys } from '@lukemorales/query-key-factory';
 import {
   keepPreviousData,
+  useInfiniteQuery,
   useMutation,
   useQuery,
   useQueryClient,
@@ -14,6 +21,7 @@ import type {
   Params,
   ResourcePage,
   WAF,
+  WAFDevice,
 } from '@linode/api-v4';
 
 export const wafQueries = createQueryKeys('wafs', {
@@ -24,6 +32,14 @@ export const wafQueries = createQueryKeys('wafs', {
   paginated: (params: Params = {}, filter: Filter = {}) => ({
     queryFn: () => getWafs(params, filter),
     queryKey: [params, filter],
+  }),
+  availableDevices: (filter: Filter = {}) => ({
+    queryFn: ({ pageParam }) =>
+      getAvailableWafDevices(
+        { page: pageParam as number, page_size: 25 },
+        filter,
+      ),
+    queryKey: [filter],
   }),
 });
 
@@ -62,5 +78,26 @@ export const useDeleteWafMutation = () => {
         queryKey: wafQueries.paginated._def,
       });
     },
+  });
+};
+
+export const useAvailableWafDevicesInfiniteQuery = (
+  filter: Filter = {},
+  enabled = true,
+) => {
+  return useInfiniteQuery<ResourcePage<WAFDevice>, APIError[]>({
+    ...wafQueries.availableDevices(filter),
+    enabled,
+    getNextPageParam: ({ page, pages }) => {
+      if (page === pages) {
+        return undefined;
+      }
+      return page + 1;
+    },
+    initialPageParam: 1,
+    retry: false,
+    refetchOnMount: true,
+    refetchOnWindowFocus: true,
+    staleTime: 0,
   });
 };
