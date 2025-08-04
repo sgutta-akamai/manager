@@ -45,3 +45,14 @@ export const createWaf = (data: CreateWafPayload) =>
     setMethod('POST'),
     setData(data),
   );
+
+/**
+ * deleteWaf
+ *
+ * Delete a WAF configuration.
+ */
+export const deleteWaf = (wafId: number) =>
+  Request<{}>(
+    setURL(`${API_ROOT}/waf-configs/${encodeURIComponent(wafId)}`),
+    setMethod('DELETE'),
+  );
