@@ -1,4 +1,4 @@
-import { WAFAction } from '@linode/api-v4';
+import { WAFAction, WAFDeviceType, WAFExclusionType } from '@linode/api-v4';
 import { useCreateWafMutation, useWafRuleSetQuery } from '@linode/queries';
 import { Box, Button } from '@linode/ui';
 import { useNavigate } from '@tanstack/react-router';
@@ -12,12 +12,7 @@ import { Nodebalancers } from 'src/features/Waf/WafCreate/Nodebalancers/Nodebala
 import { Summary } from 'src/features/Waf/WafCreate/Summary/Summary';
 import { WafName } from 'src/features/Waf/WafCreate/WafName/WafName';
 
-import type {
-  APIError,
-  CreateWafPayload,
-  WAFDeviceType,
-  WAFExclusionType,
-} from '@linode/api-v4';
+import type { APIError, CreateWafPayload } from '@linode/api-v4';
 import type { WafCreateForm } from 'src/features/Waf/utils';
 
 const DEFAULT_FORM_VALUES: Partial<WafCreateForm> = {
@@ -74,7 +69,7 @@ export const WafCreate = () => {
       if (formData.devices?.length) {
         payload.devices = formData.devices.map((device) => ({
           ...device,
-          type: 'nodebalancer' as WAFDeviceType,
+          type: WAFDeviceType.NODEBALANCER,
         }));
       }
 
@@ -91,7 +86,7 @@ export const WafCreate = () => {
         if (allHosts.length > 0) {
           payload.hosts = allHosts.map((host) => ({
             ...host,
-            exclusion_type: 'excluded' as WAFExclusionType,
+            exclusion_type: WAFExclusionType.EXCLUDED,
           }));
         }
       }
