@@ -1,13 +1,12 @@
 import { WAFAction } from '@linode/api-v4';
-import { useCreateWafMutation } from '@linode/queries';
+import { useCreateWafMutation, useWafRuleSetQuery } from '@linode/queries';
 import { Box, Button } from '@linode/ui';
 import { useNavigate } from '@tanstack/react-router';
 import { useSnackbar } from 'notistack';
-import React from 'react';
+import React, { useCallback, useEffect, useMemo } from 'react';
 import { FormProvider, useForm } from 'react-hook-form';
 
 import { LandingHeader } from 'src/components/LandingHeader';
-import { defaultAttackGroups } from 'src/features/Waf/utils';
 import { AttackProtections } from 'src/features/Waf/WafCreate/AttackProtections/AttackProtections';
 import { Nodebalancers } from 'src/features/Waf/WafCreate/Nodebalancers/Nodebalancers';
 import { Summary } from 'src/features/Waf/WafCreate/Summary/Summary';
@@ -21,67 +20,109 @@ import type {
 } from '@linode/api-v4';
 import type { WafCreateForm } from 'src/features/Waf/utils';
 
+const DEFAULT_FORM_VALUES: Partial<WafCreateForm> = {
+  isAdjustProtectedResourcesEnabled: false,
+  attackGroups: [],
+};
+
 export const WafCreate = () => {
   const navigate = useNavigate();
   const { enqueueSnackbar } = useSnackbar();
   const { mutate: createWaf, isPending } = useCreateWafMutation();
+  const { data: wafRuleSet } = useWafRuleSetQuery();
 
   const form = useForm<WafCreateForm>({
-    defaultValues: {
-      isAdjustProtectedResourcesEnabled: false,
-      attackGroups: defaultAttackGroups,
-    },
+    defaultValues: DEFAULT_FORM_VALUES,
   });
 
-  const handleSubmit = (formData: WafCreateForm) => {
-    const payload = createPayload(formData);
+  // Transform ruleset attack groups for form usage
+  const attackGroups = useMemo(() => {
+    return (
+      wafRuleSet?.attack_groups?.map((group) => ({
+        attack_group_name: group.attack_group_name,
+        attack_group_label: group.attack_group_label,
+        action: WAFAction.ALERT,
+      })) ?? []
+    );
+  }, [wafRuleSet?.attack_groups]);
 
-    createWaf(payload, {
-      onSuccess: () => navigate({ to: '/waf' }),
-      onError: handleError,
-    });
-  };
+  // Update form when attack groups are loaded
+  useEffect(() => {
+    if (attackGroups.length > 0) {
+      form.reset({
+        ...form.getValues(),
+        attackGroups,
+      });
+    }
+  }, [attackGroups, form]);
 
-  const handleError = (error: APIError[]) => {
-    const message = error?.[0]?.reason || 'Failed to create WAF';
-    enqueueSnackbar(message, { variant: 'error' });
-  };
+  const handleError = useCallback(
+    (errors: APIError[]) => {
+      const message = errors?.[0]?.reason || 'Failed to create WAF';
+      enqueueSnackbar(message, { variant: 'error' });
+    },
+    [enqueueSnackbar]
+  );
 
-  const createPayload = (formData: WafCreateForm): CreateWafPayload => {
-    const payload: CreateWafPayload = {
-      label: formData.label,
-      devices: formData.devices?.map((device) => ({
-        ...device,
-        type: 'nodebalancer' as WAFDeviceType,
-      })),
-    };
-
-    if (formData.advancedSettings?.customRulesEnabled !== undefined) {
-      payload.advanced_settings = {
-        custom_rules_enabled: formData.advancedSettings.customRulesEnabled,
+  const createPayload = useCallback(
+    (formData: WafCreateForm): CreateWafPayload => {
+      const payload: CreateWafPayload = {
+        label: formData.label,
       };
-    }
 
-    if (formData.isAdjustProtectedResourcesEnabled) {
-      const allHosts = [...(formData.hosts || []), ...(formData.paths || [])];
-      payload.hosts = allHosts.map((host) => ({
-        ...host,
-        exclusion_type: 'excluded' as WAFExclusionType,
-      }));
-    }
+      // Add devices if present
+      if (formData.devices?.length) {
+        payload.devices = formData.devices.map((device) => ({
+          ...device,
+          type: 'nodebalancer' as WAFDeviceType,
+        }));
+      }
 
-    if (
-      formData.attackGroups &&
-      formData.attackGroups.some((group) => group.action !== WAFAction.ALERT)
-    ) {
-      payload.attack_groups = formData.attackGroups!.map((group) => ({
-        ...group,
-        action: group.action as WAFAction,
-      }));
-    }
+      // Add advanced settings if custom rules are enabled
+      if (formData.advancedSettings?.customRulesEnabled !== undefined) {
+        payload.advanced_settings = {
+          custom_rules_enabled: formData.advancedSettings.customRulesEnabled,
+        };
+      }
 
-    return payload;
-  };
+      // Add hosts if protected resources are enabled
+      if (formData.isAdjustProtectedResourcesEnabled) {
+        const allHosts = [...(formData.hosts || []), ...(formData.paths || [])];
+        if (allHosts.length > 0) {
+          payload.hosts = allHosts.map((host) => ({
+            ...host,
+            exclusion_type: 'excluded' as WAFExclusionType,
+          }));
+        }
+      }
+
+      // Add attack groups if any have non-default actions
+      const hasCustomActions = formData.attackGroups?.some(
+        (group) => group.action !== WAFAction.ALERT
+      );
+      if (hasCustomActions) {
+        payload.attack_groups = formData.attackGroups!.map((group) => ({
+          ...group,
+          action: group.action as WAFAction,
+        }));
+      }
+
+      return payload;
+    },
+    []
+  );
+
+  const handleSubmit = useCallback(
+    (formData: WafCreateForm) => {
+      const payload = createPayload(formData);
+
+      createWaf(payload, {
+        onSuccess: () => navigate({ to: '/waf' }),
+        onError: handleError,
+      });
+    },
+    [createPayload, createWaf, navigate, handleError]
+  );
 
   return (
     <>

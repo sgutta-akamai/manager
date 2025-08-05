@@ -3,6 +3,7 @@ import {
   deleteWaf,
   getAvailableWafDevices,
   getWaf,
+  getWafRuleSet,
   getWafs,
 } from '@linode/api-v4';
 import { createQueryKeys } from '@lukemorales/query-key-factory';
@@ -22,6 +23,7 @@ import type {
   ResourcePage,
   WAF,
   WAFDevice,
+  WAFRuleSet,
 } from '@linode/api-v4';
 
 export const wafQueries = createQueryKeys('wafs', {
@@ -41,6 +43,10 @@ export const wafQueries = createQueryKeys('wafs', {
       ),
     queryKey: [filter],
   }),
+  wafRuleSet: {
+    queryFn: () => getWafRuleSet(),
+    queryKey: null,
+  },
 });
 
 export const useWafsQuery = (params?: Params, filter?: Filter) => {
@@ -101,3 +107,8 @@ export const useAvailableWafDevicesInfiniteQuery = (
     staleTime: 0,
   });
 };
+
+export const useWafRuleSetQuery = () =>
+  useQuery<WAFRuleSet, APIError[]>({
+    ...wafQueries.wafRuleSet,
+  });

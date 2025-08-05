@@ -60,3 +60,20 @@ export interface CreateWafPayload {
   hosts?: WAFHost[];
   label: string;
 }
+
+export interface WAFRuleSetAttackGroup {
+  action?: WAFAction;
+  attack_group_label: string;
+  attack_group_name: string;
+}
+
+export interface WAFRuleSet {
+  attack_groups: WAFRuleSetAttackGroup[];
+  created: string;
+  created_by: string;
+  min_software_version: string;
+  notes: string;
+  status: string;
+  updated: string;
+  updated_by: string;
+}
