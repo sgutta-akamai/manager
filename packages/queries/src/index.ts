@@ -26,4 +26,5 @@ export * from './types';
 export * from './vlans';
 export * from './volumes';
 export * from './vpcs';
+export * from './wafs';
 export * from '@tanstack/react-query';

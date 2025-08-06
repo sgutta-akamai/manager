@@ -1,25 +1,79 @@
+export enum WAFExclusionType {
+  EXCLUDED = 'excluded',
+  INCLUDED = 'included',
+}
+
+export enum WAFAction {
+  ALERT = 'alert',
+  DENY = 'deny',
+  NOT_USED = 'not_used',
+}
+
+export enum WAFDeviceType {
+  NODEBALANCER = 'nodebalancer',
+}
+
+export interface WAFHost {
+  exclusion_type: WAFExclusionType;
+  hostname: string;
+  path: string;
+}
+
+export interface WAFAttackGroup {
+  action: WAFAction;
+  attack_group_label: string;
+  attack_group_name: string;
+}
+
+export interface WAFDevice {
+  id: string;
+  label: string;
+  type: WAFDeviceType;
+}
+
+export interface WAFAdvancedSettings {
+  custom_rules_enabled: boolean;
+}
+
+export enum WafStatus {
+  ACTIVE = 'active',
+  DELETED = 'deleted',
+  INACTIVE = 'inactive',
+}
+
 export interface WAF {
-  config_id: number;
+  advanced_settings?: WAFAdvancedSettings;
+  attack_groups?: WAFAttackGroup[];
+  created: string;
+  devices?: WAFDevice[];
+  hosts?: WAFHost[];
+  id: number;
   label: string;
-  resources: string[];
+  status: WafStatus;
+  updated: string;
+}
+
+export interface CreateWafPayload {
+  advanced_settings?: WAFAdvancedSettings;
+  attack_groups?: WAFAttackGroup[];
+  devices?: WAFDevice[];
+  hosts?: WAFHost[];
+  label: string;
+}
+
+export interface WAFRuleSetAttackGroup {
+  action?: WAFAction;
+  attack_group_label: string;
+  attack_group_name: string;
+}
+
+export interface WAFRuleSet {
+  attack_groups: WAFRuleSetAttackGroup[];
+  created: string;
+  created_by: string;
+  min_software_version: string;
+  notes: string;
   status: string;
-  update_dt: string;
-}
-
-export interface FilterCondition {
-  field: string;
-  operator: string;
-  values: string[];
-}
-
-export interface FilterType {
-  conditions: FilterCondition[];
-  match_type: string;
-}
-
-export interface CreateCustomRulePayload {
-  action: string;
-  description: string;
-  filters: FilterType[];
-  label: string;
+  updated: string;
+  updated_by: string;
 }

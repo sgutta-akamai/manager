@@ -1,62 +1,48 @@
-// TODO: import { useDeleteWafMutation } from "@linode/queries";
+import { useDeleteWafMutation } from '@linode/queries';
 import { Notice, Typography } from '@linode/ui';
-import * as React from 'react';
+import React from 'react';
 
 import { TypeToConfirmDialog } from 'src/components/TypeToConfirmDialog/TypeToConfirmDialog';
 import { useEventsPollingActions } from 'src/queries/events/events';
 
-import type { APIError, WAF } from '@linode/api-v4';
+import type { WAF } from '@linode/api-v4';
 
 interface Props {
-  isFetching?: boolean;
   onClose: () => void;
   open: boolean;
   // TODO: Review the handling of 'waf' prop later, to provide a better fix
-  waf: undefined | WAF;
-  wafError?: APIError[] | null;
+  waf?: WAF;
 }
 
-export const DeleteWafDialog = (props: Props) => {
-  const { isFetching, onClose, open, waf, wafError } = props;
-
-  // --- Mocked useDeleteWafMutation hook ---
-  const useDeleteWafMutation = () => {
-    const [isPending, setIsPending] = React.useState(false);
-    const [error, setError] = React.useState<APIError[] | null>(null);
-
-    const mutateAsync = async ({ id }: { id: number }) => {
-      /* eslint-disable */
-      // TODO: Remove the console log statement
-      console.log(`Mock useDeleteWafMutation API called for Waf ID: ${id}`);
-      /* eslint-enable */
-      setIsPending(true);
-      setError(null);
-
-      return new Promise<void>((resolve) => {
-        setTimeout(() => {
-          setIsPending(false);
-          resolve();
-        }, 1000);
-      });
-    };
-
-    return {
-      error,
-      isPending,
-      mutateAsync,
-    };
-  };
-
-  const { error, isPending, mutateAsync: deleteWaf } = useDeleteWafMutation();
-
+export const DeleteWafDialog = ({ onClose, open, waf }: Props) => {
+  const {
+    error,
+    isPending,
+    mutateAsync: deleteWaf,
+    reset,
+  } = useDeleteWafMutation();
   const { checkForNewEvents } = useEventsPollingActions();
 
-  const onDelete = () => {
-    // TODO: Review the handling of 'id' in deleteWaf() mutation, to provide a better fix
-    deleteWaf({ id: waf?.config_id ?? -1 }).then(() => {
-      onClose();
-      checkForNewEvents();
-    });
+  const handleClose = () => {
+    reset();
+    onClose();
+  };
+
+  const handleDelete = async () => {
+    if (!waf?.id) {
+      handleClose();
+      return;
+    }
+
+    await deleteWaf(waf.id)
+      .then(() => {
+        checkForNewEvents();
+        handleClose();
+      })
+      .catch(() => {
+        // Error is automatically handled by React Query and displayed via the errors prop
+        // We don't need to handle it here since the dialog will show the error
+      });
   };
 
   return (
@@ -66,22 +52,20 @@ export const DeleteWafDialog = (props: Props) => {
         name: waf?.label,
         primaryBtnText: 'Delete',
         type: 'WAF configuration',
-        error: wafError,
       }}
       errors={error}
       expand
-      isFetching={isFetching}
-      label="Waf Configuration Label"
+      label="WAF Configuration Label"
       loading={isPending}
-      onClick={onDelete}
-      onClose={onClose}
+      onClick={handleDelete}
+      onClose={handleClose}
       open={open}
-      title={`Delete configuration`}
+      title="Delete Configuration"
       typographyStyle={{ marginTop: '10px' }}
     >
       <Notice variant="warning">
         <Typography style={{ fontSize: '0.875rem' }}>
-          Deleted this WAF configuration is permanent and can’t be undone.
+          Deleting this WAF configuration is permanent and can&#39;t be undone.
         </Typography>
       </Notice>
 
