@@ -54,7 +54,7 @@ export enum AttackGroupAction {
   NOT_USED = 'not_used',
 }
 
-type Path = Host;
+export type Path = Host;
 
 export const WILDCARD_HOSTNAME = '*';
 

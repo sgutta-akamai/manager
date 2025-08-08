@@ -17,6 +17,12 @@ export const WafSettingsLabel = (props: WafSettingsLabelProps) => {
     },
   });
 
+  const currentValue = methods.watch('label');
+
+  const isValueChanged = () => {
+    return currentValue !== labelValue;
+  };
+
   const onSubmit = (_data: Pick<WafCreateForm, 'label'>) => {
     //TODO - add event handler
   };
@@ -27,8 +33,13 @@ export const WafSettingsLabel = (props: WafSettingsLabelProps) => {
         <form onSubmit={methods.handleSubmit(onSubmit)}>
           <Paper>
             <WafName />
-            <Box display="flex" flexDirection="row" justifyContent="flex-end">
-              <Button buttonType="primary" type="submit">
+            <Box display="flex" flexDirection="row">
+              <Button
+                buttonType="primary"
+                disabled={!isValueChanged()}
+                sx={{ marginLeft: '16px' }}
+                type="submit"
+              >
                 Save
               </Button>
             </Box>
