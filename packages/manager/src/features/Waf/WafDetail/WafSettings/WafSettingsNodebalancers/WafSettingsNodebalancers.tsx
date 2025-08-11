@@ -12,6 +12,26 @@ interface WafSettingsNodebalancersProps {
   pathsValue: Path[];
 }
 
+//TODO - replace with better solution
+const deepEqual = (a: any, b: any) => {
+  if (a === b) return true;
+  if (
+    typeof a !== 'object' ||
+    typeof b !== 'object' ||
+    a == null ||
+    b == null
+  ) {
+    return false;
+  }
+  const keysA = Object.keys(a);
+  const keysB = Object.keys(b);
+  if (keysA.length !== keysB.length) return false;
+  for (const key of keysA) {
+    if (!keysB.includes(key) || !deepEqual(a[key], b[key])) return false;
+  }
+  return true;
+};
+
 export const WafSettingsNodebalancers = (
   props: WafSettingsNodebalancersProps
 ) => {
@@ -34,9 +54,6 @@ export const WafSettingsNodebalancers = (
     // console.log(_data)
   };
 
-  const {
-    formState: { isDirty },
-  } = methods;
   const currentDevices = methods.watch('devices');
   const currentHosts = methods.watch('hosts');
   const currentPaths = methods.watch('paths');
@@ -44,14 +61,23 @@ export const WafSettingsNodebalancers = (
     'isAdjustProtectedResourcesEnabled'
   );
   const isValueChanged = () => {
-    //comparison does not work as expected because of array and object types. Need something similar to lodash isEqual
-    return (
-      currentDevices !== devicesValue ||
-      currentHosts !== hostsValue ||
-      currentPaths !== pathsValue ||
-      currentIsAdjustProtectedResourcesEnabled !==
-        isAdjustProtectedResourcesEnabledValue
-    );
+    //TODO comparison is not working as expected for some edge cases. need to fix
+    const currentValues = {
+      devices: currentDevices,
+      hosts: currentHosts,
+      paths: currentPaths,
+      isAdjustProtectedResourcesEnabled:
+        currentIsAdjustProtectedResourcesEnabled,
+    };
+
+    const originalValues = {
+      devices: devicesValue,
+      hosts: hostsValue,
+      paths: pathsValue,
+      isAdjustProtectedResourcesEnabled: isAdjustProtectedResourcesEnabledValue,
+    };
+
+    return !deepEqual(currentValues, originalValues);
   };
 
   return (
@@ -63,7 +89,7 @@ export const WafSettingsNodebalancers = (
             <Box display="flex" flexDirection="row">
               <Button
                 buttonType="primary"
-                disabled={!isDirty || !isValueChanged()}
+                disabled={!isValueChanged()}
                 sx={{ marginLeft: '16px' }}
                 type="submit"
               >

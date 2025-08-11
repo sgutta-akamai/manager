@@ -6,8 +6,8 @@ import { WafSettingsNodebalancers } from 'src/features/Waf/WafDetail/WafSettings
 
 export const WafSettings = () => {
   const mockDevices: Device[] = [
-    { id: '1', label: 'NodeBalancer 1', type: 'NodeBalancer' },
-    { id: '2', label: 'NodeBalancer 2', type: 'NodeBalancer' },
+    { id: '1', label: 'NodeBalancer 1', type: 'nodebalancer' },
+    { id: '2', label: 'NodeBalancer 2', type: 'nodebalancer' },
   ];
   const mockHosts: Host[] = [
     {
