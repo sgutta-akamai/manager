@@ -1,5 +1,4 @@
-import { WAFAction, WAFDevice } from '@linode/api-v4';
-
+import type { WAFAction, WAFDevice } from '@linode/api-v4';
 import type { WAFExclusionType } from '@linode/api-v4';
 
 export interface WafCreateForm {
@@ -34,35 +33,6 @@ export interface Host {
 type Path = Host;
 
 export const WILDCARD_HOSTNAME = '*';
-
-// TODO - replace with values from backend data during integration
-export const defaultAttackGroups: AttackGroup[] = [
-  {
-    attack_group_label: 'Command Injection',
-    attack_group_name: 'Command Injection',
-    action: WAFAction.ALERT,
-  },
-  {
-    attack_group_label: 'File Inclusion',
-    attack_group_name: 'File Inclusion',
-    action: WAFAction.ALERT,
-  },
-  {
-    attack_group_label: 'Remote File Inclusion',
-    attack_group_name: 'Remote File Inclusion',
-    action: WAFAction.ALERT,
-  },
-  {
-    attack_group_label: 'SQL Injection',
-    attack_group_name: 'SQL Injection',
-    action: WAFAction.ALERT,
-  },
-  {
-    attack_group_label: 'Web Protocol Attack',
-    attack_group_name: 'Web Protocol Attack',
-    action: WAFAction.ALERT,
-  },
-];
 
 // TODO - replace keys with actual attack group names from backend
 export const AttackGroupDescriptions = {

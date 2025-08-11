@@ -77,3 +77,36 @@ export interface WAFRuleSet {
   updated: string;
   updated_by: string;
 }
+
+export interface WAFCustomRuleOption {
+  label: string;
+  value: string;
+}
+
+export interface WAFCustomRulesMetadata {
+  condition_field: WAFCustomRuleOption[];
+  condition_operator: WAFCustomRuleOption[];
+  match_type: WAFCustomRuleOption[];
+}
+
+export interface WAFMetadata {
+  custom_rules: WAFCustomRulesMetadata;
+  custom_rules_limit: number;
+}
+
+export interface WAFCustomRuleCondition {
+  field: string;
+  operator: string;
+  values: string[];
+}
+
+export interface WAFCustomRuleFilters {
+  conditions: WAFCustomRuleCondition[];
+  match_type: string;
+}
+
+export interface WAFCustomRule {
+  description: string;
+  filters: WAFCustomRuleFilters;
+  label: string;
+}

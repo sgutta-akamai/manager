@@ -3,6 +3,7 @@ import {
   deleteWaf,
   getAvailableWafDevices,
   getWaf,
+  getWafMetadata,
   getWafRuleSet,
   getWafs,
 } from '@linode/api-v4';
@@ -23,6 +24,7 @@ import type {
   ResourcePage,
   WAF,
   WAFDevice,
+  WAFMetadata,
   WAFRuleSet,
 } from '@linode/api-v4';
 
@@ -45,6 +47,10 @@ export const wafQueries = createQueryKeys('wafs', {
   }),
   wafRuleSet: {
     queryFn: () => getWafRuleSet(),
+    queryKey: null,
+  },
+  metadata: {
+    queryFn: () => getWafMetadata(),
     queryKey: null,
   },
 });
@@ -111,4 +117,9 @@ export const useAvailableWafDevicesInfiniteQuery = (
 export const useWafRuleSetQuery = () =>
   useQuery<WAFRuleSet, APIError[]>({
     ...wafQueries.wafRuleSet,
+  });
+
+export const useWafMetadataQuery = () =>
+  useQuery<WAFMetadata, APIError[]>({
+    ...wafQueries.metadata,
   });

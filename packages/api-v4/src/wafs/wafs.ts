@@ -8,7 +8,13 @@ import Request, {
 } from '../request';
 
 import type { Filter, Params, ResourcePage } from '../types';
-import type { CreateWafPayload, WAF, WAFDevice, WAFRuleSet } from './types';
+import type {
+  CreateWafPayload,
+  WAF,
+  WAFDevice,
+  WAFMetadata,
+  WAFRuleSet,
+} from './types';
 
 /**
  * getWafs
@@ -78,5 +84,16 @@ export const getAvailableWafDevices = (params?: Params, filter?: Filter) =>
 export const getWafRuleSet = () =>
   Request<WAFRuleSet>(
     setURL(`${API_ROOT}/waf-configs/rule-set`),
+    setMethod('GET'),
+  );
+
+/**
+ * getWafMetadata
+ *
+ * Get the WAF metadata including custom rules configuration options.
+ */
+export const getWafMetadata = () =>
+  Request<WAFMetadata>(
+    setURL(`${API_ROOT}/waf-configs/metadata`),
     setMethod('GET'),
   );
