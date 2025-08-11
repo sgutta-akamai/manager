@@ -3,30 +3,32 @@ import { Box, Button, Select, Stack, TextField } from '@linode/ui';
 import * as React from 'react';
 import { Controller, useFormContext } from 'react-hook-form';
 
-export interface CustomRuleConditionProps {
+interface CustomRuleConditionProps {
   index: number;
   onRemove: () => void;
 }
 
-export const CustomRuleCondition = (props: CustomRuleConditionProps) => {
-  const { index, onRemove } = props;
-
-  // Fetch WAF metadata using the hook directly
+export const CustomRuleCondition = ({
+  index,
+  onRemove,
+}: CustomRuleConditionProps) => {
   const { data: wafMetadata } = useWafMetadataQuery();
-
   const { control } = useFormContext();
+
+  const conditionFieldOptions = wafMetadata?.custom_rules.condition_field || [];
+  const conditionOperatorOptions =
+    wafMetadata?.custom_rules.condition_operator || [];
 
   return (
     <Stack direction="row" marginTop={2} spacing={2}>
-      <Box sx={{ width: '20%' }}>
+      <Box sx={{ width: '25%' }}>
         <Controller
           control={control}
           name={`filters.conditions.${index}.field`}
           render={({ field, fieldState }) => {
-            const selectedOption =
-              wafMetadata?.custom_rules.condition_field?.find(
-                (option) => option.value === field.value
-              ) || null;
+            const selectedOption = conditionFieldOptions.find(
+              (option) => option.value === field.value
+            );
 
             return (
               <Select
@@ -34,23 +36,22 @@ export const CustomRuleCondition = (props: CustomRuleConditionProps) => {
                 hideLabel
                 label="Field"
                 onChange={(_, selected) => field.onChange(selected?.value)}
-                options={wafMetadata?.custom_rules.condition_field || []}
-                value={selectedOption}
+                options={conditionFieldOptions}
+                value={selectedOption || null}
               />
             );
           }}
         />
       </Box>
 
-      <Box sx={{ width: '20%' }}>
+      <Box sx={{ width: '25%' }}>
         <Controller
           control={control}
           name={`filters.conditions.${index}.operator`}
           render={({ field, fieldState }) => {
-            const selectedOption =
-              wafMetadata?.custom_rules.condition_operator?.find(
-                (option) => option.value === field.value
-              ) || null;
+            const selectedOption = conditionOperatorOptions.find(
+              (option) => option.value === field.value
+            );
 
             return (
               <Select
@@ -58,15 +59,15 @@ export const CustomRuleCondition = (props: CustomRuleConditionProps) => {
                 hideLabel
                 label="Operator"
                 onChange={(_, selected) => field.onChange(selected?.value)}
-                options={wafMetadata?.custom_rules.condition_operator || []}
-                value={selectedOption}
+                options={conditionOperatorOptions}
+                value={selectedOption || null}
               />
             );
           }}
         />
       </Box>
 
-      <Box sx={{ width: '40%' }}>
+      <Box sx={{ width: '35%' }}>
         <Controller
           control={control}
           name={`filters.conditions.${index}.values`}
@@ -83,7 +84,7 @@ export const CustomRuleCondition = (props: CustomRuleConditionProps) => {
         />
       </Box>
 
-      <Box sx={{ width: '10%' }}>
+      <Box sx={{ width: '15%' }}>
         <Button buttonType="outlined" onClick={onRemove}>
           Remove
         </Button>

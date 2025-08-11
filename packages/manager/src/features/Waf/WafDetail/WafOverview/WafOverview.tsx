@@ -94,7 +94,7 @@ export const WafOverview = () => {
             <Link to="">Learn more</Link>
           </Typography>
         </Stack>
-        <CustomRules />
+        <CustomRules wafId={Number(id)} />
       </Paper>
     </Stack>
   );

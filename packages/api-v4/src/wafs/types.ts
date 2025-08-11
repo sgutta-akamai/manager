@@ -110,3 +110,10 @@ export interface WAFCustomRule {
   filters: WAFCustomRuleFilters;
   label: string;
 }
+
+export interface CreateCustomRulePayload {
+  action: WAFAction;
+  description: string;
+  filters: WAFCustomRuleFilters;
+  label: string;
+}

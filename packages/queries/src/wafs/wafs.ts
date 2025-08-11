@@ -1,4 +1,5 @@
 import {
+  createCustomRule,
   createWaf,
   deleteWaf,
   getAvailableWafDevices,
@@ -18,11 +19,13 @@ import {
 
 import type {
   APIError,
+  CreateCustomRulePayload,
   CreateWafPayload,
   Filter,
   Params,
   ResourcePage,
   WAF,
+  WAFCustomRule,
   WAFDevice,
   WAFMetadata,
   WAFRuleSet,
@@ -123,3 +126,17 @@ export const useWafMetadataQuery = () =>
   useQuery<WAFMetadata, APIError[]>({
     ...wafQueries.metadata,
   });
+
+export const useCreateCustomRuleMutation = (wafId: number) => {
+  const queryClient = useQueryClient();
+
+  return useMutation<WAFCustomRule, APIError[], CreateCustomRulePayload>({
+    mutationFn: (data) => createCustomRule(wafId, data),
+    onSuccess: () => {
+      // Invalidate relevant WAF queries to refresh data
+      queryClient.invalidateQueries({
+        queryKey: wafQueries.waf(wafId).queryKey,
+      });
+    },
+  });
+};

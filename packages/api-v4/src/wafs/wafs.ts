@@ -9,8 +9,10 @@ import Request, {
 
 import type { Filter, Params, ResourcePage } from '../types';
 import type {
+  CreateCustomRulePayload,
   CreateWafPayload,
   WAF,
+  WAFCustomRule,
   WAFDevice,
   WAFMetadata,
   WAFRuleSet,
@@ -96,4 +98,19 @@ export const getWafMetadata = () =>
   Request<WAFMetadata>(
     setURL(`${API_ROOT}/waf-configs/metadata`),
     setMethod('GET'),
+  );
+
+/**
+ * createCustomRule
+ *
+ * Create a new custom rule for a WAF configuration.
+ */
+export const createCustomRule = (
+  wafId: number,
+  data: CreateCustomRulePayload,
+) =>
+  Request<WAFCustomRule>(
+    setURL(`${API_ROOT}/waf-configs/${encodeURIComponent(wafId)}/custom-rules`),
+    setMethod('POST'),
+    setData(data),
   );

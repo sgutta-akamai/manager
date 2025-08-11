@@ -1,3 +1,4 @@
+import { WAFAction } from '@linode/api-v4';
 import { useWafMetadataQuery } from '@linode/queries';
 import {
   ActionsPanel,
@@ -19,69 +20,71 @@ import {
 
 import { CustomRuleCondition } from 'src/features/Waf/WafDetail/WafOverview/CustomRules/CustomRuleCondition';
 
-import type { WAFCustomRule } from '@linode/api-v4';
+import type { CreateCustomRulePayload } from '@linode/api-v4';
 
-export interface CreateCustomRuleDrawerProps {
+interface CreateCustomRuleDrawerProps {
   onClose: () => void;
-  onSubmit: (data: WAFCustomRule) => void;
+  onSubmit: (data: CreateCustomRulePayload) => void;
   open: boolean;
 }
 
-export const CustomRuleDrawer = (props: CreateCustomRuleDrawerProps) => {
-  const { onClose, onSubmit, open } = props;
+const DEFAULT_FORM_VALUES: CreateCustomRulePayload = {
+  label: '',
+  description: '',
+  filters: {
+    match_type: 'all',
+    conditions: [],
+  },
+  action: WAFAction.ALERT,
+};
 
-  // Fetch WAF metadata using the custom hook
+export const CustomRuleDrawer = ({
+  onClose,
+  onSubmit,
+  open,
+}: CreateCustomRuleDrawerProps) => {
   const { data: wafMetadata } = useWafMetadataQuery();
 
-  const form = useForm<WAFCustomRule>({
-    defaultValues: {
-      label: '',
-      description: '',
-      filters: {
-        match_type: 'all',
-        conditions: [],
-      },
-    },
+  const form = useForm<CreateCustomRulePayload>({
+    defaultValues: DEFAULT_FORM_VALUES,
   });
 
-  const { control, handleSubmit, watch } = form;
-
-  // Watch form values to determine save button state
-  const watchedValues = watch([
-    'label',
-    'filters.match_type',
-    'filters.conditions',
-  ]);
-  const [label, matchType, conditions] = watchedValues;
-
-  // Check if save button should be disabled
-  const isSaveDisabled =
-    !label || !matchType || !conditions || conditions.length === 0;
-
+  const { control, handleSubmit, watch, reset } = form;
   const { fields, append, remove } = useFieldArray({
     control,
     name: 'filters.conditions',
   });
 
-  const handleAddCondition = () => {
+  // Watch form values for validation
+  const [label, conditions] = watch(['label', 'filters.conditions']);
+  const isSaveDisabled = !label?.trim() || conditions?.length === 0;
+
+  // Reset form when drawer closes
+  React.useEffect(() => {
+    if (!open) {
+      reset(DEFAULT_FORM_VALUES);
+    }
+  }, [open, reset]);
+
+  const handleAddCondition = React.useCallback(() => {
     append({
-      field: wafMetadata?.custom_rules.condition_field[0].value || '',
-      operator: wafMetadata?.custom_rules.condition_operator[0].value || '',
+      field: wafMetadata?.custom_rules.condition_field?.[0]?.value || '',
+      operator: wafMetadata?.custom_rules.condition_operator?.[0]?.value || '',
       values: [],
     });
-  };
+  }, [append, wafMetadata]);
 
-  const handleFormSubmit = (formData: WAFCustomRule) => {
-    onSubmit(formData);
-  };
+  const handleFormSubmit = React.useCallback(
+    (formData: CreateCustomRulePayload) => {
+      onSubmit(formData);
+    },
+    [onSubmit]
+  );
+
+  const matchTypeOptions = wafMetadata?.custom_rules.match_type || [];
 
   return (
-    <Drawer
-      onClose={onClose}
-      open={open}
-      title={'Create custom rule'}
-      wide={true}
-    >
+    <Drawer onClose={onClose} open={open} title="Create custom rule" wide>
       <FormProvider {...form}>
         <form onSubmit={handleSubmit(handleFormSubmit)}>
           <Box marginTop={3}>
@@ -90,14 +93,15 @@ export const CustomRuleDrawer = (props: CreateCustomRuleDrawerProps) => {
               name="label"
               render={({ field, fieldState }) => (
                 <TextField
+                  {...field}
                   errorText={fieldState.error?.message}
                   expand
                   label="Custom Rule Label"
-                  onChange={field.onChange}
                   placeholder="Enter custom rule label"
-                  value={field.value}
+                  required
                 />
               )}
+              rules={{ required: 'Label is required' }}
             />
 
             <Controller
@@ -105,14 +109,13 @@ export const CustomRuleDrawer = (props: CreateCustomRuleDrawerProps) => {
               name="description"
               render={({ field, fieldState }) => (
                 <TextField
+                  {...field}
                   errorText={fieldState.error?.message}
                   expand
                   label="Description"
                   multiline
-                  onChange={field.onChange}
                   optional
                   placeholder="Enter a description"
-                  value={field.value}
                 />
               )}
             />
@@ -124,38 +127,36 @@ export const CustomRuleDrawer = (props: CreateCustomRuleDrawerProps) => {
             marginTop={4}
             spacing={1.5}
           >
-            <Typography variant={'subtitle1'}>
+            <Typography variant="subtitle1">
               Execute the rule only when
             </Typography>
 
             <Controller
               control={control}
               name="filters.match_type"
-              render={({ field, fieldState }) => {
-                const selectedOption =
-                  wafMetadata?.custom_rules.match_type?.find(
-                    (option) => option.value === field.value
-                  ) || null;
+              render={({ field }) => {
+                const selectedOption = matchTypeOptions.find(
+                  (option) => option.value === field.value
+                );
 
                 return (
                   <Select
-                    errorText={fieldState.error?.message}
                     hideLabel
                     label="Match Type"
                     onChange={(_, selected) => field.onChange(selected?.value)}
-                    options={wafMetadata?.custom_rules.match_type || []}
-                    value={selectedOption}
+                    options={matchTypeOptions}
+                    value={selectedOption || null}
                   />
                 );
               }}
             />
 
-            <Typography variant={'subtitle1'}>
+            <Typography variant="subtitle1">
               of the following conditions are met:
             </Typography>
           </Stack>
 
-          {fields.map((row, index: number) => (
+          {fields.map((row, index) => (
             <CustomRuleCondition
               index={index}
               key={row.id}
@@ -164,8 +165,8 @@ export const CustomRuleDrawer = (props: CreateCustomRuleDrawerProps) => {
           ))}
 
           <Box marginTop={3}>
-            <Button buttonType="outlined" onClick={() => handleAddCondition()}>
-              Add
+            <Button buttonType="outlined" onClick={handleAddCondition}>
+              Add Condition
             </Button>
           </Box>
 

@@ -1,42 +1,71 @@
+import { WAFAction } from '@linode/api-v4';
+import { useCreateCustomRuleMutation } from '@linode/queries';
 import { Button } from '@linode/ui';
+import { useSnackbar } from 'notistack';
 import * as React from 'react';
 
 import { CustomRuleDrawer } from 'src/features/Waf/WafDetail/WafOverview/CustomRules/CustomRuleDrawer';
+import { getAPIErrorOrDefault } from 'src/utilities/errorUtils';
 
-import type { WAFCustomRule } from '@linode/api-v4';
+import type { CreateCustomRulePayload } from '@linode/api-v4';
 
-export const CustomRules = () => {
-  const [isCreateCustomRuleDrawerOpen, setIsCreateCustomRuleDrawerOpen] =
-    React.useState<boolean>(false);
+interface CustomRulesProps {
+  wafId: number;
+}
 
-  const handleSaveCustomRule = (formData: WAFCustomRule) => {
-    /* eslint-disable */
-    // TODO: Remove the console log statement
-    console.log('Parent received form data:', formData);
-    /* eslint-enable */
+export const CustomRules = ({ wafId }: CustomRulesProps) => {
+  const [isDrawerOpen, setIsDrawerOpen] = React.useState(false);
 
-    // TODO: Send to backend once integration is done
-    setIsCreateCustomRuleDrawerOpen(false);
-  };
+  const { enqueueSnackbar } = useSnackbar();
+  const { mutateAsync: createCustomRule } = useCreateCustomRuleMutation(wafId);
+
+  const handleOpenDrawer = React.useCallback(() => {
+    setIsDrawerOpen(true);
+  }, []);
+
+  const handleCloseDrawer = React.useCallback(() => {
+    setIsDrawerOpen(false);
+  }, []);
+
+  const handleSubmit = React.useCallback(
+    async (formData: CreateCustomRulePayload) => {
+      try {
+        const payload: CreateCustomRulePayload = {
+          ...formData,
+          action: WAFAction.ALERT,
+        };
+
+        await createCustomRule(payload);
+        handleCloseDrawer();
+
+        enqueueSnackbar('Custom rule created successfully', {
+          variant: 'success',
+        });
+      } catch (error) {
+        const errorMessage = getAPIErrorOrDefault(
+          error,
+          'Failed to create custom rule'
+        )[0].reason;
+
+        enqueueSnackbar(errorMessage, {
+          variant: 'error',
+        });
+      }
+    },
+    [createCustomRule, handleCloseDrawer, enqueueSnackbar]
+  );
 
   return (
-    <React.Fragment>
-      <Button
-        buttonType="outlined"
-        onClick={() => {
-          setIsCreateCustomRuleDrawerOpen(true);
-        }}
-      >
+    <>
+      <Button buttonType="outlined" onClick={handleOpenDrawer}>
         Add custom rule
       </Button>
 
       <CustomRuleDrawer
-        onClose={() => {
-          setIsCreateCustomRuleDrawerOpen(false);
-        }}
-        onSubmit={handleSaveCustomRule}
-        open={isCreateCustomRuleDrawerOpen}
+        onClose={handleCloseDrawer}
+        onSubmit={handleSubmit}
+        open={isDrawerOpen}
       />
-    </React.Fragment>
+    </>
   );
 };
