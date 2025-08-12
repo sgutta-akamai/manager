@@ -117,6 +117,18 @@ export const getWafCustomRules = (
   );
 
 /**
+ * createCustomRule
+ *
+ * Create a new custom rule for a WAF configuration.
+ */
+export const createCustomRule = (wafId: number, data: WAFCustomRule) =>
+  Request<WAFCustomRule>(
+    setURL(`${API_ROOT}/waf-configs/${encodeURIComponent(wafId)}/custom-rules`),
+    setMethod('POST'),
+    setData(data),
+  );
+
+/**
  * updateCustomRule
  *
  * Update an existing custom rule for a WAF configuration.
@@ -135,13 +147,14 @@ export const updateCustomRule = (
   );
 
 /**
- * createCustomRule
+ * deleteCustomRule
  *
- * Create a new custom rule for a WAF configuration.
+ * Delete a custom rule for a WAF configuration.
  */
-export const createCustomRule = (wafId: number, data: WAFCustomRule) =>
-  Request<WAFCustomRule>(
-    setURL(`${API_ROOT}/waf-configs/${encodeURIComponent(wafId)}/custom-rules`),
-    setMethod('POST'),
-    setData(data),
+export const deleteCustomRule = (wafId: number, ruleId: number) =>
+  Request<object>(
+    setURL(
+      `${API_ROOT}/waf-configs/${encodeURIComponent(wafId)}/custom-rules/${encodeURIComponent(ruleId)}`,
+    ),
+    setMethod('DELETE'),
   );

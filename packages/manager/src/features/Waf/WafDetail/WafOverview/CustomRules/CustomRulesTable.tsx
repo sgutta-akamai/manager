@@ -1,5 +1,6 @@
 import { WAFAction, type WAFCustomRule } from '@linode/api-v4';
 import {
+  useDeleteCustomRuleMutation,
   useUpdateCustomRuleMutation,
   useWafCustomRulesQuery,
 } from '@linode/queries';
@@ -49,17 +50,22 @@ export const CustomRulesTable: React.FC<CustomRulesTableProps> = ({
   isCreateDrawerOpen = false,
   onCloseCreateDrawer,
 }) => {
+  // State
   const [page, setPage] = React.useState(1);
   const [pageSize, setPageSize] = React.useState(25);
   const [sortOrder, setSortOrder] = React.useState<'asc' | 'desc'>('asc');
   const [selectedRule, setSelectedRule] = React.useState<null | WAFCustomRule>(
     null
   );
-  // Track local action changes to update UI immediately
   const [localActionChanges, setLocalActionChanges] = React.useState<
     Record<number, WAFAction>
   >({});
+  const [deletingRuleId, setDeletingRuleId] = React.useState<null | number>(
+    null
+  );
 
+  // Hooks
+  const { enqueueSnackbar } = useSnackbar();
   const {
     data: customRulesData,
     isLoading,
@@ -68,7 +74,10 @@ export const CustomRulesTable: React.FC<CustomRulesTableProps> = ({
     page,
     page_size: pageSize,
   });
+  const updateCustomRuleMutation = useUpdateCustomRuleMutation(wafId);
+  const deleteCustomRuleMutation = useDeleteCustomRuleMutation(wafId);
 
+  // Computed values
   const customRules = React.useMemo(() => {
     const rules = customRulesData?.data || [];
     return [...rules].sort((a, b) =>
@@ -80,6 +89,7 @@ export const CustomRulesTable: React.FC<CustomRulesTableProps> = ({
 
   const totalResults = customRulesData?.results || 0;
 
+  // Event handlers
   const handleSort = () =>
     setSortOrder((prev) => (prev === 'asc' ? 'desc' : 'asc'));
 
@@ -90,19 +100,11 @@ export const CustomRulesTable: React.FC<CustomRulesTableProps> = ({
     setPage(1);
   };
 
-  const handleRuleClick = (rule: WAFCustomRule) => setSelectedRule(rule);
-
   const handleCloseDrawer = () => {
     setSelectedRule(null);
-    if (onCloseCreateDrawer) {
-      onCloseCreateDrawer();
-    }
-    // Only refetch data when a backend operation was successful
+    onCloseCreateDrawer?.();
     refetch();
   };
-
-  const { enqueueSnackbar } = useSnackbar();
-  const updateCustomRuleMutation = useUpdateCustomRuleMutation(wafId);
 
   const handleActionChange = (index: number, newAction: WAFAction) => {
     const rule = customRules[index];
@@ -116,17 +118,8 @@ export const CustomRulesTable: React.FC<CustomRulesTableProps> = ({
     // Update local state for immediate UI feedback
     setLocalActionChanges((prev) => ({ ...prev, [index]: newAction }));
 
-    // Create updated rule data
-    const updatedRuleData: WAFCustomRule = {
-      ...rule,
-      action: newAction,
-    };
-
     updateCustomRuleMutation.mutate(
-      {
-        ruleId: rule.id,
-        data: updatedRuleData,
-      },
+      { ruleId: rule.id, data: { ...rule, action: newAction } },
       {
         onSuccess: () => {
           enqueueSnackbar(`Rule "${rule.label}" action updated successfully`, {
@@ -134,23 +127,39 @@ export const CustomRulesTable: React.FC<CustomRulesTableProps> = ({
           });
         },
         onError: (error) => {
-          // Extract error message from API response - error is APIError[]
           const errorMessage =
-            Array.isArray(error) && error.length > 0
+            Array.isArray(error) && error[0]?.reason
               ? error[0].reason
               : 'Failed to update rule action';
-          enqueueSnackbar(errorMessage, {
-            variant: 'error',
-          });
-          // Revert local state change on error
+          enqueueSnackbar(errorMessage, { variant: 'error' });
           setLocalActionChanges((prev) => ({ ...prev, [index]: rule.action }));
         },
       }
     );
   };
 
-  const handleRuleDelete = (_ruleId: number, _ruleLabel: string) => {
-    // TODO: Implement delete functionality
+  const handleRuleDelete = (ruleId: number, ruleLabel: string) => {
+    setDeletingRuleId(ruleId);
+    deleteCustomRuleMutation.mutate(
+      { ruleId },
+      {
+        onSuccess: () => {
+          enqueueSnackbar(`Rule "${ruleLabel}" deleted successfully`, {
+            variant: 'success',
+          });
+          setDeletingRuleId(null);
+          refetch();
+        },
+        onError: (error) => {
+          const errorMessage =
+            Array.isArray(error) && error[0]?.reason
+              ? error[0].reason
+              : 'Failed to delete rule';
+          enqueueSnackbar(errorMessage, { variant: 'error' });
+          setDeletingRuleId(null);
+        },
+      }
+    );
   };
 
   return (
@@ -183,22 +192,30 @@ export const CustomRulesTable: React.FC<CustomRulesTableProps> = ({
                   // Use local action change if it exists, otherwise use the rule's action
                   const currentAction =
                     localActionChanges[index] ?? rule.action;
+                  const isDeleting = deletingRuleId === rule.id;
 
                   return (
-                    <TableRow key={rule.id || `${rule.label}-${index}`}>
+                    <TableRow
+                      key={rule.id || `${rule.label}-${index}`}
+                      sx={{ opacity: isDeleting ? 0.5 : 1 }}
+                    >
                       <TableCell>
                         <StyledCustomRuleLabel
-                          onClick={() => handleRuleClick(rule)}
+                          onClick={() => !isDeleting && setSelectedRule(rule)}
+                          style={{
+                            cursor: isDeleting ? 'not-allowed' : 'pointer',
+                          }}
                         >
                           {rule.label}
                         </StyledCustomRuleLabel>
                       </TableCell>
                       <TableCell>
                         <Select
+                          disabled={isDeleting}
                           hideLabel={true}
                           label="action"
                           onChange={(e, selected) => {
-                            if (selected) {
+                            if (selected && !isDeleting) {
                               handleActionChange(
                                 index,
                                 selected.value as WAFAction
@@ -222,7 +239,9 @@ export const CustomRulesTable: React.FC<CustomRulesTableProps> = ({
                             {
                               title: 'Delete',
                               onClick: () =>
+                                !isDeleting &&
                                 handleRuleDelete(rule.id!, rule.label),
+                              disabled: isDeleting,
                             },
                           ]}
                           ariaLabel={`Action menu for custom rule ${rule.label}`}

@@ -1,6 +1,7 @@
 import {
   createCustomRule,
   createWaf,
+  deleteCustomRule,
   deleteWaf,
   getAvailableWafDevices,
   getWaf,
@@ -167,9 +168,22 @@ export const useUpdateCustomRuleMutation = (wafId: number) => {
     { data: WAFCustomRule; ruleId: number }
   >({
     mutationFn: ({ ruleId, data }) => updateCustomRule(wafId, ruleId, data),
-    onSuccess: (_, { ruleId }) => {
+    onSuccess: (_) => {
       queryClient.invalidateQueries({
-        queryKey: [wafId, 'custom-rules', ruleId],
+        queryKey: wafQueries.customRules._def,
+      });
+    },
+  });
+};
+
+export const useDeleteCustomRuleMutation = (wafId: number) => {
+  const queryClient = useQueryClient();
+
+  return useMutation<object, APIError[], { ruleId: number }>({
+    mutationFn: ({ ruleId }) => deleteCustomRule(wafId, ruleId),
+    onSuccess: () => {
+      queryClient.invalidateQueries({
+        queryKey: wafQueries.customRules._def,
       });
     },
   });
