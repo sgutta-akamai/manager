@@ -1,5 +1,4 @@
-// TODO: import { useWafQuery } from '@linode/queries';
-import { useNavigate, useParams } from '@tanstack/react-router';
+import { useNavigate } from '@tanstack/react-router';
 import * as React from 'react';
 
 import { PaginationFooter } from 'src/components/PaginationFooter/PaginationFooter';
@@ -14,9 +13,9 @@ import { DeleteWafDialog } from 'src/features/Waf/Dialogs/DeleteWafDialog';
 import { WafRow } from 'src/features/Waf/WafLanding/WafRow';
 import { usePagination } from 'src/hooks/usePagination';
 
-import type { WAF } from '@linode/api-v4/lib/wafs/types';
+import type { WAF } from '@linode/api-v4';
 import type { Order } from '@linode/utilities';
-import type { WafAction } from 'src/routes/waf/index';
+import type { WafAction } from 'src/routes/waf';
 
 const preferenceKey = 'wafs';
 
@@ -25,7 +24,7 @@ interface Props {
   handleOrderChange: (newOrderBy: string, newOrder: Order) => void;
   order: 'asc' | 'desc';
   orderBy: string;
-  results: number | undefined;
+  results: number;
 }
 
 export const WafLandingTable = ({
@@ -37,44 +36,27 @@ export const WafLandingTable = ({
 }: Props) => {
   const navigate = useNavigate();
   const pagination = usePagination(1, preferenceKey);
-  const params = useParams({ strict: false });
 
-  // --- Mocked useWafQuery hook ---
-  const useWafQuery = (wafId: number) => {
-    // You can simulate loading or error conditions by toggling these values
-    const isFetching = false;
-    const error = null;
+  // Track selected WAF for delete dialog
+  const [selectedWafForDelete, setSelectedWafForDelete] = React.useState<WAF>();
 
-    // Simulate fetching the WAF with the given ID
-    const selectedWaf = data.find((waf) => waf.config_id === wafId);
-
-    return {
-      data: selectedWaf,
-      isFetching,
-      error,
-    };
+  const closeDeleteDialog = () => {
+    setSelectedWafForDelete(undefined);
   };
 
-  const {
-    data: selectedWaf,
-    isFetching: isFetchingWaf,
-    error: selectedWafError,
-  } = useWafQuery(Number(params.wafId));
+  const handleWafAction = React.useCallback((action: WafAction, waf: WAF) => {
+    if (action === 'delete') {
+      setSelectedWafForDelete(waf);
+      return;
+    }
 
-  const navigateToWaf = () => {
+    // Navigate to other actions
     navigate({
-      search: (prev) => prev,
-      to: '/waf',
-    });
-  };
-
-  const handleWafAction = (action: WafAction, waf: WAF) => {
-    navigate({
-      params: { action, wafId: waf.config_id },
+      params: { action, wafId: waf.id },
       search: (prev) => prev,
       to: `/waf/$wafId/$action`,
     });
-  };
+  }, []);
 
   return (
     <>
@@ -97,24 +79,26 @@ export const WafLandingTable = ({
           </TableRow>
         </TableHead>
         <TableBody>
-          {data.length === 0 && (
-            <TableRowEmpty colSpan={6} message="No WAF found" />
+          {data.length === 0 ? (
+            <TableRowEmpty colSpan={5} message="No WAF configurations found" />
+          ) : (
+            data.map((waf) => (
+              <WafRow
+                handlers={{
+                  handleAnalytics: () => handleWafAction('analytics', waf),
+                  handleDelete: () => handleWafAction('delete', waf),
+                  handleLogs: () => handleWafAction('logs', waf),
+                  handleOverview: () => handleWafAction('overview', waf),
+                  handleSettings: () => handleWafAction('settings', waf),
+                }}
+                key={waf.id}
+                waf={waf}
+              />
+            ))
           )}
-          {data.map((waf: WAF) => (
-            <WafRow
-              handlers={{
-                handleAnalytics: () => handleWafAction('analytics', waf),
-                handleDelete: () => handleWafAction('delete', waf),
-                handleLogs: () => handleWafAction('logs', waf),
-                handleOverview: () => handleWafAction('overview', waf),
-                handleSettings: () => handleWafAction('settings', waf),
-              }}
-              key={waf.config_id}
-              waf={waf}
-            />
-          ))}
         </TableBody>
       </Table>
+
       <PaginationFooter
         count={results || 0}
         eventCategory="WAF Configuration Table"
@@ -123,12 +107,11 @@ export const WafLandingTable = ({
         page={pagination.page}
         pageSize={pagination.pageSize}
       />
+
       <DeleteWafDialog
-        isFetching={isFetchingWaf}
-        onClose={navigateToWaf}
-        open={params.action === 'delete'}
-        waf={selectedWaf}
-        wafError={selectedWafError}
+        onClose={closeDeleteDialog}
+        open={!!selectedWafForDelete}
+        waf={selectedWafForDelete}
       />
     </>
   );

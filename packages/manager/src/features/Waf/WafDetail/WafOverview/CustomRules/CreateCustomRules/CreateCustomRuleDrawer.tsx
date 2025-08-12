@@ -19,12 +19,11 @@ import {
 
 import { CustomRuleCondition } from 'src/features/Waf/WafDetail/WafOverview/CustomRules/CreateCustomRules/CustomRuleCondition';
 
-import type { CreateCustomRulePayload } from '@linode/api-v4';
-
+//TODO: Add CreateCustomRulePayload interface
 export interface CreateCustomRuleDrawerProps {
-  customRuleData?: CreateCustomRulePayload;
+  customRuleData?: any;
   onClose: () => void;
-  onSubmit: (data: CreateCustomRulePayload) => void;
+  onSubmit: (data: any) => void;
   open: boolean;
 }
 
@@ -65,7 +64,8 @@ export const CreateCustomRuleDrawer = (props: CreateCustomRuleDrawerProps) => {
     values: [],
   });
 
-  const handleFormSubmit = (formData: CreateCustomRulePayload) => {
+  //TODO: Add CreateCustomRulePayload interface
+  const handleFormSubmit = (formData: any) => {
     onSubmit(formData);
   };
 

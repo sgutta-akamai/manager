@@ -1,4 +1,4 @@
-// TODO: import { useWafsQuery } from '@linode/queries';
+import { useWafsQuery } from '@linode/queries';
 import {
   CircleProgress,
   CloseIcon,
@@ -13,7 +13,6 @@ import * as React from 'react';
 import { debounce } from 'throttle-debounce';
 
 import { LandingHeader } from 'src/components/LandingHeader';
-import { wafConfigurationsFactory } from 'src/factories/wafs';
 import { getRestrictedResourceText } from 'src/features/Account/utils';
 import { WafEmptyState } from 'src/features/Waf/WafLanding/WafEmptyState';
 import { WafLandingTable } from 'src/features/Waf/WafLanding/WafLandingTable';
@@ -23,22 +22,6 @@ import { getAPIErrorOrDefault } from 'src/utilities/errorUtils';
 
 import type { Filter } from '@linode/api-v4';
 import type { WafSearchParams } from 'src/routes/waf';
-
-// --- Mocked useWafsQuery hook ---
-const waf_configs = wafConfigurationsFactory.buildList(10);
-const useWafsQuery = (pagination: {}, filter: Filter) => {
-  const isLoading = false;
-  const error = undefined;
-  const isFetching = true;
-
-  const dummyData = {
-    // waf_configs: [] /*Simulating empty WAF data*/,
-    waf_configs,
-    results: waf_configs.length,
-  };
-
-  return { data: dummyData, error, isFetching, isLoading };
-};
 
 const preferenceKey = 'wafs';
 
@@ -81,7 +64,12 @@ export const WafLanding = () => {
     }),
   };
 
-  const { data, error, isFetching, isLoading } = useWafsQuery(
+  const {
+    data: wafs,
+    error,
+    isFetching,
+    isLoading,
+  } = useWafsQuery(
     {
       page: pagination.page,
       page_size: pagination.pageSize,
@@ -117,12 +105,8 @@ export const WafLanding = () => {
     return <CircleProgress />;
   }
 
-  if (data?.waf_configs.length === 0) {
-    return (
-      <>
-        <WafEmptyState />
-      </>
-    );
+  if (wafs?.data.length === 0) {
+    return <WafEmptyState />;
   }
 
   if (error) {
@@ -174,11 +158,11 @@ export const WafLanding = () => {
         value={query ?? ''}
       />
       <WafLandingTable
-        data={data?.waf_configs}
+        data={wafs?.data || []}
         handleOrderChange={handleOrderChange}
         order={order}
         orderBy={orderBy}
-        results={data?.results}
+        results={wafs?.results || 0}
       />
     </>
   );

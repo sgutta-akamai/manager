@@ -1,3 +1,4 @@
+import { WafStatus } from '@linode/api-v4';
 import { capitalize } from '@linode/utilities';
 import * as React from 'react';
 
@@ -6,12 +7,11 @@ import { Link } from 'src/components/Link';
 import { StatusIcon } from 'src/components/StatusIcon/StatusIcon';
 import { TableCell } from 'src/components/TableCell';
 import { TableRow } from 'src/components/TableRow';
-import { WafStatus } from 'src/features/Waf/WafLanding/types';
 
 import { WafActionMenu } from './WafActionMenu';
 
 import type { ActionHandlers } from './WafActionMenu';
-import type { WAF } from '@linode/api-v4/lib/wafs/types';
+import type { WAF } from '@linode/api-v4';
 
 interface Props {
   handlers: ActionHandlers;
@@ -24,28 +24,26 @@ export const WafRow = (props: Props) => {
   return (
     <TableRow>
       <TableCell>
-        <Link to={`/waf/${waf.config_id}`}>{waf.label}</Link>
+        <Link to={`/waf/${waf.id}`}>{waf.label}</Link>
       </TableCell>
       <TableCell statusCell>
         <StatusIcon
-          status={
-            waf.status === WafStatus.Active
-              ? WafStatus.Active
-              : WafStatus.Inactive
-          }
+          status={waf.status === WafStatus.ACTIVE ? 'active' : 'inactive'}
         />
         {capitalize(waf.status)}
       </TableCell>
       <TableCell>
-        {waf.resources?.map((resource, index) => (
-          <React.Fragment key={index}>
-            {resource}
-            {index !== waf.resources.length - 1 && ' | '}
-          </React.Fragment>
-        ))}
+        {waf.devices && waf.devices.length > 0
+          ? waf.devices.map((device, index) => (
+              <React.Fragment key={device.id}>
+                {device.label}
+                {index < (waf.devices?.length ?? 0) - 1 && ' | '}
+              </React.Fragment>
+            ))
+          : '-'}
       </TableCell>
       <TableCell>
-        <DateTimeDisplay value={waf.update_dt} />
+        <DateTimeDisplay value={waf.updated} />
       </TableCell>
       <TableCell actionCell>
         <WafActionMenu handlers={handlers} waf={waf} />
