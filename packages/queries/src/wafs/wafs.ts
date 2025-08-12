@@ -11,6 +11,7 @@ import {
   getWafs,
   updateCustomRule,
   updateWaf,
+  updateWafAttackGroupAction,
 } from '@linode/api-v4';
 import { createQueryKeys } from '@lukemorales/query-key-factory';
 import {
@@ -27,6 +28,7 @@ import type {
   Params,
   ResourcePage,
   WAF,
+  WAFAttackGroup,
   WAFCustomRule,
   WAFDevice,
   WAFMetadata,
@@ -201,6 +203,20 @@ export const useDeleteCustomRuleMutation = (wafId: number) => {
     onSuccess: () => {
       queryClient.invalidateQueries({
         queryKey: wafQueries.customRules._def,
+      });
+    },
+  });
+};
+
+export const useUpdateWafAttackGroupActionMutation = (wafId: number) => {
+  const queryClient = useQueryClient();
+
+  return useMutation<WAFAttackGroup, APIError[], WAFAttackGroup>({
+    mutationFn: (data) => updateWafAttackGroupAction(wafId, data),
+    onSuccess: () => {
+      // Invalidate the WAF query to refresh the attack groups data
+      queryClient.invalidateQueries({
+        queryKey: wafQueries.waf(wafId).queryKey,
       });
     },
   });

@@ -10,6 +10,7 @@ import Request, {
 import type { Filter, Params, ResourcePage } from '../types';
 import type {
   WAF,
+  WAFAttackGroup,
   WAFCustomRule,
   WAFDevice,
   WAFMetadata,
@@ -169,4 +170,21 @@ export const deleteCustomRule = (wafId: number, ruleId: number) =>
       `${API_ROOT}/waf-configs/${encodeURIComponent(wafId)}/custom-rules/${encodeURIComponent(ruleId)}`,
     ),
     setMethod('DELETE'),
+  );
+
+/**
+ * updateWafAttackGroupAction
+ *
+ * Update an attack group action for a WAF configuration.
+ */
+export const updateWafAttackGroupAction = (
+  wafId: number,
+  data: WAFAttackGroup,
+) =>
+  Request<WAFAttackGroup>(
+    setURL(
+      `${API_ROOT}/waf-configs/${encodeURIComponent(wafId)}/attack-group-action`,
+    ),
+    setMethod('POST'),
+    setData(data),
   );

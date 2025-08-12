@@ -1,4 +1,4 @@
-import { WAFAction, type WAFCustomRule } from '@linode/api-v4';
+import { type WAFCustomRule } from '@linode/api-v4';
 import {
   useDeleteCustomRuleMutation,
   useUpdateCustomRuleMutation,
@@ -18,25 +18,16 @@ import { TableRow } from 'src/components/TableRow';
 import { TableRowEmpty } from 'src/components/TableRowEmpty/TableRowEmpty';
 import { TableRowLoading } from 'src/components/TableRowLoading/TableRowLoading';
 import { TableSortCell } from 'src/components/TableSortCell';
+import { WAF_ACTION_LABELS, WAF_ACTION_OPTIONS } from 'src/features/Waf/utils';
 
 import { CustomRuleDrawer } from './CustomRuleDrawer';
 
-const StyledCustomRuleLabel = styled('span')({
-  color: '#0174BC',
+import type { WAFAction } from '@linode/api-v4';
+
+const StyledCustomRuleLabel = styled('span')(({ theme }) => ({
+  color: theme.palette.primary.main,
   cursor: 'pointer',
-});
-
-const ACTION_OPTIONS = [
-  { label: 'Alert', value: WAFAction.ALERT },
-  { label: 'Deny', value: WAFAction.DENY },
-  { label: 'Not used', value: WAFAction.NOT_USED },
-];
-
-const ACTION_LABELS = {
-  [WAFAction.ALERT]: 'Alert',
-  [WAFAction.DENY]: 'Deny',
-  [WAFAction.NOT_USED]: 'Not used',
-};
+}));
 
 interface CustomRulesTableProps {
   isCreateDrawerOpen?: boolean;
@@ -53,7 +44,7 @@ export const CustomRulesTable: React.FC<CustomRulesTableProps> = ({
   const [selectedRule, setSelectedRule] = React.useState<null | WAFCustomRule>(
     null
   );
-  const [localActionChanges, setLocalActionChanges] = React.useState<
+  const [optimisticUpdates, setOptimisticUpdates] = React.useState<
     Record<number, WAFAction>
   >({});
   const [deletingRuleId, setDeletingRuleId] = React.useState<null | number>(
@@ -100,7 +91,7 @@ export const CustomRulesTable: React.FC<CustomRulesTableProps> = ({
     }
 
     // Update local state for immediate UI feedback
-    setLocalActionChanges((prev) => ({ ...prev, [index]: newAction }));
+    setOptimisticUpdates((prev) => ({ ...prev, [index]: newAction }));
 
     updateCustomRuleMutation.mutate(
       { ruleId: rule.id, data: { ...rule, action: newAction } },
@@ -116,7 +107,10 @@ export const CustomRulesTable: React.FC<CustomRulesTableProps> = ({
               ? error[0].reason
               : 'Failed to update rule action';
           enqueueSnackbar(errorMessage, { variant: 'error' });
-          setLocalActionChanges((prev) => ({ ...prev, [index]: rule.action }));
+          setOptimisticUpdates((prev) => ({
+            ...prev,
+            [index]: rule.action,
+          }));
         },
       }
     );
@@ -174,8 +168,7 @@ export const CustomRulesTable: React.FC<CustomRulesTableProps> = ({
               ) : (
                 customRules.map((rule, index) => {
                   // Use local action change if it exists, otherwise use the rule's action
-                  const currentAction =
-                    localActionChanges[index] ?? rule.action;
+                  const currentAction = optimisticUpdates[index] ?? rule.action;
                   const isDeleting = deletingRuleId === rule.id;
 
                   return (
@@ -206,11 +199,11 @@ export const CustomRulesTable: React.FC<CustomRulesTableProps> = ({
                               );
                             }
                           }}
-                          options={ACTION_OPTIONS}
+                          options={WAF_ACTION_OPTIONS}
                           value={
                             currentAction
                               ? {
-                                  label: ACTION_LABELS[currentAction],
+                                  label: WAF_ACTION_LABELS[currentAction],
                                   value: currentAction,
                                 }
                               : null
