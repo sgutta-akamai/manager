@@ -54,7 +54,9 @@ export const WafSettingsNodebalancers = (
   );
 
   const createPayload = (data: Partial<WafCreateForm>) => {
-    const updatedHosts = [...(data.hosts || []), ...(data.paths || [])];
+    const getHosts = data.hosts || [];
+    const getPaths = data.paths || [];
+    const updatedHosts = [...getHosts, ...getPaths];
 
     const payload: CreateWafPayload = {
       label: wafData.label,
