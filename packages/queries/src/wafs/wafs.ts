@@ -151,9 +151,8 @@ export const useCreateCustomRuleMutation = (wafId: number) => {
   return useMutation<WAFCustomRule, APIError[], WAFCustomRule>({
     mutationFn: (data) => createCustomRule(wafId, data),
     onSuccess: () => {
-      // Invalidate relevant WAF queries to refresh data
       queryClient.invalidateQueries({
-        queryKey: wafQueries.waf(wafId).queryKey,
+        queryKey: wafQueries.customRules._def,
       });
     },
   });
@@ -168,14 +167,9 @@ export const useUpdateCustomRuleMutation = (wafId: number) => {
     { data: WAFCustomRule; ruleId: number }
   >({
     mutationFn: ({ ruleId, data }) => updateCustomRule(wafId, ruleId, data),
-    onSuccess: () => {
-      // Invalidate custom rules queries to refresh the table data
+    onSuccess: (_, { ruleId }) => {
       queryClient.invalidateQueries({
-        queryKey: wafQueries.customRules(wafId).queryKey,
-      });
-      // Also invalidate the WAF query in case it affects the main WAF data
-      queryClient.invalidateQueries({
-        queryKey: wafQueries.waf(wafId).queryKey,
+        queryKey: [wafId, 'custom-rules', ruleId],
       });
     },
   });

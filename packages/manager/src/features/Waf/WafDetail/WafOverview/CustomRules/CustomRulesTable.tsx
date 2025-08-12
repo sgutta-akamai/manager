@@ -1,7 +1,11 @@
 import { WAFAction, type WAFCustomRule } from '@linode/api-v4';
-import { useWafCustomRulesQuery } from '@linode/queries';
+import {
+  useUpdateCustomRuleMutation,
+  useWafCustomRulesQuery,
+} from '@linode/queries';
 import { Box, Paper, Select } from '@linode/ui';
 import { styled } from '@mui/material/styles';
+import { useSnackbar } from 'notistack';
 import * as React from 'react';
 
 import { ActionMenu } from 'src/components/ActionMenu/ActionMenu';
@@ -51,6 +55,10 @@ export const CustomRulesTable: React.FC<CustomRulesTableProps> = ({
   const [selectedRule, setSelectedRule] = React.useState<null | WAFCustomRule>(
     null
   );
+  // Track local action changes to update UI immediately
+  const [localActionChanges, setLocalActionChanges] = React.useState<
+    Record<number, WAFAction>
+  >({});
 
   const {
     data: customRulesData,
@@ -93,11 +101,55 @@ export const CustomRulesTable: React.FC<CustomRulesTableProps> = ({
     refetch();
   };
 
+  const { enqueueSnackbar } = useSnackbar();
+  const updateCustomRuleMutation = useUpdateCustomRuleMutation(wafId);
+
   const handleActionChange = (index: number, newAction: WAFAction) => {
-    // TODO: Implement action update functionality
+    const rule = customRules[index];
+    if (!rule?.id) {
+      enqueueSnackbar('Unable to update rule: Rule ID not found', {
+        variant: 'error',
+      });
+      return;
+    }
+
+    // Update local state for immediate UI feedback
+    setLocalActionChanges((prev) => ({ ...prev, [index]: newAction }));
+
+    // Create updated rule data
+    const updatedRuleData: WAFCustomRule = {
+      ...rule,
+      action: newAction,
+    };
+
+    updateCustomRuleMutation.mutate(
+      {
+        ruleId: rule.id,
+        data: updatedRuleData,
+      },
+      {
+        onSuccess: () => {
+          enqueueSnackbar(`Rule "${rule.label}" action updated successfully`, {
+            variant: 'success',
+          });
+        },
+        onError: (error) => {
+          // Extract error message from API response - error is APIError[]
+          const errorMessage =
+            Array.isArray(error) && error.length > 0
+              ? error[0].reason
+              : 'Failed to update rule action';
+          enqueueSnackbar(errorMessage, {
+            variant: 'error',
+          });
+          // Revert local state change on error
+          setLocalActionChanges((prev) => ({ ...prev, [index]: rule.action }));
+        },
+      }
+    );
   };
 
-  const handleRuleDelete = (ruleId: number, ruleLabel: string) => {
+  const handleRuleDelete = (_ruleId: number, _ruleLabel: string) => {
     // TODO: Implement delete functionality
   };
 
@@ -127,52 +179,58 @@ export const CustomRulesTable: React.FC<CustomRulesTableProps> = ({
               ) : customRules.length === 0 ? (
                 <TableRowEmpty colSpan={3} message="No data to display." />
               ) : (
-                customRules.map((rule, index) => (
-                  <TableRow key={rule.id || `${rule.label}-${index}`}>
-                    <TableCell>
-                      <StyledCustomRuleLabel
-                        onClick={() => handleRuleClick(rule)}
-                      >
-                        {rule.label}
-                      </StyledCustomRuleLabel>
-                    </TableCell>
-                    <TableCell>
-                      <Select
-                        hideLabel={true}
-                        label="action"
-                        onChange={(e, selected) => {
-                          if (selected) {
-                            handleActionChange(
-                              index,
-                              selected.value as WAFAction
-                            );
+                customRules.map((rule, index) => {
+                  // Use local action change if it exists, otherwise use the rule's action
+                  const currentAction =
+                    localActionChanges[index] ?? rule.action;
+
+                  return (
+                    <TableRow key={rule.id || `${rule.label}-${index}`}>
+                      <TableCell>
+                        <StyledCustomRuleLabel
+                          onClick={() => handleRuleClick(rule)}
+                        >
+                          {rule.label}
+                        </StyledCustomRuleLabel>
+                      </TableCell>
+                      <TableCell>
+                        <Select
+                          hideLabel={true}
+                          label="action"
+                          onChange={(e, selected) => {
+                            if (selected) {
+                              handleActionChange(
+                                index,
+                                selected.value as WAFAction
+                              );
+                            }
+                          }}
+                          options={ACTION_OPTIONS}
+                          value={
+                            currentAction
+                              ? {
+                                  label: ACTION_LABELS[currentAction],
+                                  value: currentAction,
+                                }
+                              : null
                           }
-                        }}
-                        options={ACTION_OPTIONS}
-                        value={
-                          rule.action
-                            ? {
-                                label: ACTION_LABELS[rule.action],
-                                value: rule.action,
-                              }
-                            : null
-                        }
-                      />
-                    </TableCell>
-                    <TableCell>
-                      <ActionMenu
-                        actionsList={[
-                          {
-                            title: 'Delete',
-                            onClick: () =>
-                              handleRuleDelete(rule.id!, rule.label),
-                          },
-                        ]}
-                        ariaLabel={`Action menu for custom rule ${rule.label}`}
-                      />
-                    </TableCell>
-                  </TableRow>
-                ))
+                        />
+                      </TableCell>
+                      <TableCell>
+                        <ActionMenu
+                          actionsList={[
+                            {
+                              title: 'Delete',
+                              onClick: () =>
+                                handleRuleDelete(rule.id!, rule.label),
+                            },
+                          ]}
+                          ariaLabel={`Action menu for custom rule ${rule.label}`}
+                        />
+                      </TableCell>
+                    </TableRow>
+                  );
+                })
               )}
             </TableBody>
           </Table>
