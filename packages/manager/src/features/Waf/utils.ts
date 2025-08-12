@@ -31,7 +31,7 @@ export interface Host {
   path: string;
 }
 
-export type Path = Host;
+type Path = Host;
 
 export const WILDCARD_HOSTNAME = '*';
 
