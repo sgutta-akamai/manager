@@ -1,5 +1,9 @@
-import { WAFAction } from '@linode/api-v4';
-import { useWafMetadataQuery } from '@linode/queries';
+import { WAFAction, type WAFCustomRule } from '@linode/api-v4';
+import {
+  useCreateCustomRuleMutation,
+  useUpdateCustomRuleMutation,
+  useWafMetadataQuery,
+} from '@linode/queries';
 import {
   ActionsPanel,
   Box,
@@ -10,6 +14,7 @@ import {
   TextField,
   Typography,
 } from '@linode/ui';
+import { useSnackbar } from 'notistack';
 import * as React from 'react';
 import {
   Controller,
@@ -20,15 +25,14 @@ import {
 
 import { CustomRuleCondition } from 'src/features/Waf/WafDetail/WafOverview/CustomRules/CustomRuleCondition';
 
-import type { CreateCustomRulePayload } from '@linode/api-v4';
-
-interface CreateCustomRuleDrawerProps {
+interface CustomRuleDrawerProps {
   onClose: () => void;
-  onSubmit: (data: CreateCustomRulePayload) => void;
   open: boolean;
+  rule?: null | WAFCustomRule;
+  wafId: number;
 }
 
-const DEFAULT_FORM_VALUES: CreateCustomRulePayload = {
+const DEFAULT_FORM_VALUES: WAFCustomRule = {
   label: '',
   description: '',
   filters: {
@@ -40,13 +44,27 @@ const DEFAULT_FORM_VALUES: CreateCustomRulePayload = {
 
 export const CustomRuleDrawer = ({
   onClose,
-  onSubmit,
   open,
-}: CreateCustomRuleDrawerProps) => {
+  rule,
+  wafId,
+}: CustomRuleDrawerProps) => {
   const { data: wafMetadata } = useWafMetadataQuery();
+  const { enqueueSnackbar } = useSnackbar();
+  const isEditMode = Boolean(rule);
 
-  const form = useForm<CreateCustomRulePayload>({
-    defaultValues: DEFAULT_FORM_VALUES,
+  // Set up mutations
+  const updateCustomRuleMutation = useUpdateCustomRuleMutation(wafId);
+  const createCustomRuleMutation = useCreateCustomRuleMutation(wafId);
+
+  const form = useForm<WAFCustomRule>({
+    defaultValues: rule
+      ? {
+          label: rule.label,
+          description: rule.description,
+          filters: rule.filters,
+          action: rule.action,
+        }
+      : DEFAULT_FORM_VALUES,
   });
 
   const { control, handleSubmit, watch, reset } = form;
@@ -59,12 +77,19 @@ export const CustomRuleDrawer = ({
   const [label, conditions] = watch(['label', 'filters.conditions']);
   const isSaveDisabled = !label?.trim() || conditions?.length === 0;
 
-  // Reset form when drawer closes
+  // Reset form when drawer closes or rule changes
   React.useEffect(() => {
     if (!open) {
       reset(DEFAULT_FORM_VALUES);
+    } else if (rule) {
+      reset({
+        label: rule.label,
+        description: rule.description,
+        filters: rule.filters,
+        action: rule.action,
+      });
     }
-  }, [open, reset]);
+  }, [open, reset, rule]);
 
   const handleAddCondition = React.useCallback(() => {
     append({
@@ -75,16 +100,62 @@ export const CustomRuleDrawer = ({
   }, [append, wafMetadata]);
 
   const handleFormSubmit = React.useCallback(
-    (formData: CreateCustomRulePayload) => {
-      onSubmit(formData);
+    (formData: WAFCustomRule) => {
+      if (isEditMode && rule?.id) {
+        updateCustomRuleMutation.mutate(
+          {
+            ruleId: rule.id,
+            data: formData,
+          },
+          {
+            onSuccess: () => {
+              enqueueSnackbar('Custom rule updated successfully', {
+                variant: 'success',
+              });
+              onClose();
+            },
+            onError: (_error) => {
+              enqueueSnackbar('Failed to update custom rule', {
+                variant: 'error',
+              });
+            },
+          }
+        );
+      } else {
+        createCustomRuleMutation.mutate(formData, {
+          onSuccess: () => {
+            enqueueSnackbar('Custom rule created successfully', {
+              variant: 'success',
+            });
+            onClose();
+          },
+          onError: (_error) => {
+            enqueueSnackbar('Failed to create custom rule', {
+              variant: 'error',
+            });
+          },
+        });
+      }
     },
-    [onSubmit]
+    [
+      isEditMode,
+      rule?.id,
+      updateCustomRuleMutation,
+      createCustomRuleMutation,
+      enqueueSnackbar,
+      onClose,
+    ]
   );
 
   const matchTypeOptions = wafMetadata?.custom_rules.match_type || [];
 
   return (
-    <Drawer onClose={onClose} open={open} title="Create custom rule" wide>
+    <Drawer
+      onClose={onClose}
+      open={open}
+      title={isEditMode ? 'Edit custom rule' : 'Add custom rule'}
+      wide
+    >
       <FormProvider {...form}>
         <form onSubmit={handleSubmit(handleFormSubmit)}>
           <Box marginTop={3}>

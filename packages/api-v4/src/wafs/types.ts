@@ -106,14 +106,9 @@ export interface WAFCustomRuleFilters {
 }
 
 export interface WAFCustomRule {
-  description: string;
-  filters: WAFCustomRuleFilters;
-  label: string;
-}
-
-export interface CreateCustomRulePayload {
   action: WAFAction;
   description: string;
   filters: WAFCustomRuleFilters;
+  id?: number;
   label: string;
 }

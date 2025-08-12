@@ -4,9 +4,11 @@ import {
   deleteWaf,
   getAvailableWafDevices,
   getWaf,
+  getWafCustomRules,
   getWafMetadata,
   getWafRuleSet,
   getWafs,
+  updateCustomRule,
 } from '@linode/api-v4';
 import { createQueryKeys } from '@lukemorales/query-key-factory';
 import {
@@ -19,7 +21,6 @@ import {
 
 import type {
   APIError,
-  CreateCustomRulePayload,
   CreateWafPayload,
   Filter,
   Params,
@@ -56,6 +57,10 @@ export const wafQueries = createQueryKeys('wafs', {
     queryFn: () => getWafMetadata(),
     queryKey: null,
   },
+  customRules: (wafId: number, params: Params = {}, filter: Filter = {}) => ({
+    queryFn: () => getWafCustomRules(wafId, params, filter),
+    queryKey: [wafId, 'custom-rules', params, filter],
+  }),
 });
 
 export const useWafsQuery = (params?: Params, filter?: Filter) => {
@@ -127,13 +132,48 @@ export const useWafMetadataQuery = () =>
     ...wafQueries.metadata,
   });
 
+export const useWafCustomRulesQuery = (
+  wafId: number,
+  params?: Params,
+  filter?: Filter,
+  enabled = true,
+) => {
+  return useQuery<ResourcePage<WAFCustomRule>, APIError[]>({
+    ...wafQueries.customRules(wafId, params, filter),
+    enabled,
+    placeholderData: keepPreviousData,
+  });
+};
+
 export const useCreateCustomRuleMutation = (wafId: number) => {
   const queryClient = useQueryClient();
 
-  return useMutation<WAFCustomRule, APIError[], CreateCustomRulePayload>({
+  return useMutation<WAFCustomRule, APIError[], WAFCustomRule>({
     mutationFn: (data) => createCustomRule(wafId, data),
     onSuccess: () => {
       // Invalidate relevant WAF queries to refresh data
+      queryClient.invalidateQueries({
+        queryKey: wafQueries.waf(wafId).queryKey,
+      });
+    },
+  });
+};
+
+export const useUpdateCustomRuleMutation = (wafId: number) => {
+  const queryClient = useQueryClient();
+
+  return useMutation<
+    WAFCustomRule,
+    APIError[],
+    { data: WAFCustomRule; ruleId: number }
+  >({
+    mutationFn: ({ ruleId, data }) => updateCustomRule(wafId, ruleId, data),
+    onSuccess: () => {
+      // Invalidate custom rules queries to refresh the table data
+      queryClient.invalidateQueries({
+        queryKey: wafQueries.customRules(wafId).queryKey,
+      });
+      // Also invalidate the WAF query in case it affects the main WAF data
       queryClient.invalidateQueries({
         queryKey: wafQueries.waf(wafId).queryKey,
       });

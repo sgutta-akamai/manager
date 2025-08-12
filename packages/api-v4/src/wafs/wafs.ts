@@ -9,7 +9,6 @@ import Request, {
 
 import type { Filter, Params, ResourcePage } from '../types';
 import type {
-  CreateCustomRulePayload,
   CreateWafPayload,
   WAF,
   WAFCustomRule,
@@ -101,14 +100,46 @@ export const getWafMetadata = () =>
   );
 
 /**
+ * getWafCustomRules
+ *
+ * Return a paginated list of custom rules for a specific WAF configuration.
+ */
+export const getWafCustomRules = (
+  wafId: number,
+  params?: Params,
+  filter?: Filter,
+) =>
+  Request<ResourcePage<WAFCustomRule>>(
+    setURL(`${API_ROOT}/waf-configs/${encodeURIComponent(wafId)}/custom-rules`),
+    setMethod('GET'),
+    setParams(params),
+    setXFilter(filter),
+  );
+
+/**
+ * updateCustomRule
+ *
+ * Update an existing custom rule for a WAF configuration.
+ */
+export const updateCustomRule = (
+  wafId: number,
+  ruleId: number,
+  data: WAFCustomRule,
+) =>
+  Request<WAFCustomRule>(
+    setURL(
+      `${API_ROOT}/waf-configs/${encodeURIComponent(wafId)}/custom-rules/${encodeURIComponent(ruleId)}`,
+    ),
+    setMethod('PUT'),
+    setData(data),
+  );
+
+/**
  * createCustomRule
  *
  * Create a new custom rule for a WAF configuration.
  */
-export const createCustomRule = (
-  wafId: number,
-  data: CreateCustomRulePayload,
-) =>
+export const createCustomRule = (wafId: number, data: WAFCustomRule) =>
   Request<WAFCustomRule>(
     setURL(`${API_ROOT}/waf-configs/${encodeURIComponent(wafId)}/custom-rules`),
     setMethod('POST'),
