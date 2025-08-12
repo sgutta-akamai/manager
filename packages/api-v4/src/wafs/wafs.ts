@@ -9,11 +9,11 @@ import Request, {
 
 import type { Filter, Params, ResourcePage } from '../types';
 import type {
-  CreateWafPayload,
   WAF,
   WAFCustomRule,
   WAFDevice,
   WAFMetadata,
+  WafPayload,
   WAFRuleSet,
 } from './types';
 
@@ -46,10 +46,22 @@ export const getWaf = (wafId: number) =>
  *
  * Create a new WAF configuration.
  */
-export const createWaf = (data: CreateWafPayload) =>
+export const createWaf = (data: WafPayload) =>
   Request<WAF>(
     setURL(`${API_ROOT}/waf-configs`),
     setMethod('POST'),
+    setData(data),
+  );
+
+/**
+ * updateWaf
+ *
+ * Update an existing WAF configuration.
+ */
+export const updateWaf = (wafId: number, data: WafPayload) =>
+  Request<WAF>(
+    setURL(`${API_ROOT}/waf-configs/${encodeURIComponent(wafId)}`),
+    setMethod('PUT'),
     setData(data),
   );
 

@@ -10,6 +10,7 @@ import {
   getWafRuleSet,
   getWafs,
   updateCustomRule,
+  updateWaf,
 } from '@linode/api-v4';
 import { createQueryKeys } from '@lukemorales/query-key-factory';
 import {
@@ -22,7 +23,6 @@ import {
 
 import type {
   APIError,
-  CreateWafPayload,
   Filter,
   Params,
   ResourcePage,
@@ -30,6 +30,7 @@ import type {
   WAFCustomRule,
   WAFDevice,
   WAFMetadata,
+  WafPayload,
   WAFRuleSet,
 } from '@linode/api-v4';
 
@@ -79,12 +80,29 @@ export const useWafQuery = (wafId: number) =>
 export const useCreateWafMutation = () => {
   const queryClient = useQueryClient();
 
-  return useMutation<WAF, APIError[], CreateWafPayload>({
+  return useMutation<WAF, APIError[], WafPayload>({
     mutationFn: createWaf,
     onSuccess: () => {
       queryClient.invalidateQueries({
         queryKey: wafQueries.paginated._def,
       });
+    },
+  });
+};
+
+export const useUpdateWafMutation = () => {
+  const queryClient = useQueryClient();
+
+  return useMutation<WAF, APIError[], { data: WafPayload; wafId: number }>({
+    mutationFn: ({ wafId, data }) => updateWaf(wafId, data),
+    onSuccess: (updatedWaf) => {
+      queryClient.invalidateQueries({
+        queryKey: wafQueries.paginated._def,
+      });
+      queryClient.setQueryData(
+        wafQueries.waf(updatedWaf.id).queryKey,
+        updatedWaf,
+      );
     },
   });
 };
