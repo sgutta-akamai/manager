@@ -1,6 +1,14 @@
-import { WAF, WAFDevice, WAFExclusionType, WAFHost } from '@linode/api-v4';
+import {
+  type APIError,
+  CreateWafPayload,
+  WAF,
+  WAFDevice,
+  WAFExclusionType,
+  WAFHost,
+} from '@linode/api-v4';
 import { useUpdateWafMutation } from '@linode/queries';
 import { Box, Button, Paper } from '@linode/ui';
+import { useSnackbar } from 'notistack';
 import * as React from 'react';
 import { useCallback } from 'react';
 import { FormProvider, useForm } from 'react-hook-form';
@@ -16,6 +24,7 @@ export const WafSettingsNodebalancers = (
   props: WafSettingsNodebalancersProps
 ) => {
   const { wafData } = props;
+  const { enqueueSnackbar } = useSnackbar();
 
   const { mutate: updateWaf, isPending } = useUpdateWafMutation(
     props.wafData.id
@@ -36,33 +45,46 @@ export const WafSettingsNodebalancers = (
   });
 
   const handleSuccess = () => {};
-  const handleError = () => {};
+  const handleError = useCallback(
+    (errors: APIError[]) => {
+      const message = errors?.[0]?.reason || 'Failed to update WAF';
+      enqueueSnackbar(message, { variant: 'error' });
+    },
+    [enqueueSnackbar]
+  );
+
+  const createPayload = (data: Partial<WafCreateForm>) => {
+    const updatedHosts = [...(data.hosts || []), ...(data.paths || [])];
+
+    const payload: CreateWafPayload = {
+      label: wafData.label,
+      advanced_settings: wafData.advanced_settings,
+      attack_groups: wafData.attack_groups,
+    };
+
+    if (data?.devices?.length) {
+      payload.devices = data.devices;
+    }
+
+    if (data.isAdjustProtectedResourcesEnabled) {
+      payload.hosts = updatedHosts.map((host) => {
+        return {
+          path: host.path,
+          hostname: host.hostname,
+          exclusion_type: WAFExclusionType.EXCLUDED,
+        } as WAFHost;
+      });
+    }
+
+    return payload;
+  };
 
   const onSubmit = useCallback(
     (data: Partial<WafCreateForm>) => {
-      const updatedHosts = data.isAdjustProtectedResourcesEnabled
-        ? [...(data.hosts || []), ...(data.paths || [])]
-        : [];
-
-      updateWaf(
-        {
-          label: wafData.label,
-          devices: data.devices || [],
-          hosts: updatedHosts.map((host) => {
-            return {
-              path: host.path,
-              hostname: host.hostname,
-              exclusion_type: WAFExclusionType.EXCLUDED,
-            } as WAFHost;
-          }),
-          advanced_settings: wafData.advanced_settings,
-          attack_groups: wafData.attack_groups,
-        },
-        {
-          onSuccess: handleSuccess,
-          onError: handleError,
-        }
-      );
+      updateWaf(createPayload(data), {
+        onSuccess: handleSuccess,
+        onError: handleError,
+      });
     },
     [updateWaf, props.wafData, handleSuccess, handleError]
   );

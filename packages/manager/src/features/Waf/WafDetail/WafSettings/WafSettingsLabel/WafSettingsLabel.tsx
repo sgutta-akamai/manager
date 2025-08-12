@@ -1,6 +1,7 @@
-import { WAF } from '@linode/api-v4';
+import { type APIError, WAF } from '@linode/api-v4';
 import { useUpdateWafMutation } from '@linode/queries';
 import { Box, Button, Paper } from '@linode/ui';
+import { useSnackbar } from 'notistack';
 import * as React from 'react';
 import { useCallback } from 'react';
 import { FormProvider, useForm } from 'react-hook-form';
@@ -17,22 +18,26 @@ export const WafSettingsLabel = (props: WafSettingsLabelProps) => {
   const { mutate: updateWaf, isPending } = useUpdateWafMutation(
     props.wafData.id
   );
-
   const methods = useForm<Pick<WafCreateForm, 'label'>>({
     defaultValues: {
       label: labelValue,
     },
   });
+  const { enqueueSnackbar } = useSnackbar();
 
   const currentValue = methods.watch('label');
-
   const isValueChanged = () => {
     return currentValue !== labelValue;
   };
 
-  const handleError = () => {};
-
   const handleSuccess = () => {};
+  const handleError = useCallback(
+    (errors: APIError[]) => {
+      const message = errors?.[0]?.reason || 'Failed to update WAF';
+      enqueueSnackbar(message, { variant: 'error' });
+    },
+    [enqueueSnackbar]
+  );
 
   const onSubmit = useCallback(
     (data: Pick<WafCreateForm, 'label'>) => {
