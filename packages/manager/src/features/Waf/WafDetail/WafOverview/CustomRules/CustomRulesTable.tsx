@@ -10,7 +10,6 @@ import { useSnackbar } from 'notistack';
 import * as React from 'react';
 
 import { ActionMenu } from 'src/components/ActionMenu/ActionMenu';
-import { PaginationFooter } from 'src/components/PaginationFooter/PaginationFooter';
 import { Table } from 'src/components/Table';
 import { TableBody } from 'src/components/TableBody';
 import { TableCell } from 'src/components/TableCell';
@@ -50,9 +49,6 @@ export const CustomRulesTable: React.FC<CustomRulesTableProps> = ({
   isCreateDrawerOpen = false,
   onCloseCreateDrawer,
 }) => {
-  // State
-  const [page, setPage] = React.useState(1);
-  const [pageSize, setPageSize] = React.useState(25);
   const [sortOrder, setSortOrder] = React.useState<'asc' | 'desc'>('asc');
   const [selectedRule, setSelectedRule] = React.useState<null | WAFCustomRule>(
     null
@@ -70,10 +66,7 @@ export const CustomRulesTable: React.FC<CustomRulesTableProps> = ({
     data: customRulesData,
     isLoading,
     refetch,
-  } = useWafCustomRulesQuery(wafId, {
-    page,
-    page_size: pageSize,
-  });
+  } = useWafCustomRulesQuery(wafId);
   const updateCustomRuleMutation = useUpdateCustomRuleMutation(wafId);
   const deleteCustomRuleMutation = useDeleteCustomRuleMutation(wafId);
 
@@ -87,18 +80,9 @@ export const CustomRulesTable: React.FC<CustomRulesTableProps> = ({
     );
   }, [customRulesData?.data, sortOrder]);
 
-  const totalResults = customRulesData?.results || 0;
-
   // Event handlers
   const handleSort = () =>
     setSortOrder((prev) => (prev === 'asc' ? 'desc' : 'asc'));
-
-  const handlePageChange = (newPage: number) => setPage(newPage);
-
-  const handlePageSizeChange = (newPageSize: number) => {
-    setPageSize(newPageSize);
-    setPage(1);
-  };
 
   const handleCloseDrawer = () => {
     setSelectedRule(null);
@@ -255,13 +239,6 @@ export const CustomRulesTable: React.FC<CustomRulesTableProps> = ({
           </Table>
         </Box>
       </Paper>
-      <PaginationFooter
-        count={totalResults}
-        handlePageChange={handlePageChange}
-        handleSizeChange={handlePageSizeChange}
-        page={page}
-        pageSize={pageSize}
-      />
       {/* Single drawer for both create and edit modes */}
       {(selectedRule || isCreateDrawerOpen) && (
         <CustomRuleDrawer

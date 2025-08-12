@@ -59,9 +59,9 @@ export const wafQueries = createQueryKeys('wafs', {
     queryFn: () => getWafMetadata(),
     queryKey: null,
   },
-  customRules: (wafId: number, params: Params = {}, filter: Filter = {}) => ({
-    queryFn: () => getWafCustomRules(wafId, params, filter),
-    queryKey: [wafId, 'custom-rules', params, filter],
+  customRules: (wafId: number, filter: Filter = {}) => ({
+    queryFn: () => getWafCustomRules(wafId, {}, filter),
+    queryKey: [wafId, 'custom-rules', filter],
   }),
 });
 
@@ -153,12 +153,11 @@ export const useWafMetadataQuery = () =>
 
 export const useWafCustomRulesQuery = (
   wafId: number,
-  params?: Params,
   filter?: Filter,
   enabled = true,
 ) => {
   return useQuery<ResourcePage<WAFCustomRule>, APIError[]>({
-    ...wafQueries.customRules(wafId, params, filter),
+    ...wafQueries.customRules(wafId, filter),
     enabled,
     placeholderData: keepPreviousData,
   });
