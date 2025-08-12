@@ -1,16 +1,23 @@
+import { WAF } from '@linode/api-v4';
+import { useUpdateWafMutation } from '@linode/queries';
 import { Box, Button, Paper } from '@linode/ui';
 import * as React from 'react';
+import { useCallback } from 'react';
 import { FormProvider, useForm } from 'react-hook-form';
 
 import { WafCreateForm } from 'src/features/Waf/utils';
 import { WafName } from 'src/features/Waf/WafCreate/WafName/WafName';
 
 interface WafSettingsLabelProps {
-  labelValue: string;
+  wafData: WAF;
 }
 
 export const WafSettingsLabel = (props: WafSettingsLabelProps) => {
-  const { labelValue } = props;
+  const labelValue = props.wafData.label;
+  const { mutate: updateWaf, isPending } = useUpdateWafMutation(
+    props.wafData.id
+  );
+
   const methods = useForm<Pick<WafCreateForm, 'label'>>({
     defaultValues: {
       label: labelValue,
@@ -23,9 +30,28 @@ export const WafSettingsLabel = (props: WafSettingsLabelProps) => {
     return currentValue !== labelValue;
   };
 
-  const onSubmit = (_data: Pick<WafCreateForm, 'label'>) => {
-    //TODO - add event handler
-  };
+  const handleError = () => {};
+
+  const handleSuccess = () => {};
+
+  const onSubmit = useCallback(
+    (data: Pick<WafCreateForm, 'label'>) => {
+      updateWaf(
+        {
+          label: data.label,
+          devices: props.wafData.devices,
+          hosts: props.wafData.hosts,
+          advanced_settings: props.wafData.advanced_settings,
+          attack_groups: props.wafData.attack_groups,
+        },
+        {
+          onSuccess: handleSuccess,
+          onError: handleError,
+        }
+      );
+    },
+    [updateWaf, props.wafData, handleSuccess, handleError]
+  );
 
   return (
     <div>
@@ -36,7 +62,8 @@ export const WafSettingsLabel = (props: WafSettingsLabelProps) => {
             <Box display="flex" flexDirection="row">
               <Button
                 buttonType="primary"
-                disabled={!isValueChanged()}
+                disabled={!isValueChanged() || isPending}
+                loading={isPending}
                 sx={{ marginLeft: '16px' }}
                 type="submit"
               >

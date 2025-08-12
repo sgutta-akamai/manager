@@ -1,48 +1,35 @@
+import { useWafQuery } from '@linode/queries';
+import { CircleProgress, ErrorState } from '@linode/ui';
+import { useParams } from '@tanstack/react-router';
 import * as React from 'react';
 
-import { Device, ExclusionType, Host, Path } from 'src/features/Waf/utils';
 import { WafSettingsLabel } from 'src/features/Waf/WafDetail/WafSettings/WafSettingsLabel/WafSettingsLabel';
 import { WafSettingsNodebalancers } from 'src/features/Waf/WafDetail/WafSettings/WafSettingsNodebalancers/WafSettingsNodebalancers';
+import { getAPIErrorOrDefault } from 'src/utilities/errorUtils';
 
 export const WafSettings = () => {
-  const mockDevices: Device[] = [
-    { id: '1', label: 'NodeBalancer 1', type: 'nodebalancer' },
-    { id: '2', label: 'NodeBalancer 2', type: 'nodebalancer' },
-  ];
-  const mockHosts: Host[] = [
-    {
-      exclusionType: ExclusionType.INCLUDED,
-      hostname: 'example.com',
-      path: '/',
-    },
-    {
-      exclusionType: ExclusionType.EXCLUDED,
-      hostname: 'test.com',
-      path: '/test',
-    },
-  ];
-  const mockPaths: Path[] = [
-    {
-      exclusionType: ExclusionType.INCLUDED,
-      hostname: 'example.com',
-      path: '/',
-    },
-    {
-      exclusionType: ExclusionType.EXCLUDED,
-      hostname: 'test.com',
-      path: '/test',
-    },
-  ];
+  const { id } = useParams({ from: '/waf/$id/settings' });
+  const { data, isLoading, error } = useWafQuery(Number(id));
+
+  if (isLoading) return <CircleProgress />;
+
+  if (error) {
+    return (
+      <ErrorState
+        errorText={
+          getAPIErrorOrDefault(error, 'Error loading WAF configuration.')[0]
+            .reason
+        }
+      />
+    );
+  }
+
+  if (!data) return null;
 
   return (
     <div>
-      <WafSettingsLabel labelValue="waffy" />
-      <WafSettingsNodebalancers
-        devicesValue={mockDevices}
-        hostsValue={mockHosts}
-        isAdjustProtectedResourcesEnabledValue={false}
-        pathsValue={mockPaths}
-      />
+      <WafSettingsLabel wafData={data} />
+      <WafSettingsNodebalancers wafData={data} />
     </div>
   );
 };

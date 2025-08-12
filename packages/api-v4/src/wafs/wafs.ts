@@ -47,6 +47,19 @@ export const createWaf = (data: CreateWafPayload) =>
   );
 
 /**
+ * updateWaf
+ *
+ * Update an existing WAF configuration.
+ */
+
+export const updateWaf = (wafId: number, data: CreateWafPayload) =>
+  Request<WAF>(
+    setURL(`${API_ROOT}/waf-configs/${encodeURIComponent(wafId)}`),
+    setMethod('PUT'),
+    setData(data),
+  );
+
+/**
  * deleteWaf
  *
  * Delete a WAF configuration.

@@ -1,46 +1,31 @@
+import { WAF, WAFDevice, WAFExclusionType, WAFHost } from '@linode/api-v4';
+import { useUpdateWafMutation } from '@linode/queries';
 import { Box, Button, Paper } from '@linode/ui';
 import * as React from 'react';
+import { useCallback } from 'react';
 import { FormProvider, useForm } from 'react-hook-form';
 
-import { Device, Host, Path, WafCreateForm } from 'src/features/Waf/utils';
+import { WafCreateForm } from 'src/features/Waf/utils';
 import { Nodebalancers } from 'src/features/Waf/WafCreate/Nodebalancers/Nodebalancers';
 
 interface WafSettingsNodebalancersProps {
-  devicesValue: Device[];
-  hostsValue: Host[];
-  isAdjustProtectedResourcesEnabledValue: boolean;
-  pathsValue: Path[];
+  wafData: WAF;
 }
-
-//TODO - replace with better solution
-const deepEqual = (a: any, b: any) => {
-  if (a === b) return true;
-  if (
-    typeof a !== 'object' ||
-    typeof b !== 'object' ||
-    a == null ||
-    b == null
-  ) {
-    return false;
-  }
-  const keysA = Object.keys(a);
-  const keysB = Object.keys(b);
-  if (keysA.length !== keysB.length) return false;
-  for (const key of keysA) {
-    if (!keysB.includes(key) || !deepEqual(a[key], b[key])) return false;
-  }
-  return true;
-};
 
 export const WafSettingsNodebalancers = (
   props: WafSettingsNodebalancersProps
 ) => {
-  const {
-    devicesValue,
-    hostsValue,
-    pathsValue,
-    isAdjustProtectedResourcesEnabledValue,
-  } = props;
+  const { wafData } = props;
+
+  const { mutate: updateWaf, isPending } = useUpdateWafMutation(
+    props.wafData.id
+  );
+
+  const devicesValue: WAFDevice[] = wafData.devices || [];
+  const hosts: WAFHost[] = wafData.hosts || [];
+  const hostsValue = hosts.filter((host) => host.hostname !== '*');
+  const pathsValue = hosts.filter((host) => host.hostname === '*');
+  const isAdjustProtectedResourcesEnabledValue = hosts.length > 0;
   const methods = useForm<Partial<WafCreateForm>>({
     defaultValues: {
       devices: devicesValue,
@@ -50,36 +35,39 @@ export const WafSettingsNodebalancers = (
     },
   });
 
-  const onSubmit = (_data: Partial<WafCreateForm>) => {
-    // console.log(_data)
-  };
+  const handleSuccess = () => {};
+  const handleError = () => {};
 
-  const currentDevices = methods.watch('devices');
-  const currentHosts = methods.watch('hosts');
-  const currentPaths = methods.watch('paths');
-  const currentIsAdjustProtectedResourcesEnabled = methods.watch(
-    'isAdjustProtectedResourcesEnabled'
+  const onSubmit = useCallback(
+    (data: Partial<WafCreateForm>) => {
+      const updatedHosts = data.isAdjustProtectedResourcesEnabled
+        ? [...(data.hosts || []), ...(data.paths || [])]
+        : [];
+
+      updateWaf(
+        {
+          label: wafData.label,
+          devices: data.devices || [],
+          hosts: updatedHosts.map((host) => {
+            return {
+              path: host.path,
+              hostname: host.hostname,
+              exclusion_type: WAFExclusionType.EXCLUDED,
+            } as WAFHost;
+          }),
+          advanced_settings: wafData.advanced_settings,
+          attack_groups: wafData.attack_groups,
+        },
+        {
+          onSuccess: handleSuccess,
+          onError: handleError,
+        }
+      );
+    },
+    [updateWaf, props.wafData, handleSuccess, handleError]
   );
-  const isValueChanged = () => {
-    //TODO comparison is not working as expected for some edge cases. need to fix
-    const currentValues = {
-      devices: currentDevices,
-      hosts: currentHosts,
-      paths: currentPaths,
-      isAdjustProtectedResourcesEnabled:
-        currentIsAdjustProtectedResourcesEnabled,
-    };
 
-    const originalValues = {
-      devices: devicesValue,
-      hosts: hostsValue,
-      paths: pathsValue,
-      isAdjustProtectedResourcesEnabled: isAdjustProtectedResourcesEnabledValue,
-    };
-
-    return !deepEqual(currentValues, originalValues);
-  };
-
+  //TODO - implement deep equality check for form values to disable save button
   return (
     <div>
       <FormProvider {...methods}>
@@ -89,7 +77,8 @@ export const WafSettingsNodebalancers = (
             <Box display="flex" flexDirection="row">
               <Button
                 buttonType="primary"
-                disabled={!isValueChanged()}
+                disabled={isPending}
+                loading={isPending}
                 sx={{ marginLeft: '16px' }}
                 type="submit"
               >
