@@ -17,21 +17,18 @@ import { WafCreateForm } from 'src/features/Waf/utils';
 import { Nodebalancers } from 'src/features/Waf/WafCreate/Nodebalancers/Nodebalancers';
 
 interface WafSettingsNodebalancersProps {
-  wafData: WAF;
+  waf: WAF;
 }
 
-export const WafSettingsNodebalancers = (
-  props: WafSettingsNodebalancersProps
-) => {
-  const { wafData } = props;
+export const WafSettingsNodebalancers = ({
+  waf,
+}: WafSettingsNodebalancersProps) => {
   const { enqueueSnackbar } = useSnackbar();
 
-  const { mutate: updateWaf, isPending } = useUpdateWafMutation(
-    props.wafData.id
-  );
+  const { mutate: updateWaf, isPending } = useUpdateWafMutation(waf.id);
 
-  const devicesValue: WAFDevice[] = wafData.devices || [];
-  const hosts: WAFHost[] = wafData.hosts || [];
+  const devicesValue: WAFDevice[] = waf.devices || [];
+  const hosts: WAFHost[] = waf.hosts || [];
   const hostsValue = hosts.filter((host) => host.hostname !== '*');
   const pathsValue = hosts.filter((host) => host.hostname === '*');
   const isAdjustProtectedResourcesEnabledValue = hosts.length > 0;
@@ -44,7 +41,6 @@ export const WafSettingsNodebalancers = (
     },
   });
 
-  const handleSuccess = () => {};
   const handleError = useCallback(
     (errors: APIError[]) => {
       const message = errors?.[0]?.reason || 'Failed to update WAF';
@@ -59,9 +55,9 @@ export const WafSettingsNodebalancers = (
     const updatedHosts = [...getHosts, ...getPaths];
 
     const payload: CreateWafPayload = {
-      label: wafData.label,
-      advanced_settings: wafData.advanced_settings,
-      attack_groups: wafData.attack_groups,
+      label: waf.label,
+      advanced_settings: waf.advanced_settings,
+      attack_groups: waf.attack_groups,
     };
 
     if (data?.devices?.length) {
@@ -84,11 +80,11 @@ export const WafSettingsNodebalancers = (
   const onSubmit = useCallback(
     (data: Partial<WafCreateForm>) => {
       updateWaf(createPayload(data), {
-        onSuccess: handleSuccess,
+        onSuccess: () => {},
         onError: handleError,
       });
     },
-    [updateWaf, props.wafData, handleSuccess, handleError]
+    [updateWaf, waf, handleError]
   );
 
   //TODO - implement deep equality check for form values to disable save button

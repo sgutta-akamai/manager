@@ -28,8 +28,8 @@ export const WafSettings = () => {
 
   return (
     <div>
-      <WafSettingsLabel wafData={data} />
-      <WafSettingsNodebalancers wafData={data} />
+      <WafSettingsLabel waf={data} />
+      <WafSettingsNodebalancers waf={data} />
     </div>
   );
 };

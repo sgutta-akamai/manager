@@ -10,14 +10,12 @@ import { WafCreateForm } from 'src/features/Waf/utils';
 import { WafName } from 'src/features/Waf/WafCreate/WafName/WafName';
 
 interface WafSettingsLabelProps {
-  wafData: WAF;
+  waf: WAF;
 }
 
-export const WafSettingsLabel = (props: WafSettingsLabelProps) => {
-  const labelValue = props.wafData.label;
-  const { mutate: updateWaf, isPending } = useUpdateWafMutation(
-    props.wafData.id
-  );
+export const WafSettingsLabel = ({ waf }: WafSettingsLabelProps) => {
+  const labelValue = waf.label;
+  const { mutate: updateWaf, isPending } = useUpdateWafMutation(waf.id);
   const methods = useForm<Pick<WafCreateForm, 'label'>>({
     defaultValues: {
       label: labelValue,
@@ -30,7 +28,6 @@ export const WafSettingsLabel = (props: WafSettingsLabelProps) => {
     return currentValue !== labelValue;
   };
 
-  const handleSuccess = () => {};
   const handleError = useCallback(
     (errors: APIError[]) => {
       const message = errors?.[0]?.reason || 'Failed to update WAF';
@@ -44,18 +41,18 @@ export const WafSettingsLabel = (props: WafSettingsLabelProps) => {
       updateWaf(
         {
           label: data.label,
-          devices: props.wafData.devices,
-          hosts: props.wafData.hosts,
-          advanced_settings: props.wafData.advanced_settings,
-          attack_groups: props.wafData.attack_groups,
+          devices: waf.devices,
+          hosts: waf.hosts,
+          advanced_settings: waf.advanced_settings,
+          attack_groups: waf.attack_groups,
         },
         {
-          onSuccess: handleSuccess,
+          onSuccess: () => {},
           onError: handleError,
         }
       );
     },
-    [updateWaf, props.wafData, handleSuccess, handleError]
+    [updateWaf, waf, handleError]
   );
 
   return (
