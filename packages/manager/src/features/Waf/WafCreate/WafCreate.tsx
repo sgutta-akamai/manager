@@ -109,12 +109,20 @@ export const WafCreate = () => {
       const payload = createPayload(formData);
 
       createWaf(payload, {
-        onSuccess: () => navigate({ to: '/waf' }),
+        onSuccess: () => {
+          navigate({ to: '/waf' });
+          enqueueSnackbar(
+            `${payload.label} configuration successfully created`,
+            { variant: 'success' }
+          );
+        },
         onError: handleError,
       });
     },
-    [createPayload, createWaf, navigate, handleError]
+    [createPayload, createWaf, handleError, navigate, enqueueSnackbar]
   );
+
+  const isLabelFilled = !!form.watch('label');
 
   return (
     <>
@@ -132,7 +140,12 @@ export const WafCreate = () => {
           <Summary />
 
           <Box display="flex" justifyContent="flex-end" mt={3}>
-            <Button buttonType="primary" loading={isPending} type="submit">
+            <Button
+              buttonType="primary"
+              disabled={!isLabelFilled}
+              loading={isPending}
+              type="submit"
+            >
               Create WAF
             </Button>
           </Box>

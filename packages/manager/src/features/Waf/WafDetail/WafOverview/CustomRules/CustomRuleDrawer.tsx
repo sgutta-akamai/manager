@@ -110,9 +110,6 @@ export const CustomRuleDrawer = ({
           },
           {
             onSuccess: () => {
-              enqueueSnackbar('Custom rule updated successfully', {
-                variant: 'success',
-              });
               onClose();
             },
             onError: (error) => {
@@ -128,9 +125,6 @@ export const CustomRuleDrawer = ({
       } else {
         createCustomRuleMutation.mutate(formData, {
           onSuccess: () => {
-            enqueueSnackbar('Custom rule created successfully', {
-              variant: 'success',
-            });
             onClose();
           },
           onError: (error) => {
