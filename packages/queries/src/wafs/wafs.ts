@@ -75,15 +75,20 @@ export const useCreateWafMutation = () => {
   });
 };
 
-export const useUpdateWafMutation = (wafId: number) => {
+export const useUpdateWafMutation = () => {
   const queryClient = useQueryClient();
 
-  return useMutation<WAF, APIError[], CreateWafPayload>({
-    mutationFn: (data) => updateWaf(wafId, data),
-    onSuccess: () => {
-      queryClient.invalidateQueries({
-        queryKey: wafQueries.paginated._def,
-      });
+  return useMutation<
+    WAF,
+    APIError[],
+    { data: CreateWafPayload; wafId: number }
+  >({
+    mutationFn: ({ wafId, data }) => updateWaf(wafId, data),
+    onSuccess: (updatedWaf) => {
+      queryClient.setQueryData(
+        wafQueries.waf(updatedWaf.id).queryKey,
+        updatedWaf,
+      );
     },
   });
 };

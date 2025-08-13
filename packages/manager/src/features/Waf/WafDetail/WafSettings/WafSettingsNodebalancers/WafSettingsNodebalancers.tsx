@@ -15,6 +15,7 @@ import { FormProvider, useForm } from 'react-hook-form';
 
 import { WafCreateForm } from 'src/features/Waf/utils';
 import { Nodebalancers } from 'src/features/Waf/WafCreate/Nodebalancers/Nodebalancers';
+import { getErrorStringOrDefault } from 'src/utilities/errorUtils';
 
 interface WafSettingsNodebalancersProps {
   waf: WAF;
@@ -25,7 +26,7 @@ export const WafSettingsNodebalancers = ({
 }: WafSettingsNodebalancersProps) => {
   const { enqueueSnackbar } = useSnackbar();
 
-  const { mutate: updateWaf, isPending } = useUpdateWafMutation(waf.id);
+  const { mutate: updateWaf, isPending } = useUpdateWafMutation();
 
   const devicesValue: WAFDevice[] = waf.devices || [];
   const hosts: WAFHost[] = waf.hosts || [];
@@ -43,7 +44,7 @@ export const WafSettingsNodebalancers = ({
 
   const handleError = useCallback(
     (errors: APIError[]) => {
-      const message = errors?.[0]?.reason || 'Failed to update WAF';
+      const message = getErrorStringOrDefault(errors, 'Failed to update WAF');
       enqueueSnackbar(message, { variant: 'error' });
     },
     [enqueueSnackbar]
@@ -56,9 +57,12 @@ export const WafSettingsNodebalancers = ({
 
     const payload: CreateWafPayload = {
       label: waf.label,
-      advanced_settings: waf.advanced_settings,
       attack_groups: waf.attack_groups,
     };
+
+    if (waf.advanced_settings) {
+      payload.advanced_settings = { ...waf.advanced_settings };
+    }
 
     if (data?.devices?.length) {
       payload.devices = data.devices;
@@ -74,15 +78,25 @@ export const WafSettingsNodebalancers = ({
       });
     }
 
+    if (payload.hosts && payload.hosts.length > 0) {
+      payload.advanced_settings = {
+        ...waf.advanced_settings,
+        host_path_exclusion_enabled: true,
+      };
+    }
+
     return payload;
   };
 
   const onSubmit = useCallback(
     (data: Partial<WafCreateForm>) => {
-      updateWaf(createPayload(data), {
-        onSuccess: () => {},
-        onError: handleError,
-      });
+      updateWaf(
+        { wafId: waf.id, data: createPayload(data) },
+        {
+          onSuccess: () => {},
+          onError: handleError,
+        }
+      );
     },
     [updateWaf, waf, handleError]
   );
