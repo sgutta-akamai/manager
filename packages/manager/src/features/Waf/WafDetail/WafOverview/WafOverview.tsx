@@ -21,7 +21,7 @@ import React, { useCallback, useMemo, useState } from 'react';
 import { Link } from 'src/components/Link';
 import { AttackGroupsTable } from 'src/features/Waf/WafCreate/AttackProtections/AttackGroupsTable/AttackGroupsTable';
 import { CustomRules } from 'src/features/Waf/WafDetail/WafOverview/CustomRules/CustomRules';
-import { getAPIErrorOrDefault } from 'src/utilities/errorUtils';
+import { getErrorStringOrDefault } from 'src/utilities/errorUtils';
 
 import type { WAF, WAFDevice, WAFHost } from '@linode/api-v4';
 
@@ -198,8 +198,7 @@ export const WafOverview = () => {
           onError: (error) => {
             setOptimisticCustomRulesEnabled(!enabled);
             enqueueSnackbar(
-              getAPIErrorOrDefault(error, 'Error toggling custom rules, ')[0]
-                .reason,
+              getErrorStringOrDefault(error, 'Error toggling custom rules, '),
               { variant: 'error' }
             );
           },
@@ -218,10 +217,10 @@ export const WafOverview = () => {
   if (error) {
     return (
       <ErrorState
-        errorText={
-          getAPIErrorOrDefault(error, 'Error loading WAF configuration.')[0]
-            .reason
-        }
+        errorText={getErrorStringOrDefault(
+          error,
+          'Error loading WAF configuration.'
+        )}
       />
     );
   }

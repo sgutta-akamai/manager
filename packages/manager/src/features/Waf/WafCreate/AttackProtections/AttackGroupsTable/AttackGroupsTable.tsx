@@ -17,6 +17,7 @@ import {
   WAF_ACTION_OPTIONS,
 } from 'src/features/Waf/utils';
 import { AttackGroupDrawer } from 'src/features/Waf/WafCreate/AttackProtections/AttackGroupsTable/AttackGroupDrawer/AttackGroupDrawer';
+import { getErrorStringOrDefault } from 'src/utilities/errorUtils';
 
 import type { WAFAction } from '@linode/api-v4';
 import type { WAFAttackGroup } from '@linode/api-v4';
@@ -217,7 +218,7 @@ const EditModeTable: React.FC<{
               return rest;
             });
             enqueueSnackbar(
-              `Error updating attack group: ${error[0]?.reason || 'Unknown error'}`,
+              getErrorStringOrDefault(error, 'Error updating attack group'),
               { variant: 'error' }
             );
           },

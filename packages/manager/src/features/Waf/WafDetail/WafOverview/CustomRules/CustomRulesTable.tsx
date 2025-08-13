@@ -19,6 +19,7 @@ import { TableRowEmpty } from 'src/components/TableRowEmpty/TableRowEmpty';
 import { TableRowLoading } from 'src/components/TableRowLoading/TableRowLoading';
 import { TableSortCell } from 'src/components/TableSortCell';
 import { WAF_ACTION_LABELS, WAF_ACTION_OPTIONS } from 'src/features/Waf/utils';
+import { getErrorStringOrDefault } from 'src/utilities/errorUtils';
 
 import { CustomRuleDrawer } from './CustomRuleDrawer';
 
@@ -102,10 +103,10 @@ export const CustomRulesTable: React.FC<CustomRulesTableProps> = ({
           });
         },
         onError: (error) => {
-          const errorMessage =
-            Array.isArray(error) && error[0]?.reason
-              ? error[0].reason
-              : 'Failed to update rule action';
+          const errorMessage = getErrorStringOrDefault(
+            error,
+            'Failed to update rule action'
+          );
           enqueueSnackbar(errorMessage, { variant: 'error' });
           setOptimisticUpdates((prev) => ({
             ...prev,
@@ -129,10 +130,10 @@ export const CustomRulesTable: React.FC<CustomRulesTableProps> = ({
           refetch();
         },
         onError: (error) => {
-          const errorMessage =
-            Array.isArray(error) && error[0]?.reason
-              ? error[0].reason
-              : 'Failed to delete rule';
+          const errorMessage = getErrorStringOrDefault(
+            error,
+            'Failed to delete rule'
+          );
           enqueueSnackbar(errorMessage, { variant: 'error' });
           setDeletingRuleId(null);
         },

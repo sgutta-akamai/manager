@@ -24,6 +24,7 @@ import {
 } from 'react-hook-form';
 
 import { CustomRuleCondition } from 'src/features/Waf/WafDetail/WafOverview/CustomRules/CustomRuleCondition';
+import { getErrorStringOrDefault } from 'src/utilities/errorUtils';
 
 interface CustomRuleDrawerProps {
   onClose: () => void;
@@ -114,10 +115,13 @@ export const CustomRuleDrawer = ({
               });
               onClose();
             },
-            onError: (_error) => {
-              enqueueSnackbar('Failed to update custom rule', {
-                variant: 'error',
-              });
+            onError: (error) => {
+              enqueueSnackbar(
+                getErrorStringOrDefault(error, 'Failed to update custom rule'),
+                {
+                  variant: 'error',
+                }
+              );
             },
           }
         );
@@ -129,10 +133,13 @@ export const CustomRuleDrawer = ({
             });
             onClose();
           },
-          onError: (_error) => {
-            enqueueSnackbar('Failed to create custom rule', {
-              variant: 'error',
-            });
+          onError: (error) => {
+            enqueueSnackbar(
+              getErrorStringOrDefault(error, 'Failed to create custom rule'),
+              {
+                variant: 'error',
+              }
+            );
           },
         });
       }
