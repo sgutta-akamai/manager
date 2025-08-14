@@ -11,13 +11,11 @@ import { TableRowEmpty } from 'src/components/TableRowEmpty/TableRowEmpty';
 import { TableSortCell } from 'src/components/TableSortCell';
 import { DeleteWafDialog } from 'src/features/Waf/Dialogs/DeleteWafDialog';
 import { WafRow } from 'src/features/Waf/WafLanding/WafRow';
-import { usePagination } from 'src/hooks/usePagination';
+import { usePaginationV2 } from 'src/hooks/usePaginationV2';
 
 import type { WAF } from '@linode/api-v4';
 import type { Order } from '@linode/utilities';
 import type { WafAction } from 'src/routes/waf';
-
-const preferenceKey = 'wafs';
 
 interface Props {
   data: WAF[];
@@ -35,7 +33,11 @@ export const WafLandingTable = ({
   results,
 }: Props) => {
   const navigate = useNavigate();
-  const pagination = usePagination(1, preferenceKey);
+
+  const pagination = usePaginationV2({
+    currentRoute: '/waf',
+    preferenceKey: 'waf-table',
+  });
 
   // Track selected WAF for delete dialog
   const [selectedWafForDelete, setSelectedWafForDelete] = React.useState<WAF>();
