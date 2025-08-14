@@ -54,7 +54,7 @@ export interface WAF {
   updated: string;
 }
 
-export interface WafPayload {
+export interface WAFPayload {
   advanced_settings?: WAFAdvancedSettings;
   attack_groups?: WAFAttackGroup[];
   devices?: WAFDevice[];

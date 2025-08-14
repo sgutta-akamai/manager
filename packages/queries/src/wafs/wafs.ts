@@ -32,7 +32,7 @@ import type {
   WAFCustomRule,
   WAFDevice,
   WAFMetadata,
-  WafPayload,
+  WAFPayload,
   WAFRuleSet,
 } from '@linode/api-v4';
 
@@ -82,7 +82,7 @@ export const useWafQuery = (wafId: number) =>
 export const useCreateWafMutation = () => {
   const queryClient = useQueryClient();
 
-  return useMutation<WAF, APIError[], WafPayload>({
+  return useMutation<WAF, APIError[], WAFPayload>({
     mutationFn: createWaf,
     onSuccess: () => {
       queryClient.invalidateQueries({
@@ -95,7 +95,7 @@ export const useCreateWafMutation = () => {
 export const useUpdateWafMutation = () => {
   const queryClient = useQueryClient();
 
-  return useMutation<WAF, APIError[], { data: WafPayload; wafId: number }>({
+  return useMutation<WAF, APIError[], { data: WAFPayload; wafId: number }>({
     mutationFn: ({ wafId, data }) => updateWaf(wafId, data),
     onSuccess: (updatedWaf) => {
       queryClient.invalidateQueries({

@@ -12,7 +12,7 @@ import { Nodebalancers } from 'src/features/Waf/WafCreate/Nodebalancers/Nodebala
 import { Summary } from 'src/features/Waf/WafCreate/Summary/Summary';
 import { WafName } from 'src/features/Waf/WafCreate/WafName/WafName';
 
-import type { APIError, WafPayload } from '@linode/api-v4';
+import type { APIError, WAFPayload } from '@linode/api-v4';
 import type { WafCreateForm } from 'src/features/Waf/utils';
 
 const DEFAULT_FORM_VALUES: Partial<WafCreateForm> = {
@@ -59,8 +59,8 @@ export const WafCreate = () => {
     [enqueueSnackbar]
   );
 
-  const createPayload = useCallback((formData: WafCreateForm): WafPayload => {
-    const payload: WafPayload = {
+  const createPayload = useCallback((formData: WafCreateForm): WAFPayload => {
+    const payload: WAFPayload = {
       label: formData.label,
     };
 

@@ -14,7 +14,7 @@ import type {
   WAFCustomRule,
   WAFDevice,
   WAFMetadata,
-  WafPayload,
+  WAFPayload,
   WAFRuleSet,
 } from './types';
 
@@ -47,7 +47,7 @@ export const getWaf = (wafId: number) =>
  *
  * Create a new WAF configuration.
  */
-export const createWaf = (data: WafPayload) =>
+export const createWaf = (data: WAFPayload) =>
   Request<WAF>(
     setURL(`${API_ROOT}/waf-configs`),
     setMethod('POST'),
@@ -59,7 +59,7 @@ export const createWaf = (data: WafPayload) =>
  *
  * Update an existing WAF configuration.
  */
-export const updateWaf = (wafId: number, data: WafPayload) =>
+export const updateWaf = (wafId: number, data: WAFPayload) =>
   Request<WAF>(
     setURL(`${API_ROOT}/waf-configs/${encodeURIComponent(wafId)}`),
     setMethod('PUT'),

@@ -9,7 +9,7 @@ import { FormProvider, useForm } from 'react-hook-form';
 import { Nodebalancers } from 'src/features/Waf/WafCreate/Nodebalancers/Nodebalancers';
 import { getErrorStringOrDefault } from 'src/utilities/errorUtils';
 
-import type { WAF, WAFDevice, WAFHost, WafPayload } from '@linode/api-v4';
+import type { WAF, WAFDevice, WAFHost, WAFPayload } from '@linode/api-v4';
 import type { WafCreateForm } from 'src/features/Waf/utils';
 
 interface WafSettingsNodebalancersProps {
@@ -50,7 +50,7 @@ export const WafSettingsNodebalancers = ({
     const getPaths = data.paths || [];
     const updatedHosts = [...getHosts, ...getPaths];
 
-    const payload: WafPayload = {
+    const payload: WAFPayload = {
       label: waf.label,
       attack_groups: waf.attack_groups,
     };
