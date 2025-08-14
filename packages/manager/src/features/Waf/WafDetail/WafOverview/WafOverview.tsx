@@ -198,7 +198,7 @@ export const WafOverview = () => {
           onError: (error) => {
             setOptimisticCustomRulesEnabled(!enabled);
             enqueueSnackbar(
-              getErrorStringOrDefault(error, 'Error toggling custom rules, '),
+              getErrorStringOrDefault(error, 'Error toggling custom rules'),
               { variant: 'error' }
             );
           },
