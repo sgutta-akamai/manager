@@ -1,71 +1,51 @@
-import { Button } from '@linode/ui';
+import { useWafCustomRulesQuery, useWafMetadataQuery } from '@linode/queries';
+import { Box, Button } from '@linode/ui';
+import { CircleProgress, Notice } from '@linode/ui';
 import * as React from 'react';
 
-import { CreateCustomRuleDrawer } from 'src/features/Waf/WafDetail/WafOverview/CustomRules/CreateCustomRules/CreateCustomRuleDrawer';
+import { CustomRulesTable } from 'src/features/Waf/WafDetail/WafOverview/CustomRules/CustomRulesTable';
 
-export const CustomRules = () => {
-  const [isCreateCustomRuleDrawerOpen, setIsCreateCustomRuleDrawerOpen] =
-    React.useState<boolean>(false);
+interface CustomRulesProps {
+  wafId: number;
+}
 
-  // TODO: Remove the dummy data, once BE integration is finished
-  // const initialJSON = undefined;  /* If there is no initial data for Custom rule drawer. */
-  const initialJSON = {
-    label: 'Custom Rule #01',
-    description: 'Creating custom rules',
-    filters: [
-      {
-        match_type: 'all',
-        conditions: [
-          {
-            field: 'Hostname',
-            operator: 'matches',
-            values: ['test.org'],
-          },
-          {
-            field: 'Request body parameter',
-            operator: 'equals',
-            values: ['param1'],
-          },
-          {
-            field: 'IP Address',
-            operator: 'contains',
-            values: ['192.168'],
-          },
-        ],
-      },
-    ],
-    action: 'alert',
-  };
-  //TODO: Add CreateCustomRulePayload interface
-  const handleSaveCustomRule = (formData: any) => {
-    /* eslint-disable */
-    // TODO: Remove the console log statement
-    console.log('Parent received form data:', formData);
-    /* eslint-enable */
+export const CustomRules = ({ wafId }: CustomRulesProps) => {
+  const [isCreateDrawerOpen, setIsCreateDrawerOpen] = React.useState(false);
 
-    // TODO: Send to backend once integration is done
-    setIsCreateCustomRuleDrawerOpen(false);
-  };
+  const { data: customRulesData, isLoading: isLoadingCustomRules } =
+    useWafCustomRulesQuery(wafId);
+  const { data: wafMetadata, isLoading: isLoadingMetadata } =
+    useWafMetadataQuery();
+
+  const rulesLimit = wafMetadata?.custom_rules_limit ?? 10;
+  const rulesLimitReached = (customRulesData?.data?.length ?? 0) >= rulesLimit;
+
+  if (isLoadingCustomRules || isLoadingMetadata) {
+    return <CircleProgress />;
+  }
 
   return (
-    <React.Fragment>
-      <Button
-        buttonType="outlined"
-        onClick={() => {
-          setIsCreateCustomRuleDrawerOpen(true);
-        }}
-      >
-        Add custom rule
-      </Button>
-
-      <CreateCustomRuleDrawer
-        customRuleData={initialJSON}
-        onClose={() => {
-          setIsCreateCustomRuleDrawerOpen(false);
-        }}
-        onSubmit={handleSaveCustomRule}
-        open={isCreateCustomRuleDrawerOpen}
+    <>
+      {rulesLimitReached && (
+        <Notice
+          text={`You have reached the limit of ${rulesLimit} custom rules.`}
+          variant="warning"
+        />
+      )}
+      <CustomRulesTable
+        isCreateDrawerOpen={isCreateDrawerOpen}
+        onCloseCreateDrawer={() => setIsCreateDrawerOpen(false)}
+        wafId={wafId}
       />
-    </React.Fragment>
+      <Box marginTop={2}>
+        <Button
+          buttonType="outlined"
+          disabled={rulesLimitReached}
+          onClick={() => setIsCreateDrawerOpen(true)}
+        >
+          Add custom rule
+        </Button>
+      </Box>
+    </>
   );
 };

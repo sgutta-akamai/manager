@@ -54,7 +54,7 @@ export interface WAF {
   updated: string;
 }
 
-export interface CreateWafPayload {
+export interface WAFPayload {
   advanced_settings?: WAFAdvancedSettings;
   attack_groups?: WAFAttackGroup[];
   devices?: WAFDevice[];
@@ -77,4 +77,39 @@ export interface WAFRuleSet {
   status: string;
   updated: string;
   updated_by: string;
+}
+
+export interface WAFCustomRuleOption {
+  label: string;
+  value: string;
+}
+
+export interface WAFCustomRulesMetadata {
+  condition_field: WAFCustomRuleOption[];
+  condition_operator: WAFCustomRuleOption[];
+  match_type: WAFCustomRuleOption[];
+}
+
+export interface WAFMetadata {
+  custom_rules: WAFCustomRulesMetadata;
+  custom_rules_limit: number;
+}
+
+export interface WAFCustomRuleCondition {
+  field: string;
+  operator: string;
+  values: string[];
+}
+
+export interface WAFCustomRuleFilters {
+  conditions: WAFCustomRuleCondition[];
+  match_type: string;
+}
+
+export interface WAFCustomRule {
+  action: WAFAction;
+  description: string;
+  filters: WAFCustomRuleFilters;
+  id?: number;
+  label: string;
 }

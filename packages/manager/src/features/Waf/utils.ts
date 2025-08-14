@@ -1,10 +1,12 @@
-import { WAFAction, WAFDevice } from '@linode/api-v4';
+import { WAFAction } from '@linode/api-v4';
 
+import type { WAFDevice } from '@linode/api-v4';
 import type { WAFExclusionType } from '@linode/api-v4';
 
 export interface WafCreateForm {
   advancedSettings?: {
     customRulesEnabled?: boolean;
+    host_path_exclusion_enabled?: boolean;
   };
   attackGroups?: AttackGroup[];
   devices?: WAFDevice[];
@@ -35,35 +37,6 @@ type Path = Host;
 
 export const WILDCARD_HOSTNAME = '*';
 
-// TODO - replace with values from backend data during integration
-export const defaultAttackGroups: AttackGroup[] = [
-  {
-    attack_group_label: 'Command Injection',
-    attack_group_name: 'Command Injection',
-    action: WAFAction.ALERT,
-  },
-  {
-    attack_group_label: 'File Inclusion',
-    attack_group_name: 'File Inclusion',
-    action: WAFAction.ALERT,
-  },
-  {
-    attack_group_label: 'Remote File Inclusion',
-    attack_group_name: 'Remote File Inclusion',
-    action: WAFAction.ALERT,
-  },
-  {
-    attack_group_label: 'SQL Injection',
-    attack_group_name: 'SQL Injection',
-    action: WAFAction.ALERT,
-  },
-  {
-    attack_group_label: 'Web Protocol Attack',
-    attack_group_name: 'Web Protocol Attack',
-    action: WAFAction.ALERT,
-  },
-];
-
 // TODO - replace keys with actual attack group names from backend
 export const AttackGroupDescriptions = {
   'Command Injection': {
@@ -91,4 +64,16 @@ export const AttackGroupDescriptions = {
     attack_group_description:
       'Detects and blocks attacks targeting web protocols and standards.',
   },
+};
+
+export const WAF_ACTION_OPTIONS = [
+  { label: 'Alert', value: WAFAction.ALERT },
+  { label: 'Deny', value: WAFAction.DENY },
+  { label: 'Not used', value: WAFAction.NOT_USED },
+];
+
+export const WAF_ACTION_LABELS = {
+  [WAFAction.ALERT]: 'Alert',
+  [WAFAction.DENY]: 'Deny',
+  [WAFAction.NOT_USED]: 'Not used',
 };

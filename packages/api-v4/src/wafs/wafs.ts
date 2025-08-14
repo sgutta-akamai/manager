@@ -8,7 +8,15 @@ import Request, {
 } from '../request';
 
 import type { Filter, Params, ResourcePage } from '../types';
-import type { CreateWafPayload, WAF, WAFDevice, WAFRuleSet } from './types';
+import type {
+  WAF,
+  WAFAttackGroup,
+  WAFCustomRule,
+  WAFDevice,
+  WAFMetadata,
+  WAFPayload,
+  WAFRuleSet,
+} from './types';
 
 /**
  * getWafs
@@ -39,7 +47,7 @@ export const getWaf = (wafId: number) =>
  *
  * Create a new WAF configuration.
  */
-export const createWaf = (data: CreateWafPayload) =>
+export const createWaf = (data: WAFPayload) =>
   Request<WAF>(
     setURL(`${API_ROOT}/waf-configs`),
     setMethod('POST'),
@@ -51,8 +59,7 @@ export const createWaf = (data: CreateWafPayload) =>
  *
  * Update an existing WAF configuration.
  */
-
-export const updateWaf = (wafId: number, data: CreateWafPayload) =>
+export const updateWaf = (wafId: number, data: WAFPayload) =>
   Request<WAF>(
     setURL(`${API_ROOT}/waf-configs/${encodeURIComponent(wafId)}`),
     setMethod('PUT'),
@@ -92,4 +99,92 @@ export const getWafRuleSet = () =>
   Request<WAFRuleSet>(
     setURL(`${API_ROOT}/waf-configs/rule-set`),
     setMethod('GET'),
+  );
+
+/**
+ * getWafMetadata
+ *
+ * Get the WAF metadata including custom rules configuration options.
+ */
+export const getWafMetadata = () =>
+  Request<WAFMetadata>(
+    setURL(`${API_ROOT}/waf-configs/metadata`),
+    setMethod('GET'),
+  );
+
+/**
+ * getWafCustomRules
+ *
+ * Return a paginated list of custom rules for a specific WAF configuration.
+ */
+export const getWafCustomRules = (
+  wafId: number,
+  params?: Params,
+  filter?: Filter,
+) =>
+  Request<ResourcePage<WAFCustomRule>>(
+    setURL(`${API_ROOT}/waf-configs/${encodeURIComponent(wafId)}/custom-rules`),
+    setMethod('GET'),
+    setParams(params),
+    setXFilter(filter),
+  );
+
+/**
+ * createCustomRule
+ *
+ * Create a new custom rule for a WAF configuration.
+ */
+export const createCustomRule = (wafId: number, data: WAFCustomRule) =>
+  Request<WAFCustomRule>(
+    setURL(`${API_ROOT}/waf-configs/${encodeURIComponent(wafId)}/custom-rules`),
+    setMethod('POST'),
+    setData(data),
+  );
+
+/**
+ * updateCustomRule
+ *
+ * Update an existing custom rule for a WAF configuration.
+ */
+export const updateCustomRule = (
+  wafId: number,
+  ruleId: number,
+  data: WAFCustomRule,
+) =>
+  Request<WAFCustomRule>(
+    setURL(
+      `${API_ROOT}/waf-configs/${encodeURIComponent(wafId)}/custom-rules/${encodeURIComponent(ruleId)}`,
+    ),
+    setMethod('PUT'),
+    setData(data),
+  );
+
+/**
+ * deleteCustomRule
+ *
+ * Delete a custom rule for a WAF configuration.
+ */
+export const deleteCustomRule = (wafId: number, ruleId: number) =>
+  Request<object>(
+    setURL(
+      `${API_ROOT}/waf-configs/${encodeURIComponent(wafId)}/custom-rules/${encodeURIComponent(ruleId)}`,
+    ),
+    setMethod('DELETE'),
+  );
+
+/**
+ * updateWafAttackGroupAction
+ *
+ * Update an attack group action for a WAF configuration.
+ */
+export const updateWafAttackGroupAction = (
+  wafId: number,
+  data: WAFAttackGroup,
+) =>
+  Request<WAFAttackGroup>(
+    setURL(
+      `${API_ROOT}/waf-configs/${encodeURIComponent(wafId)}/attack-group-action`,
+    ),
+    setMethod('POST'),
+    setData(data),
   );

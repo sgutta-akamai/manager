@@ -1,11 +1,4 @@
-import {
-  type APIError,
-  CreateWafPayload,
-  WAF,
-  WAFDevice,
-  WAFExclusionType,
-  WAFHost,
-} from '@linode/api-v4';
+import { type APIError, WAFExclusionType } from '@linode/api-v4';
 import { useUpdateWafMutation } from '@linode/queries';
 import { Box, Button, Paper } from '@linode/ui';
 import { useSnackbar } from 'notistack';
@@ -13,9 +6,11 @@ import * as React from 'react';
 import { useCallback } from 'react';
 import { FormProvider, useForm } from 'react-hook-form';
 
-import { WafCreateForm } from 'src/features/Waf/utils';
 import { Nodebalancers } from 'src/features/Waf/WafCreate/Nodebalancers/Nodebalancers';
 import { getErrorStringOrDefault } from 'src/utilities/errorUtils';
+
+import type { WAF, WAFDevice, WAFHost, WAFPayload } from '@linode/api-v4';
+import type { WafCreateForm } from 'src/features/Waf/utils';
 
 interface WafSettingsNodebalancersProps {
   waf: WAF;
@@ -55,7 +50,7 @@ export const WafSettingsNodebalancers = ({
     const getPaths = data.paths || [];
     const updatedHosts = [...getHosts, ...getPaths];
 
-    const payload: CreateWafPayload = {
+    const payload: WAFPayload = {
       label: waf.label,
       attack_groups: waf.attack_groups,
     };
@@ -101,7 +96,7 @@ export const WafSettingsNodebalancers = ({
     [updateWaf, waf, handleError]
   );
 
-  //TODO - implement deep equality check for form values to disable save button
+  // TODO - implement deep equality check for form values to disable save button
   return (
     <div>
       <FormProvider {...methods}>

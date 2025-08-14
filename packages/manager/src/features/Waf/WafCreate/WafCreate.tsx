@@ -12,7 +12,7 @@ import { Nodebalancers } from 'src/features/Waf/WafCreate/Nodebalancers/Nodebala
 import { Summary } from 'src/features/Waf/WafCreate/Summary/Summary';
 import { WafName } from 'src/features/Waf/WafCreate/WafName/WafName';
 
-import type { APIError, CreateWafPayload } from '@linode/api-v4';
+import type { APIError, WAFPayload } from '@linode/api-v4';
 import type { WafCreateForm } from 'src/features/Waf/utils';
 
 const DEFAULT_FORM_VALUES: Partial<WafCreateForm> = {
@@ -59,70 +59,75 @@ export const WafCreate = () => {
     [enqueueSnackbar]
   );
 
-  const createPayload = useCallback(
-    (formData: WafCreateForm): CreateWafPayload => {
-      const payload: CreateWafPayload = {
-        label: formData.label,
+  const createPayload = useCallback((formData: WafCreateForm): WAFPayload => {
+    const payload: WAFPayload = {
+      label: formData.label,
+    };
+
+    // Add devices if present
+    if (formData.devices?.length) {
+      payload.devices = formData.devices.map((device) => ({
+        ...device,
+        type: WAFDeviceType.NODEBALANCER,
+      }));
+    }
+
+    // Add advanced settings if custom rules are enabled
+    if (formData.advancedSettings?.customRulesEnabled !== undefined) {
+      payload.advanced_settings = {
+        custom_rules_enabled: formData.advancedSettings.customRulesEnabled,
       };
+    }
 
-      // Add devices if present
-      if (formData.devices?.length) {
-        payload.devices = formData.devices.map((device) => ({
-          ...device,
-          type: WAFDeviceType.NODEBALANCER,
+    // Add hosts if protected resources are enabled
+    if (formData.isAdjustProtectedResourcesEnabled) {
+      const allHosts = [...(formData.hosts || []), ...(formData.paths || [])];
+      if (allHosts.length > 0) {
+        payload.hosts = allHosts.map((host) => ({
+          ...host,
+          exclusion_type: WAFExclusionType.EXCLUDED,
         }));
-      }
 
-      // Add advanced settings if custom rules are enabled
-      if (formData.advancedSettings?.customRulesEnabled !== undefined) {
         payload.advanced_settings = {
-          custom_rules_enabled: formData.advancedSettings.customRulesEnabled,
+          ...payload.advanced_settings,
+          host_path_exclusion_enabled: true,
         };
       }
+    }
 
-      // Add hosts if protected resources are enabled
-      if (formData.isAdjustProtectedResourcesEnabled) {
-        const allHosts = [...(formData.hosts || []), ...(formData.paths || [])];
-        if (allHosts.length > 0) {
-          payload.hosts = allHosts.map((host) => ({
-            ...host,
-            exclusion_type: WAFExclusionType.EXCLUDED,
-          }));
+    // Add attack groups if any have non-default actions
+    const hasCustomActions = formData.attackGroups?.some(
+      (group) => group.action !== WAFAction.ALERT
+    );
+    if (hasCustomActions) {
+      payload.attack_groups = formData.attackGroups!.map((group) => ({
+        ...group,
+        action: group.action as WAFAction,
+      }));
+    }
 
-          payload.advanced_settings = {
-            ...payload.advanced_settings,
-            host_path_exclusion_enabled: true,
-          };
-        }
-      }
-
-      // Add attack groups if any have non-default actions
-      const hasCustomActions = formData.attackGroups?.some(
-        (group) => group.action !== WAFAction.ALERT
-      );
-      if (hasCustomActions) {
-        payload.attack_groups = formData.attackGroups!.map((group) => ({
-          ...group,
-          action: group.action as WAFAction,
-        }));
-      }
-
-      return payload;
-    },
-    []
-  );
+    return payload;
+  }, []);
 
   const handleSubmit = useCallback(
     (formData: WafCreateForm) => {
       const payload = createPayload(formData);
 
       createWaf(payload, {
-        onSuccess: () => navigate({ to: '/waf' }),
+        onSuccess: () => {
+          navigate({ to: '/waf' });
+          enqueueSnackbar(
+            `${payload.label} configuration successfully created`,
+            { variant: 'success' }
+          );
+        },
         onError: handleError,
       });
     },
-    [createPayload, createWaf, navigate, handleError]
+    [createPayload, createWaf, handleError, navigate, enqueueSnackbar]
   );
+
+  const isLabelFilled = !!form.watch('label');
 
   return (
     <>
@@ -140,7 +145,12 @@ export const WafCreate = () => {
           <Summary />
 
           <Box display="flex" justifyContent="flex-end" mt={3}>
-            <Button buttonType="primary" loading={isPending} type="submit">
+            <Button
+              buttonType="primary"
+              disabled={!isLabelFilled}
+              loading={isPending}
+              type="submit"
+            >
               Create WAF
             </Button>
           </Box>

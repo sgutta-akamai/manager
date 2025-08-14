@@ -1,11 +1,17 @@
 import {
+  createCustomRule,
   createWaf,
+  deleteCustomRule,
   deleteWaf,
   getAvailableWafDevices,
   getWaf,
+  getWafCustomRules,
+  getWafMetadata,
   getWafRuleSet,
   getWafs,
+  updateCustomRule,
   updateWaf,
+  updateWafAttackGroupAction,
 } from '@linode/api-v4';
 import { createQueryKeys } from '@lukemorales/query-key-factory';
 import {
@@ -18,12 +24,15 @@ import {
 
 import type {
   APIError,
-  CreateWafPayload,
   Filter,
   Params,
   ResourcePage,
   WAF,
+  WAFAttackGroup,
+  WAFCustomRule,
   WAFDevice,
+  WAFMetadata,
+  WAFPayload,
   WAFRuleSet,
 } from '@linode/api-v4';
 
@@ -48,6 +57,14 @@ export const wafQueries = createQueryKeys('wafs', {
     queryFn: () => getWafRuleSet(),
     queryKey: null,
   },
+  metadata: {
+    queryFn: () => getWafMetadata(),
+    queryKey: null,
+  },
+  customRules: (wafId: number, filter: Filter = {}) => ({
+    queryFn: () => getWafCustomRules(wafId, {}, filter),
+    queryKey: [wafId, 'custom-rules', filter],
+  }),
 });
 
 export const useWafsQuery = (params?: Params, filter?: Filter) => {
@@ -65,7 +82,7 @@ export const useWafQuery = (wafId: number) =>
 export const useCreateWafMutation = () => {
   const queryClient = useQueryClient();
 
-  return useMutation<WAF, APIError[], CreateWafPayload>({
+  return useMutation<WAF, APIError[], WAFPayload>({
     mutationFn: createWaf,
     onSuccess: () => {
       queryClient.invalidateQueries({
@@ -78,13 +95,12 @@ export const useCreateWafMutation = () => {
 export const useUpdateWafMutation = () => {
   const queryClient = useQueryClient();
 
-  return useMutation<
-    WAF,
-    APIError[],
-    { data: CreateWafPayload; wafId: number }
-  >({
+  return useMutation<WAF, APIError[], { data: WAFPayload; wafId: number }>({
     mutationFn: ({ wafId, data }) => updateWaf(wafId, data),
     onSuccess: (updatedWaf) => {
+      queryClient.invalidateQueries({
+        queryKey: wafQueries.paginated._def,
+      });
       queryClient.setQueryData(
         wafQueries.waf(updatedWaf.id).queryKey,
         updatedWaf,
@@ -131,3 +147,77 @@ export const useWafRuleSetQuery = () =>
   useQuery<WAFRuleSet, APIError[]>({
     ...wafQueries.wafRuleSet,
   });
+
+export const useWafMetadataQuery = () =>
+  useQuery<WAFMetadata, APIError[]>({
+    ...wafQueries.metadata,
+  });
+
+export const useWafCustomRulesQuery = (
+  wafId: number,
+  filter?: Filter,
+  enabled = true,
+) => {
+  return useQuery<ResourcePage<WAFCustomRule>, APIError[]>({
+    ...wafQueries.customRules(wafId, filter),
+    enabled,
+    placeholderData: keepPreviousData,
+  });
+};
+
+export const useCreateCustomRuleMutation = (wafId: number) => {
+  const queryClient = useQueryClient();
+
+  return useMutation<WAFCustomRule, APIError[], WAFCustomRule>({
+    mutationFn: (data) => createCustomRule(wafId, data),
+    onSuccess: () => {
+      queryClient.invalidateQueries({
+        queryKey: wafQueries.customRules._def,
+      });
+    },
+  });
+};
+
+export const useUpdateCustomRuleMutation = (wafId: number) => {
+  const queryClient = useQueryClient();
+
+  return useMutation<
+    WAFCustomRule,
+    APIError[],
+    { data: WAFCustomRule; ruleId: number }
+  >({
+    mutationFn: ({ ruleId, data }) => updateCustomRule(wafId, ruleId, data),
+    onSuccess: (_) => {
+      queryClient.invalidateQueries({
+        queryKey: wafQueries.customRules._def,
+      });
+    },
+  });
+};
+
+export const useDeleteCustomRuleMutation = (wafId: number) => {
+  const queryClient = useQueryClient();
+
+  return useMutation<object, APIError[], { ruleId: number }>({
+    mutationFn: ({ ruleId }) => deleteCustomRule(wafId, ruleId),
+    onSuccess: () => {
+      queryClient.invalidateQueries({
+        queryKey: wafQueries.customRules._def,
+      });
+    },
+  });
+};
+
+export const useUpdateWafAttackGroupActionMutation = (wafId: number) => {
+  const queryClient = useQueryClient();
+
+  return useMutation<WAFAttackGroup, APIError[], WAFAttackGroup>({
+    mutationFn: (data) => updateWafAttackGroupAction(wafId, data),
+    onSuccess: () => {
+      // Invalidate the WAF query to refresh the attack groups data
+      queryClient.invalidateQueries({
+        queryKey: wafQueries.waf(wafId).queryKey,
+      });
+    },
+  });
+};
