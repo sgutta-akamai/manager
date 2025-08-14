@@ -87,6 +87,11 @@ export const WafCreate = () => {
           ...host,
           exclusion_type: WAFExclusionType.EXCLUDED,
         }));
+
+        payload.advanced_settings = {
+          ...payload.advanced_settings,
+          host_path_exclusion_enabled: true,
+        };
       }
     }
 

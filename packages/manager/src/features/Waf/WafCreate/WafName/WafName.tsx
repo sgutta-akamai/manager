@@ -18,6 +18,11 @@ export const WafName = () => {
             <TextField
               label="WAF Label"
               onChange={field.onChange}
+              onKeyDown={(e) => {
+                if (e.key === 'Enter') {
+                  e.preventDefault();
+                }
+              }}
               placeholder="WAF Label"
               sx={{ width: '462px' }}
               value={field.value}

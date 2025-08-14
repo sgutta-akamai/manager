@@ -2,9 +2,11 @@ import { WAFAction } from '@linode/api-v4';
 
 import type { WAFDevice } from '@linode/api-v4';
 import type { WAFExclusionType } from '@linode/api-v4';
+
 export interface WafCreateForm {
   advancedSettings?: {
     customRulesEnabled?: boolean;
+    host_path_exclusion_enabled?: boolean;
   };
   attackGroups?: AttackGroup[];
   devices?: WAFDevice[];

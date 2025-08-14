@@ -32,7 +32,8 @@ export interface WAFDevice {
 }
 
 export interface WAFAdvancedSettings {
-  custom_rules_enabled: boolean;
+  custom_rules_enabled?: boolean;
+  host_path_exclusion_enabled?: boolean;
 }
 
 export enum WafStatus {
