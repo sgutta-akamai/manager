@@ -5,6 +5,7 @@ import {
   getWaf,
   getWafRuleSet,
   getWafs,
+  updateWaf,
 } from '@linode/api-v4';
 import { createQueryKeys } from '@lukemorales/query-key-factory';
 import {
@@ -70,6 +71,24 @@ export const useCreateWafMutation = () => {
       queryClient.invalidateQueries({
         queryKey: wafQueries.paginated._def,
       });
+    },
+  });
+};
+
+export const useUpdateWafMutation = () => {
+  const queryClient = useQueryClient();
+
+  return useMutation<
+    WAF,
+    APIError[],
+    { data: CreateWafPayload; wafId: number }
+  >({
+    mutationFn: ({ wafId, data }) => updateWaf(wafId, data),
+    onSuccess: (updatedWaf) => {
+      queryClient.setQueryData(
+        wafQueries.waf(updatedWaf.id).queryKey,
+        updatedWaf,
+      );
     },
   });
 };
