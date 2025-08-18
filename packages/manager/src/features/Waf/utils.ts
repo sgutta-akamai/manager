@@ -22,7 +22,7 @@ export interface AttackGroup {
   attack_group_name: string;
 }
 
-export interface AttackGroupDescription {
+export interface AttackGroupDetails {
   attack_group_description: string;
   attack_group_label: string;
 }
@@ -37,32 +37,52 @@ type Path = Host;
 
 export const WILDCARD_HOSTNAME = '*';
 
-// TODO - replace keys with actual attack group names from backend
-export const AttackGroupDescriptions = {
-  'Command Injection': {
+//TODO - update attack_group_description values after discussion with UX team
+export const AttackGroupDetailsMapping = {
+  'CMD-INJECTION-ANOMALY': {
     attack_group_label: 'Command Injection',
     attack_group_description:
       'Detects and blocks attempts to execute arbitrary commands on the server.',
   },
-  'File Inclusion': {
-    attack_group_label: 'File Inclusion',
+  'LFI-ANOMALY': {
+    attack_group_label: 'Local File Inclusion',
     attack_group_description:
       'Detects and blocks attempts to include files from the local or remote file system.',
   },
-  'Remote File Inclusion': {
+  'RFI-ANOMALY': {
     attack_group_label: 'Remote File Inclusion',
     attack_group_description:
       'Detects and blocks attempts to include files from remote servers.',
   },
-  'SQL Injection': {
+  'SQL-INJECTION-ANOMALY': {
     attack_group_label: 'SQL Injection',
     attack_group_description:
       'Detects and blocks attempts to manipulate SQL queries through user input.',
   },
-  'Web Protocol Attack': {
+  'PROTOCOL-ANOMALY': {
     attack_group_label: 'Web Protocol Attack',
     attack_group_description:
       'Detects and blocks attacks targeting web protocols and standards.',
+  },
+  'XSS-ANOMALY': {
+    attack_group_label: 'Cross-Site Scripting',
+    attack_group_description:
+      'Detects and blocks attempts to execute scripts in the context of a user’s browser.',
+  },
+  'PLATFORM-ANOMALY': {
+    attack_group_label: 'Web Platform Attack',
+    attack_group_description:
+      'Detects and blocks attacks targeting web platform vulnerabilities.',
+  },
+  'WAT-ANOMALY': {
+    attack_group_label: 'Web Attack Tool',
+    attack_group_description:
+      'Detects and blocks automated tools used for web attacks.',
+  },
+  'POLICY-ANOMALY': {
+    attack_group_label: 'Web Policy Violation',
+    attack_group_description:
+      'Detects and blocks requests that violate web security policies.',
   },
 };
 

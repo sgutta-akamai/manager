@@ -8,7 +8,7 @@ export const AttackProtections = () => {
     React.useState<boolean>(false);
 
   return (
-    <Paper sx={{ marginBottom: '20px' }}>
+    <Paper>
       <Box alignItems="flex-start" display="flex" flexDirection="column">
         <Typography variant="h2">Attack Protections</Typography>
         <Typography sx={{ marginTop: '10px' }}>

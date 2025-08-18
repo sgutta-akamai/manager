@@ -139,11 +139,12 @@ export const WafCreate = () => {
 
       <FormProvider {...form}>
         <form onSubmit={form.handleSubmit(handleSubmit)}>
-          <WafName />
-          <Nodebalancers />
-          <AttackProtections />
+          <Box display="flex" flexDirection="column" gap={3}>
+            <WafName />
+            <Nodebalancers />
+            <AttackProtections />
+          </Box>
           <Summary />
-
           <Box display="flex" justifyContent="flex-end" mt={3}>
             <Button
               buttonType="primary"

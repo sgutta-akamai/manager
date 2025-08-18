@@ -1,6 +1,6 @@
 import { type APIError, WAF } from '@linode/api-v4';
 import { useUpdateWafMutation } from '@linode/queries';
-import { Box, Button, Paper } from '@linode/ui';
+import { Button, Paper } from '@linode/ui';
 import { useSnackbar } from 'notistack';
 import * as React from 'react';
 import { useCallback } from 'react';
@@ -66,19 +66,16 @@ export const WafSettingsLabel = ({ waf }: WafSettingsLabelProps) => {
     <div>
       <FormProvider {...methods}>
         <form onSubmit={methods.handleSubmit(onSubmit)}>
+          <WafName />
           <Paper>
-            <WafName />
-            <Box display="flex" flexDirection="row">
-              <Button
-                buttonType="primary"
-                disabled={!isValueChanged() || isPending}
-                loading={isPending}
-                sx={{ marginLeft: '16px' }}
-                type="submit"
-              >
-                Save
-              </Button>
-            </Box>
+            <Button
+              buttonType="primary"
+              disabled={!isValueChanged() || isPending}
+              loading={isPending}
+              type="submit"
+            >
+              Save
+            </Button>
           </Paper>
         </form>
       </FormProvider>

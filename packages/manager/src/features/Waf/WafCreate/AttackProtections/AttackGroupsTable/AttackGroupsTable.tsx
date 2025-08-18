@@ -12,7 +12,7 @@ import { TableHead } from 'src/components/TableHead';
 import { TableRow } from 'src/components/TableRow';
 import { TableSortCell } from 'src/components/TableSortCell';
 import {
-  AttackGroupDescriptions,
+  AttackGroupDetailsMapping,
   WAF_ACTION_LABELS,
   WAF_ACTION_OPTIONS,
 } from 'src/features/Waf/utils';
@@ -144,9 +144,9 @@ const CreateModeTable: React.FC<{ attackGroups: WAFAttackGroup[] }> = () => {
 
       {drawerState.isOpen && drawerState.selectedGroup && (
         <AttackGroupDrawer
-          attackGroupDescription={
-            AttackGroupDescriptions[
-              drawerState.selectedGroup as keyof typeof AttackGroupDescriptions
+          attackGroupDetails={
+            AttackGroupDetailsMapping[
+              drawerState.selectedGroup as keyof typeof AttackGroupDetailsMapping
             ]
           }
           onClose={closeDrawer}
@@ -273,9 +273,9 @@ const EditModeTable: React.FC<{
 
       {drawerState.isOpen && drawerState.selectedGroup && (
         <AttackGroupDrawer
-          attackGroupDescription={
-            AttackGroupDescriptions[
-              drawerState.selectedGroup as keyof typeof AttackGroupDescriptions
+          attackGroupDetails={
+            AttackGroupDetailsMapping[
+              drawerState.selectedGroup as keyof typeof AttackGroupDetailsMapping
             ]
           }
           onClose={closeDrawer}
