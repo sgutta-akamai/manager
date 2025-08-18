@@ -1,7 +1,13 @@
+import { WafStatus } from '@linode/api-v4';
+import { useWafQuery } from '@linode/queries';
+import { CircleProgress, ErrorState, Typography } from '@linode/ui';
+import { getFormattedStatus } from '@linode/utilities';
+import { Paper, Stack, useTheme } from '@mui/material';
 import { useParams } from '@tanstack/react-router';
 import * as React from 'react';
 
 import { LandingHeader } from 'src/components/LandingHeader';
+import { StatusIcon } from 'src/components/StatusIcon/StatusIcon';
 import { SuspenseLoader } from 'src/components/SuspenseLoader';
 import { SafeTabPanel } from 'src/components/Tabs/SafeTabPanel';
 import { TabPanels } from 'src/components/Tabs/TabPanels';
@@ -34,6 +40,7 @@ const WafSettings = React.lazy(() =>
 );
 
 export const WafDetail = () => {
+  const theme = useTheme();
   const { id } = useParams({
     strict: false,
   });
@@ -57,33 +64,60 @@ export const WafDetail = () => {
     },
   ]);
 
+  const { data: waf, isLoading, error } = useWafQuery(Number(id));
+
+  if (isLoading) {
+    return <CircleProgress />;
+  }
+
+  if (error) {
+    return (
+      <ErrorState errorText="There was an error retrieving your WAF configuration. Please reload and try again." />
+    );
+  }
+
+  if (!waf) {
+    return null;
+  }
+
   return (
     <React.Fragment>
       <LandingHeader
         breadcrumbProps={{
-          //TODO - add onEditHandler when integrating with backend
-          pathname: `/waf/${id}`, //TODO - replace id with waf label when integrating with backend and WAF creation form
+          crumbOverrides: [{ label: 'WAF', position: 1 }],
+          // TODO - add onEditHandler when integrating with backend
+          pathname: `/waf/${waf.label}`,
         }}
         docsLabel="Getting Started"
-        docsLink="https://techdocs.akamai.com/cloud-computing/docs/" //TODO - add correct link once available
-        //TODO - add AI assistance feature once more clarity is available
+        docsLink="https://techdocs.akamai.com/cloud-computing/docs/" // TODO - add correct link once available
+        // TODO - add AI assistance feature once more clarity is available
+        title={waf.label}
       />
-      {/*TODO - add "active" status bar once UX is finalised*/}
+      <Paper>
+        <Stack alignItems="center" direction="row" p={1}>
+          <StatusIcon
+            status={waf.status === WafStatus.ACTIVE ? 'active' : 'inactive'}
+          />
+          <Typography sx={{ font: theme.font.bold }}>
+            {getFormattedStatus(waf.status)}
+          </Typography>
+        </Stack>
+      </Paper>
       <Tabs index={tabIndex} onChange={handleTabChange}>
-        <TanStackTabLinkList tabs={tabs}></TanStackTabLinkList>
+        <TanStackTabLinkList tabs={tabs} />
         <React.Suspense fallback={<SuspenseLoader />}>
           <TabPanels>
             <SafeTabPanel index={0}>
-              <WafOverview></WafOverview>
+              <WafOverview />
             </SafeTabPanel>
             <SafeTabPanel index={1}>
-              <WafAnalytics></WafAnalytics>
+              <WafAnalytics />
             </SafeTabPanel>
             <SafeTabPanel index={2}>
-              <WafLogs></WafLogs>
+              <WafLogs />
             </SafeTabPanel>
             <SafeTabPanel index={3}>
-              <WafSettings></WafSettings>
+              <WafSettings />
             </SafeTabPanel>
           </TabPanels>
         </React.Suspense>

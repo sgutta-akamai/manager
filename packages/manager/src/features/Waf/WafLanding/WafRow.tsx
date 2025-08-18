@@ -1,5 +1,5 @@
 import { WafStatus } from '@linode/api-v4';
-import { capitalize } from '@linode/utilities';
+import { getFormattedStatus } from '@linode/utilities';
 import * as React from 'react';
 
 import { DateTimeDisplay } from 'src/components/DateTimeDisplay';
@@ -30,7 +30,7 @@ export const WafRow = (props: Props) => {
         <StatusIcon
           status={waf.status === WafStatus.ACTIVE ? 'active' : 'inactive'}
         />
-        {capitalize(waf.status)}
+        {getFormattedStatus(waf.status)}
       </TableCell>
       <TableCell>
         {waf.devices && waf.devices.length > 0
