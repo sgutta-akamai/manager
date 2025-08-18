@@ -14,6 +14,7 @@ import {
   oauthCallbackRoute,
 } from './auth';
 import { betaRouteTree } from './betas';
+import { billingRouteTree } from './billing';
 import { databasesRouteTree } from './databases';
 import { dataStreamRouteTree } from './datastream';
 import { domainsRouteTree } from './domains';
@@ -30,6 +31,7 @@ import { nodeBalancersRouteTree } from './nodeBalancers';
 import { objectStorageRouteTree } from './objectStorage';
 import { placementGroupsRouteTree } from './placementGroups';
 import { profileRouteTree } from './profile';
+import { quotasRouteTree } from './quotas';
 import { rootRoute } from './root';
 import { searchRouteTree } from './search';
 import { stackScriptsRouteTree } from './stackscripts';
@@ -55,6 +57,7 @@ export const routeTree = rootRoute.addChildren([
   logoutRoute,
   oauthCallbackRoute,
   accountRouteTree,
+  billingRouteTree,
   betaRouteTree,
   cloudPulseAlertsRouteTree,
   cloudPulseMetricsRouteTree,
@@ -73,6 +76,7 @@ export const routeTree = rootRoute.addChildren([
   objectStorageRouteTree,
   placementGroupsRouteTree,
   profileRouteTree,
+  quotasRouteTree,
   searchRouteTree,
   stackScriptsRouteTree,
   supportRouteTree,
