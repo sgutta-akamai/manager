@@ -12,6 +12,7 @@ import CoreUser from 'src/assets/icons/entityIcons/coreuser.svg';
 import Database from 'src/assets/icons/entityIcons/database.svg';
 import Monitor from 'src/assets/icons/entityIcons/monitor.svg';
 import Networking from 'src/assets/icons/entityIcons/networking.svg';
+import Security from 'src/assets/icons/entityIcons/security.svg';
 import Storage from 'src/assets/icons/entityIcons/storage.svg';
 import More from 'src/assets/icons/more.svg';
 import {
@@ -216,7 +217,7 @@ export const PrimaryNav = (props: PrimaryNavProps) => {
             name: 'Databases',
           },
           {
-            icon: <Database />, //TODO-replace icon with security icon once available
+            icon: <Security />,
             links: [
               {
                 display: 'Akamai Cloud WAF',
