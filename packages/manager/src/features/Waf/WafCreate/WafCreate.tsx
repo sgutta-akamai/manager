@@ -1,6 +1,6 @@
 import { WAFAction, WAFDeviceType, WAFExclusionType } from '@linode/api-v4';
 import { useCreateWafMutation, useWafRuleSetQuery } from '@linode/queries';
-import { Box, Button } from '@linode/ui';
+import { Button, Stack } from '@linode/ui';
 import { useNavigate } from '@tanstack/react-router';
 import { useSnackbar } from 'notistack';
 import React, { useCallback, useEffect, useMemo } from 'react';
@@ -139,13 +139,13 @@ export const WafCreate = () => {
 
       <FormProvider {...form}>
         <form onSubmit={form.handleSubmit(handleSubmit)}>
-          <Box display="flex" flexDirection="column" gap={3}>
+          <Stack spacing={3}>
             <WafName />
             <Nodebalancers />
             <AttackProtections />
-          </Box>
+          </Stack>
           <Summary />
-          <Box display="flex" justifyContent="flex-end" mt={3}>
+          <Stack alignItems="flex-end">
             <Button
               buttonType="primary"
               disabled={!isLabelFilled}
@@ -154,7 +154,7 @@ export const WafCreate = () => {
             >
               Create WAF
             </Button>
-          </Box>
+          </Stack>
         </form>
       </FormProvider>
     </>

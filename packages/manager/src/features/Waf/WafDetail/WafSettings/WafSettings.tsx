@@ -1,5 +1,5 @@
 import { useWafQuery } from '@linode/queries';
-import { Box, CircleProgress, ErrorState } from '@linode/ui';
+import { CircleProgress, ErrorState, Stack } from '@linode/ui';
 import { useParams } from '@tanstack/react-router';
 import * as React from 'react';
 
@@ -27,9 +27,9 @@ export const WafSettings = () => {
   if (!data) return null;
 
   return (
-    <Box sx={{ display: 'flex', flexDirection: 'column', gap: 3 }}>
+    <Stack spacing={3}>
       <WafSettingsLabel waf={data} />
       <WafSettingsNodebalancers waf={data} />
-    </Box>
+    </Stack>
   );
 };
