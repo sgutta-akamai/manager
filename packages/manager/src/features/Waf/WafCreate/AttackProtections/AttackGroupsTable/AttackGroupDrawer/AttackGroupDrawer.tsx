@@ -15,6 +15,9 @@ export const AttackGroupDrawer = (props: AttackGroupDrawerProps) => {
     <Drawer onClose={onClose} open={open} title="Attack Group Details">
       <h2>{attackGroupDetails?.attack_group_label}</h2>
       <p>{attackGroupDetails?.attack_group_description}</p>
+      {!attackGroupDetails && (
+        <p>No details available for this attack group.</p>
+      )}
     </Drawer>
   );
 };
