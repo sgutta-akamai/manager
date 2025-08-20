@@ -134,9 +134,9 @@ const AttackGroupDrawerWrapper: React.FC<{
 
   return (
     <AttackGroupDrawer
-      attackGroupDescription={
-        AttackGroupDescriptions[
-          drawerState.selectedGroup as keyof typeof AttackGroupDescriptions
+      attackGroupDetails={
+        AttackGroupDetailsMapping[
+          drawerState.selectedGroup as keyof typeof AttackGroupDetailsMapping
         ]
       }
       onClose={onClose}
