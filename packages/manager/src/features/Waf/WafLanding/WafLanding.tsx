@@ -136,7 +136,7 @@ export const WafLanding = () => {
         onButtonClick={() => navigate({ to: '/waf/create' })}
         title="Akamai Cloud WAF"
       />
-      <Typography variant="h3"> WAF Configurations </Typography>
+      <Typography variant="subtitle1"> WAF Configurations </Typography>
       <TextField
         hideLabel
         InputProps={{

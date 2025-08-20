@@ -28,151 +28,13 @@ const StyledAttackGroupLabel = styled('span')(({ theme }) => ({
   cursor: 'pointer',
 }));
 
-interface AttackGroupsTableProps {
-  attackGroups?: WAFAttackGroup[];
-  mode?: 'create' | 'edit';
-  wafId?: number;
-}
-
-// Shared Table Component
-const AttackGroupsTableContent: React.FC<{
-  onOpenDrawer: (groupName: string) => void;
-  onSort: () => void;
-  renderActionCell: (item: WAFAttackGroup, index: number) => React.ReactNode;
-  sortedData: WAFAttackGroup[];
-  sortOrder: 'asc' | 'desc';
-}> = ({ sortedData, sortOrder, onSort, onOpenDrawer, renderActionCell }) => (
-  <Paper sx={{ width: '100%', padding: '0', marginTop: '20px' }}>
-    <Table striped={false}>
-      <TableHead>
-        <TableRow>
-          <TableSortCell
-            active
-            direction={sortOrder}
-            handleClick={onSort}
-            label="Attack Group"
-            sx={{ width: '70%' }}
-          >
-            Attack Group
-          </TableSortCell>
-          <TableCell sx={{ width: '30%' }}>Action</TableCell>
-        </TableRow>
-      </TableHead>
-      <TableBody>
-        {sortedData.map((item, index) => (
-          <TableRow key={item.attack_group_name}>
-            <TableCell>
-              <StyledAttackGroupLabel
-                onClick={() => onOpenDrawer(item.attack_group_name)}
-              >
-                {item.attack_group_label}
-              </StyledAttackGroupLabel>
-            </TableCell>
-            <TableCell>{renderActionCell(item, index)}</TableCell>
-          </TableRow>
-        ))}
-      </TableBody>
-    </Table>
-  </Paper>
-);
-
-// Create Mode Component - Uses form context
-const CreateModeTable: React.FC<{ attackGroups: WAFAttackGroup[] }> = () => {
-  const { control } = useFormContext<WafCreateForm>();
-  const { fields } = useFieldArray({
-    control,
-    name: 'attackGroups',
-  });
-
+// Custom hook for shared table logic
+const useAttackGroupsTable = (attackGroups: WAFAttackGroup[]) => {
   const [sortOrder, setSortOrder] = React.useState<'asc' | 'desc'>('asc');
   const [drawerState, setDrawerState] = React.useState<{
     isOpen: boolean;
     selectedGroup?: string;
   }>({ isOpen: false });
-
-  const sortedData = React.useMemo(() => {
-    return [...fields].sort((a, b) => {
-      const comparison = a.attack_group_label.localeCompare(
-        b.attack_group_label
-      );
-      return sortOrder === 'asc' ? comparison : -comparison;
-    });
-  }, [fields, sortOrder]);
-
-  const handleSort = () =>
-    setSortOrder((prev) => (prev === 'asc' ? 'desc' : 'asc'));
-
-  const openDrawer = (groupName: string) => {
-    setDrawerState({ isOpen: true, selectedGroup: groupName });
-  };
-
-  const closeDrawer = () => {
-    setDrawerState({ isOpen: false });
-  };
-
-  const renderActionCell = (item: WAFAttackGroup, index: number) => (
-    <Controller
-      control={control}
-      name={`attackGroups.${index}.action`}
-      render={({ field: { onChange, value } }) => (
-        <Select
-          hideLabel
-          label="action"
-          onChange={(_, selected) => onChange(selected.value)}
-          options={WAF_ACTION_OPTIONS}
-          value={value ? { label: WAF_ACTION_LABELS[value], value } : null}
-        />
-      )}
-    />
-  );
-
-  return (
-    <div style={{ width: '100%' }}>
-      <Notice
-        sx={{ marginTop: '10px' }}
-        text="Use Alert mode to inspect WAF-triggered events before enabling Deny."
-        variant="info"
-      />
-
-      <AttackGroupsTableContent
-        onOpenDrawer={openDrawer}
-        onSort={handleSort}
-        renderActionCell={renderActionCell}
-        sortedData={sortedData}
-        sortOrder={sortOrder}
-      />
-
-      {drawerState.isOpen && drawerState.selectedGroup && (
-        <AttackGroupDrawer
-          attackGroupDetails={
-            AttackGroupDetailsMapping[
-              drawerState.selectedGroup as keyof typeof AttackGroupDetailsMapping
-            ]
-          }
-          onClose={closeDrawer}
-          open={drawerState.isOpen}
-        />
-      )}
-    </div>
-  );
-};
-
-// Edit Mode Component - Direct state management
-const EditModeTable: React.FC<{
-  attackGroups: WAFAttackGroup[];
-  wafId: number;
-}> = ({ attackGroups, wafId }) => {
-  const { enqueueSnackbar } = useSnackbar();
-  const [sortOrder, setSortOrder] = React.useState<'asc' | 'desc'>('asc');
-  const [drawerState, setDrawerState] = React.useState<{
-    isOpen: boolean;
-    selectedGroup?: string;
-  }>({ isOpen: false });
-  const [optimisticUpdates, setOptimisticUpdates] = React.useState<
-    Record<string, WAFAction>
-  >({});
-
-  const updateMutation = useUpdateWafAttackGroupActionMutation(wafId);
 
   const sortedData = React.useMemo(() => {
     return [...attackGroups].sort((a, b) => {
@@ -185,6 +47,190 @@ const EditModeTable: React.FC<{
 
   const handleSort = () =>
     setSortOrder((prev) => (prev === 'asc' ? 'desc' : 'asc'));
+
+  const openDrawer = (groupName: string) => {
+    setDrawerState({ isOpen: true, selectedGroup: groupName });
+  };
+
+  const closeDrawer = () => {
+    setDrawerState({ isOpen: false });
+  };
+
+  return {
+    sortOrder,
+    sortedData,
+    drawerState,
+    handleSort,
+    openDrawer,
+    closeDrawer,
+  };
+};
+
+interface AttackGroupsTableProps {
+  attackGroups?: WAFAttackGroup[];
+  mode?: 'create' | 'edit';
+  wafId?: number;
+}
+
+// Shared Table Layout Component
+const AttackGroupsTableContent: React.FC<{
+  children?: React.ReactNode;
+  onOpenDrawer: (groupName: string) => void;
+  onSort: () => void;
+  renderActionCell: (item: WAFAttackGroup) => React.ReactNode;
+  sortedData: WAFAttackGroup[];
+  sortOrder: 'asc' | 'desc';
+}> = ({
+  sortedData,
+  sortOrder,
+  onSort,
+  onOpenDrawer,
+  renderActionCell,
+  children,
+}) => (
+  <div style={{ width: '100%' }}>
+    {children}
+    <Paper sx={{ width: '100%', padding: '0', marginTop: '20px' }}>
+      <Table striped={false}>
+        <TableHead>
+          <TableRow>
+            <TableSortCell
+              active
+              direction={sortOrder}
+              handleClick={onSort}
+              label="Attack Group"
+              sx={{ width: '70%' }}
+            >
+              Attack Group
+            </TableSortCell>
+            <TableCell sx={{ width: '30%' }}>Action</TableCell>
+          </TableRow>
+        </TableHead>
+        <TableBody>
+          {sortedData.map((item) => (
+            <TableRow key={item.attack_group_name}>
+              <TableCell>
+                <StyledAttackGroupLabel
+                  onClick={() => onOpenDrawer(item.attack_group_name)}
+                >
+                  {item.attack_group_label}
+                </StyledAttackGroupLabel>
+              </TableCell>
+              <TableCell>{renderActionCell(item)}</TableCell>
+            </TableRow>
+          ))}
+        </TableBody>
+      </Table>
+    </Paper>
+  </div>
+);
+
+// Shared Drawer Component
+const AttackGroupDrawerWrapper: React.FC<{
+  drawerState: { isOpen: boolean; selectedGroup?: string };
+  onClose: () => void;
+}> = ({ drawerState, onClose }) => {
+  if (!drawerState.isOpen || !drawerState.selectedGroup) return null;
+
+  return (
+    <AttackGroupDrawer
+      attackGroupDescription={
+        AttackGroupDescriptions[
+          drawerState.selectedGroup as keyof typeof AttackGroupDescriptions
+        ]
+      }
+      onClose={onClose}
+      open={drawerState.isOpen}
+    />
+  );
+};
+
+// Create Mode Component - Uses form context
+const CreateModeTable: React.FC<{ attackGroups: WAFAttackGroup[] }> = () => {
+  const { control } = useFormContext<WafCreateForm>();
+  const { fields } = useFieldArray({
+    control,
+    name: 'attackGroups',
+  });
+
+  const {
+    sortOrder,
+    sortedData: sortedFields,
+    drawerState,
+    handleSort,
+    openDrawer,
+    closeDrawer,
+  } = useAttackGroupsTable(fields);
+
+  const renderActionCell = (item: WAFAttackGroup) => {
+    // Find the index of this item in the fields array
+    const fieldIndex = fields.findIndex(
+      (field) => field.attack_group_name === item.attack_group_name
+    );
+
+    if (fieldIndex === -1) return null;
+
+    return (
+      <Controller
+        control={control}
+        name={`attackGroups.${fieldIndex}.action`}
+        render={({ field: { onChange, value } }) => (
+          <Select
+            hideLabel
+            label="action"
+            onChange={(_, selected) => onChange(selected.value)}
+            options={WAF_ACTION_OPTIONS}
+            value={value ? { label: WAF_ACTION_LABELS[value], value } : null}
+          />
+        )}
+      />
+    );
+  };
+
+  return (
+    <>
+      <AttackGroupsTableContent
+        onOpenDrawer={openDrawer}
+        onSort={handleSort}
+        renderActionCell={renderActionCell}
+        sortedData={sortedFields}
+        sortOrder={sortOrder}
+      >
+        <Notice
+          sx={{ marginTop: '10px' }}
+          text="Use Alert mode to inspect WAF-triggered events before enabling Deny."
+          variant="info"
+        />
+      </AttackGroupsTableContent>
+
+      <AttackGroupDrawerWrapper
+        drawerState={drawerState}
+        onClose={closeDrawer}
+      />
+    </>
+  );
+};
+
+// Edit Mode Component - Direct state management
+const EditModeTable: React.FC<{
+  attackGroups: WAFAttackGroup[];
+  wafId: number;
+}> = ({ attackGroups, wafId }) => {
+  const { enqueueSnackbar } = useSnackbar();
+  const {
+    sortOrder,
+    sortedData,
+    drawerState,
+    handleSort,
+    openDrawer,
+    closeDrawer,
+  } = useAttackGroupsTable(attackGroups);
+
+  const [optimisticUpdates, setOptimisticUpdates] = React.useState<
+    Record<string, WAFAction>
+  >({});
+
+  const updateMutation = useUpdateWafAttackGroupActionMutation(wafId);
 
   const handleActionChange = React.useCallback(
     (attackGroupName: string, newAction: WAFAction) => {
@@ -228,14 +274,6 @@ const EditModeTable: React.FC<{
     [updateMutation, attackGroups, enqueueSnackbar]
   );
 
-  const openDrawer = (groupName: string) => {
-    setDrawerState({ isOpen: true, selectedGroup: groupName });
-  };
-
-  const closeDrawer = () => {
-    setDrawerState({ isOpen: false });
-  };
-
   const renderActionCell = (item: WAFAttackGroup) => {
     const currentAction =
       optimisticUpdates[item.attack_group_name] ?? item.action;
@@ -262,7 +300,7 @@ const EditModeTable: React.FC<{
   };
 
   return (
-    <div style={{ width: '100%' }}>
+    <>
       <AttackGroupsTableContent
         onOpenDrawer={openDrawer}
         onSort={handleSort}
@@ -271,22 +309,15 @@ const EditModeTable: React.FC<{
         sortOrder={sortOrder}
       />
 
-      {drawerState.isOpen && drawerState.selectedGroup && (
-        <AttackGroupDrawer
-          attackGroupDetails={
-            AttackGroupDetailsMapping[
-              drawerState.selectedGroup as keyof typeof AttackGroupDetailsMapping
-            ]
-          }
-          onClose={closeDrawer}
-          open={drawerState.isOpen}
-        />
-      )}
-    </div>
+      <AttackGroupDrawerWrapper
+        drawerState={drawerState}
+        onClose={closeDrawer}
+      />
+    </>
   );
 };
 
-// Renders appropriate sub-component
+// Main component - delegates to appropriate sub-component
 export const AttackGroupsTable: React.FC<AttackGroupsTableProps> = ({
   mode = 'create',
   wafId,

@@ -39,7 +39,7 @@ export interface WAFAdvancedSettings {
 export enum WafStatus {
   ACTIVE = 'active',
   DELETED = 'deleted',
-  INACTIVE = 'inactive',
+  INACTIVE = 'in_active',
 }
 
 export interface WAF {
