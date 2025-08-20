@@ -117,7 +117,7 @@ const ProtectionsSection: React.FC<{ data: WAF }> = ({ data }) => {
           that work together to identify and mitigate related attack types.
           Review and update these settings regularly to stay protected against
           evolving attack patterns.
-          {/* // TODO: Add the relevant redirection link for 'Learn more', once available. */}
+          {/* // TODO: Add the relevant redirection link for 'Learn more', once available. */}{' '}
           <Link to="">Learn more</Link>
         </Typography>
       </Stack>
@@ -154,7 +154,7 @@ const CustomRulesSection: React.FC<CustomRulesSectionProps> = ({
       <Typography variant="body1">
         Use custom rules to handle scenarios not covered by standard firewall
         rules or to quickly patch new website vulnerabilities.
-        {/* // TODO: Add the relevant redirection link for 'Learn more', once available. */}
+        {/* // TODO: Add the relevant redirection link for 'Learn more', once available. */}{' '}
         <Link to="">Learn more</Link>
       </Typography>
     </Stack>

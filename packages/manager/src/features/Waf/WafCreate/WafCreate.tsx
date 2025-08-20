@@ -95,15 +95,16 @@ export const WafCreate = () => {
       }
     }
 
-    // Add attack groups if any have non-default actions
-    const hasCustomActions = formData.attackGroups?.some(
-      (group) => group.action !== WAFAction.ALERT
-    );
-    if (hasCustomActions) {
-      payload.attack_groups = formData.attackGroups!.map((group) => ({
-        ...group,
-        action: group.action as WAFAction,
+    // Only include attack groups whose action is not ALERT
+    const customAttackGroups = (formData.attackGroups ?? [])
+      .filter((attackGroup) => attackGroup.action !== WAFAction.ALERT)
+      .map((attackGroup) => ({
+        ...attackGroup,
+        action: attackGroup.action as WAFAction,
       }));
+
+    if (customAttackGroups.length) {
+      payload.attack_groups = customAttackGroups;
     }
 
     return payload;
