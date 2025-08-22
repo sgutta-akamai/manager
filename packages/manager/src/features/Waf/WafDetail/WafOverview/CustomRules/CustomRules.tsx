@@ -6,10 +6,11 @@ import * as React from 'react';
 import { CustomRulesTable } from 'src/features/Waf/WafDetail/WafOverview/CustomRules/CustomRulesTable';
 
 interface CustomRulesProps {
+  isEnabled: boolean;
   wafId: number;
 }
 
-export const CustomRules = ({ wafId }: CustomRulesProps) => {
+export const CustomRules = ({ isEnabled, wafId }: CustomRulesProps) => {
   const [isCreateDrawerOpen, setIsCreateDrawerOpen] = React.useState(false);
 
   const { data: customRulesData, isLoading: isLoadingCustomRules } =
@@ -34,13 +35,14 @@ export const CustomRules = ({ wafId }: CustomRulesProps) => {
       )}
       <CustomRulesTable
         isCreateDrawerOpen={isCreateDrawerOpen}
+        isEnabled={isEnabled}
         onCloseCreateDrawer={() => setIsCreateDrawerOpen(false)}
         wafId={wafId}
       />
       <Box marginTop={2}>
         <Button
           buttonType="outlined"
-          disabled={rulesLimitReached}
+          disabled={rulesLimitReached || !isEnabled}
           onClick={() => setIsCreateDrawerOpen(true)}
         >
           Add custom rule
