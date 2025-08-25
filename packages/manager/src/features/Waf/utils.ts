@@ -65,7 +65,7 @@ export const AttackGroupDetailsMapping = {
       'Detects and blocks attacks targeting web protocols and standards.',
   },
   'XSS-ANOMALY': {
-    attack_group_label: 'Cross-Site Scripting',
+    attack_group_label: 'Cross-Site Scripting (XSS)',
     attack_group_description:
       'Detects and blocks attempts to execute scripts in the context of a user’s browser.',
   },

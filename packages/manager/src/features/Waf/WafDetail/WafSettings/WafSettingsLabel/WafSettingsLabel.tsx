@@ -22,12 +22,8 @@ export const WafSettingsLabel = ({ waf }: WafSettingsLabelProps) => {
       label: labelValue,
     },
   });
+  const { isDirty } = methods.formState;
   const { enqueueSnackbar } = useSnackbar();
-
-  const currentValue = methods.watch('label');
-  const isValueChanged = () => {
-    return currentValue !== labelValue;
-  };
 
   const handleError = useCallback(
     (errors: APIError[]) => {
@@ -70,7 +66,7 @@ export const WafSettingsLabel = ({ waf }: WafSettingsLabelProps) => {
           <Paper>
             <Button
               buttonType="primary"
-              disabled={!isValueChanged() || isPending}
+              disabled={!isDirty || isPending}
               loading={isPending}
               type="submit"
             >

@@ -36,6 +36,7 @@ export const WafSettingsNodebalancers = ({
       isAdjustProtectedResourcesEnabled: isAdjustProtectedResourcesEnabledValue,
     },
   });
+  const { isDirty } = methods.formState;
 
   const handleError = useCallback(
     (errors: APIError[]) => {
@@ -105,7 +106,7 @@ export const WafSettingsNodebalancers = ({
           <Paper>
             <Button
               buttonType="primary"
-              disabled={isPending}
+              disabled={!isDirty || isPending}
               loading={isPending}
               type="submit"
             >

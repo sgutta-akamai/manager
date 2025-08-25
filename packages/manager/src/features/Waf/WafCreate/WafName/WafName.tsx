@@ -10,7 +10,7 @@ export const WafName = () => {
   return (
     <Paper>
       <Box alignItems="flex-start" display="flex" flexDirection="column">
-        <Typography variant="h2">Name your WAF</Typography>
+        <Typography variant="h2">WAF Label</Typography>
         <Controller
           control={control}
           name="label"
