@@ -1,5 +1,12 @@
 import { useWafMetadataQuery } from '@linode/queries';
-import { Box, Button, Select, Stack, TextField } from '@linode/ui';
+import {
+  Box,
+  CloseIcon,
+  IconButton,
+  Select,
+  Stack,
+  TextField,
+} from '@linode/ui';
 import * as React from 'react';
 import { Controller, useFormContext } from 'react-hook-form';
 
@@ -21,7 +28,7 @@ export const CustomRuleCondition = ({
 
   return (
     <Stack direction="row" marginTop={2} spacing={2}>
-      <Box sx={{ width: '25%' }}>
+      <Box sx={{ width: '40%' }}>
         <Controller
           control={control}
           name={`filters.conditions.${index}.field`}
@@ -67,7 +74,7 @@ export const CustomRuleCondition = ({
         />
       </Box>
 
-      <Box sx={{ width: '35%' }}>
+      <Box sx={{ width: '30%' }}>
         <Controller
           control={control}
           name={`filters.conditions.${index}.values`}
@@ -84,10 +91,10 @@ export const CustomRuleCondition = ({
         />
       </Box>
 
-      <Box sx={{ width: '15%' }}>
-        <Button buttonType="outlined" onClick={onRemove}>
-          Remove
-        </Button>
+      <Box sx={{ width: '5%' }}>
+        <IconButton aria-label="Clear" onClick={onRemove} size="medium">
+          <CloseIcon />
+        </IconButton>
       </Box>
     </Stack>
   );

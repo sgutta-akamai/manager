@@ -62,7 +62,7 @@ export const Nodebalancers = () => {
   };
 
   return (
-    <Paper sx={{ marginBottom: '20px' }}>
+    <Paper>
       <Box alignItems="flex-start" display="flex" flexDirection="column">
         <Typography variant="h2">Assign NodeBalancers</Typography>
         <Typography sx={{ marginTop: '10px' }}>

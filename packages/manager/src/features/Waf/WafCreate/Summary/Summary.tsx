@@ -47,9 +47,5 @@ export const Summary = () => {
     summaryItems.push({ title: 'Protected Resources Defined', details: '' });
   }
 
-  return (
-    <div>
-      <CheckoutSummary displaySections={summaryItems} heading="Summary" />
-    </div>
-  );
+  return <CheckoutSummary displaySections={summaryItems} heading="Summary" />;
 };

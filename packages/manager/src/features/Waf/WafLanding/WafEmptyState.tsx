@@ -1,7 +1,7 @@
 import { useNavigate } from '@tanstack/react-router';
 import * as React from 'react';
 
-import WafIcon from 'src/assets/icons/entityIcons/security.svg';
+import WafIcon from 'src/assets/icons/entityIcons/security-shield.svg';
 import { ResourcesSection } from 'src/components/EmptyLandingPageResources/ResourcesSection';
 import { getRestrictedResourceText } from 'src/features/Account/utils';
 import {

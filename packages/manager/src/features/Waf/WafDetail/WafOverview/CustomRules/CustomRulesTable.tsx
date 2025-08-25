@@ -32,6 +32,7 @@ const StyledCustomRuleLabel = styled('span')(({ theme }) => ({
 
 interface CustomRulesTableProps {
   isCreateDrawerOpen?: boolean;
+  isEnabled: boolean;
   onCloseCreateDrawer?: () => void;
   wafId: number;
 }
@@ -40,6 +41,7 @@ export const CustomRulesTable: React.FC<CustomRulesTableProps> = ({
   wafId,
   isCreateDrawerOpen = false,
   onCloseCreateDrawer,
+  isEnabled,
 }) => {
   const [sortOrder, setSortOrder] = React.useState<'asc' | 'desc'>('asc');
   const [selectedRule, setSelectedRule] = React.useState<null | WAFCustomRule>(
@@ -147,7 +149,7 @@ export const CustomRulesTable: React.FC<CustomRulesTableProps> = ({
         <Box>
           <Table noOverflow={true} striped={false}>
             <TableHead>
-              <TableRow>
+              <TableRow sx={{ pointerEvents: !isEnabled ? 'none' : 'auto' }}>
                 <TableSortCell
                   active
                   direction={sortOrder}
@@ -175,7 +177,10 @@ export const CustomRulesTable: React.FC<CustomRulesTableProps> = ({
                   return (
                     <TableRow
                       key={rule.id || `${rule.label}-${index}`}
-                      sx={{ opacity: isDeleting ? 0.5 : 1 }}
+                      sx={{
+                        opacity: isDeleting || !isEnabled ? 0.5 : 1,
+                        pointerEvents: !isEnabled ? 'none' : 'auto',
+                      }}
                     >
                       <TableCell>
                         <StyledCustomRuleLabel
@@ -189,7 +194,7 @@ export const CustomRulesTable: React.FC<CustomRulesTableProps> = ({
                       </TableCell>
                       <TableCell>
                         <Select
-                          disabled={isDeleting}
+                          disabled={isDeleting || !isEnabled}
                           hideLabel={true}
                           label="action"
                           onChange={(e, selected) => {
@@ -219,7 +224,7 @@ export const CustomRulesTable: React.FC<CustomRulesTableProps> = ({
                               onClick: () =>
                                 !isDeleting &&
                                 handleRuleDelete(rule.id!, rule.label),
-                              disabled: isDeleting,
+                              disabled: isDeleting || !isEnabled,
                             },
                           ]}
                           ariaLabel={`Action menu for custom rule ${rule.label}`}

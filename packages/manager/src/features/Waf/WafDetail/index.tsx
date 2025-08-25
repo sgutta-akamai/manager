@@ -1,10 +1,12 @@
-import { WafStatus } from '@linode/api-v4';
-import { useWafQuery } from '@linode/queries';
+import { type APIError, WafStatus } from '@linode/api-v4';
+import { useUpdateWafMutation, useWafQuery } from '@linode/queries';
 import { CircleProgress, ErrorState, Typography } from '@linode/ui';
 import { getFormattedStatus } from '@linode/utilities';
 import { Paper, Stack, useTheme } from '@mui/material';
 import { useParams } from '@tanstack/react-router';
+import { useSnackbar } from 'notistack';
 import * as React from 'react';
+import { useCallback } from 'react';
 
 import { LandingHeader } from 'src/components/LandingHeader';
 import { StatusIcon } from 'src/components/StatusIcon/StatusIcon';
@@ -14,6 +16,7 @@ import { TabPanels } from 'src/components/Tabs/TabPanels';
 import { Tabs } from 'src/components/Tabs/Tabs';
 import { TanStackTabLinkList } from 'src/components/Tabs/TanStackTabLinkList';
 import { useTabs } from 'src/hooks/useTabs';
+import { getErrorStringOrDefault } from 'src/utilities/errorUtils';
 
 const WafOverview = React.lazy(() =>
   import('./WafOverview/WafOverview').then((module) => ({
@@ -44,6 +47,8 @@ export const WafDetail = () => {
   const { id } = useParams({
     strict: false,
   });
+  const { mutate: updateWaf } = useUpdateWafMutation();
+  const { enqueueSnackbar } = useSnackbar();
 
   const { handleTabChange, tabIndex, tabs } = useTabs([
     {
@@ -66,6 +71,17 @@ export const WafDetail = () => {
 
   const { data: waf, isLoading, error } = useWafQuery(Number(id));
 
+  const handleError = useCallback(
+    (errors: APIError[]) => {
+      const message = getErrorStringOrDefault(
+        errors,
+        'Failed to update WAF label'
+      );
+      enqueueSnackbar(message, { variant: 'error' });
+    },
+    [enqueueSnackbar]
+  );
+
   if (isLoading) {
     return <CircleProgress />;
   }
@@ -80,11 +96,46 @@ export const WafDetail = () => {
     return null;
   }
 
+  const handleLabelChange = (newLabel: string): Promise<any> => {
+    return new Promise((resolve, reject) => {
+      updateWaf(
+        {
+          wafId: waf.id,
+          data: {
+            label: newLabel,
+            devices: waf.devices,
+            hosts: waf.hosts,
+            advanced_settings: waf.advanced_settings,
+            attack_groups: waf.attack_groups,
+          },
+        },
+        {
+          onSuccess: (data) => {
+            resolve(data);
+          },
+          onError: (error) => {
+            handleError(error);
+            reject(error);
+          },
+        }
+      );
+    });
+  };
+
+  const resetEditableLabel = (): Promise<string> => {
+    return Promise.resolve(waf.label);
+  };
+
   return (
     <React.Fragment>
       <LandingHeader
         breadcrumbProps={{
           crumbOverrides: [{ label: 'WAF', position: 1 }],
+          onEditHandlers: {
+            editableTextTitle: waf?.label,
+            onCancel: resetEditableLabel,
+            onEdit: handleLabelChange,
+          },
           // TODO - add onEditHandler when integrating with backend
           pathname: `/waf/${waf.label}`,
         }}

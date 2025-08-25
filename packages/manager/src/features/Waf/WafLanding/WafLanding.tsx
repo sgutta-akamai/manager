@@ -105,7 +105,7 @@ export const WafLanding = () => {
     return <CircleProgress />;
   }
 
-  if (wafs?.data.length === 0) {
+  if (wafs?.data.length === 0 && !query) {
     return <WafEmptyState />;
   }
 

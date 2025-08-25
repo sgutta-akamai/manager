@@ -1,6 +1,7 @@
 import { WAFAction } from '@linode/api-v4';
 import {
   useUpdateWafMutation,
+  useWafCustomRulesQuery,
   useWafQuery,
   useWafRuleSetQuery,
 } from '@linode/queries';
@@ -31,6 +32,7 @@ interface WafSummaryProps {
 
 interface CustomRulesSectionProps {
   customRulesEnabled: boolean;
+  hasCustomRules: boolean;
   onToggle: (event: React.ChangeEvent<HTMLInputElement>) => void;
   wafId: number;
 }
@@ -136,6 +138,7 @@ const CustomRulesSection: React.FC<CustomRulesSectionProps> = ({
   wafId,
   customRulesEnabled,
   onToggle,
+  hasCustomRules,
 }) => (
   <Paper>
     <Stack alignItems="center" direction="row" spacing={1}>
@@ -159,7 +162,9 @@ const CustomRulesSection: React.FC<CustomRulesSectionProps> = ({
       </Typography>
     </Stack>
 
-    {customRulesEnabled && <CustomRules wafId={wafId} />}
+    {(customRulesEnabled || hasCustomRules) && (
+      <CustomRules isEnabled={customRulesEnabled} wafId={wafId} />
+    )}
   </Paper>
 );
 
@@ -169,6 +174,8 @@ export const WafOverview = () => {
 
   // Data fetching hooks
   const { data, isLoading, error } = useWafQuery(wafId);
+  const { data: customRulesData, isLoading: isLoadingCustomRules } =
+    useWafCustomRulesQuery(wafId);
   const { mutate: updateWaf } = useUpdateWafMutation();
   const { enqueueSnackbar } = useSnackbar();
 
@@ -208,8 +215,13 @@ export const WafOverview = () => {
     [data, wafId, updateWaf, enqueueSnackbar]
   );
 
+  const getHasCustomRules = useCallback(() => {
+    return (customRulesData?.data &&
+      customRulesData.data.length > 0) as boolean;
+  }, [customRulesData]);
+
   // Loading state
-  if (isLoading) {
+  if (isLoading || isLoadingCustomRules) {
     return <CircleProgress />;
   }
 
@@ -236,6 +248,7 @@ export const WafOverview = () => {
       <ProtectionsSection data={data} />
       <CustomRulesSection
         customRulesEnabled={customRulesEnabled}
+        hasCustomRules={getHasCustomRules()}
         onToggle={handleCustomRulesToggle}
         wafId={wafId}
       />
