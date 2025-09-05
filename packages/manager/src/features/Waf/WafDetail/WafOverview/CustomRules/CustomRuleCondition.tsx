@@ -1,14 +1,9 @@
 import { useWafMetadataQuery } from '@linode/queries';
-import {
-  Box,
-  CloseIcon,
-  IconButton,
-  Select,
-  Stack,
-  TextField,
-} from '@linode/ui';
+import { Box, CloseIcon, IconButton, Select, Stack } from '@linode/ui';
 import * as React from 'react';
 import { Controller, useFormContext } from 'react-hook-form';
+
+import { TagsInput } from 'src/components/TagsInput/TagsInput';
 
 interface CustomRuleConditionProps {
   index: number;
@@ -79,13 +74,19 @@ export const CustomRuleCondition = ({
           control={control}
           name={`filters.conditions.${index}.values`}
           render={({ field, fieldState }) => (
-            <TextField
-              errorText={fieldState.error?.message}
+            <TagsInput
               hideLabel
               label="Values"
-              onChange={(e) => field.onChange([e.target.value])}
-              placeholder="Enter values"
-              value={field.value?.[0] || ''}
+              onChange={(selected) =>
+                field.onChange(selected.map((item) => item.value))
+              }
+              tagError={fieldState.error?.message}
+              value={
+                field.value?.map((item: string) => ({
+                  label: item,
+                  value: item,
+                })) ?? []
+              }
             />
           )}
         />
