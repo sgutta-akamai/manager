@@ -82,7 +82,7 @@ export const CustomRuleCondition = ({
               }
               tagError={fieldState.error?.message}
               value={
-                field.value?.map((item: any) => ({
+                field.value?.map((item: string) => ({
                   label: item,
                   value: item,
                 })) ?? []
