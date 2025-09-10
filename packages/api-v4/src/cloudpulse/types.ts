@@ -146,6 +146,7 @@ export interface Metric {
 
 export interface CloudPulseMetricsRequest {
   absolute_time_duration: DateTimeWithPreset | undefined;
+  associated_entity_region?: string;
   entity_ids: number[];
   filters?: Filters[];
   group_by: string[];
@@ -195,6 +196,7 @@ export interface CreateAlertDefinitionPayload {
   description?: string;
   entity_ids?: string[];
   label: string;
+  regions?: string[];
   rule_criteria: {
     rules: MetricCriteria[];
   };
@@ -336,10 +338,10 @@ export interface EditAlertDefinitionPayload {
   description?: string;
   entity_ids?: string[];
   label?: string;
+  regions?: string[];
   rule_criteria?: {
     rules: MetricCriteria[];
   };
-  scope?: AlertDefinitionScope;
   severity?: AlertSeverityType;
   status?: AlertStatusType;
   tags?: string[];

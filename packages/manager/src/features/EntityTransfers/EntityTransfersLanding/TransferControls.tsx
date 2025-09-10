@@ -1,6 +1,8 @@
 import { useNavigate } from '@tanstack/react-router';
 import * as React from 'react';
 
+import { useFlags } from 'src/hooks/useFlags';
+
 import { ConfirmTransferDialog } from './ConfirmTransferDialog';
 import {
   StyledLabelWrapperGrid,
@@ -22,6 +24,7 @@ interface Props {
 export const TransferControls = React.memo((props: Props) => {
   const { permissions } = props;
 
+  const flags = useFlags();
   const [token, setToken] = React.useState('');
   const [confirmDialogOpen, setConfirmDialogOpen] = React.useState(false);
 
@@ -38,7 +41,11 @@ export const TransferControls = React.memo((props: Props) => {
   };
 
   const handleCreateTransfer = () =>
-    navigate({ to: '/account/service-transfers/create' });
+    navigate({
+      to: flags?.iamRbacPrimaryNavChanges
+        ? '/service-transfers/create'
+        : '/account/service-transfers/create',
+    });
 
   return (
     <>
@@ -59,6 +66,7 @@ export const TransferControls = React.memo((props: Props) => {
             direction="row"
           >
             <StyledTextField
+              disabled={!permissions.accept_service_transfer}
               hideLabel
               label="Receive a Service Transfer"
               onChange={handleInputChange}
@@ -69,7 +77,11 @@ export const TransferControls = React.memo((props: Props) => {
               buttonType="primary"
               disabled={!permissions.accept_service_transfer || token === ''}
               onClick={() => setConfirmDialogOpen(true)}
-              tooltipText="Enter a service transfer token to review the details and accept the transfer."
+              tooltipText={
+                !permissions.accept_service_transfer
+                  ? 'You do not have permission to receive service transfers.'
+                  : 'Enter a service transfer token to review the details and accept the transfer.'
+              }
             >
               Review Details
             </StyledReviewButton>

@@ -56,6 +56,7 @@ import {
   entityTransferFactory,
   eventFactory,
   firewallDeviceFactory,
+  firewallEntityfactory,
   firewallFactory,
   imageFactory,
   incidentResponseFactory,
@@ -812,6 +813,11 @@ export const handlers = [
         region: 'us-east',
         id: 1005,
       }),
+      linodeFactory.build({
+        label: 'aclp-supported-region-linode-3',
+        region: 'us-iad',
+        id: 1006,
+      }),
     ];
     const linodes = [
       ...mtcLinodes,
@@ -938,19 +944,58 @@ export const handlers = [
         }),
       ];
       const linodeAclpSupportedRegionDetails = [
+        /** Whether a Linode is ACLP-subscribed can be determined using the useIsLinodeAclpSubscribed hook. */
+
+        // 1. Example: ACLP-subscribed Linode in an ACLP-supported region (mock Linode ID: 1004)
         linodeFactory.build({
           id,
           backups: { enabled: false },
           label: 'aclp-supported-region-linode-1',
           region: 'us-iad',
-          alerts: { user: [100, 101], system: [200] },
+          alerts: {
+            user: [21, 22, 23, 24, 25],
+            system: [19, 20],
+            cpu: 0,
+            io: 0,
+            network_in: 0,
+            network_out: 0,
+            transfer_quota: 0,
+          },
         }),
+        // 2. Example: Linode not subscribed to ACLP in an ACLP-supported region (mock Linode ID: 1005)
         linodeFactory.build({
           id,
           backups: { enabled: false },
           label: 'aclp-supported-region-linode-2',
           region: 'us-east',
-          alerts: { user: [], system: [] },
+          alerts: {
+            user: [],
+            system: [],
+            cpu: 10,
+            io: 10000,
+            network_in: 0,
+            network_out: 0,
+            transfer_quota: 80,
+          },
+        }),
+        // 3. Example: Linode in an ACLP-supported region with NO enabled alerts (mock Linode ID: 1006)
+        // - Whether this Linode is ACLP-subscribed depends on the ACLP release stage:
+        //   a. Beta stage: NOT subscribed to ACLP
+        //   b. GA stage: Subscribed to ACLP
+        linodeFactory.build({
+          id,
+          backups: { enabled: false },
+          label: 'aclp-supported-region-linode-3',
+          region: 'us-iad',
+          alerts: {
+            user: [],
+            system: [],
+            cpu: 0,
+            io: 0,
+            network_in: 0,
+            network_out: 0,
+            transfer_quota: 0,
+          },
         }),
       ];
       const linodeNonMTCPlanInMTCSupportedRegionsDetail = linodeFactory.build({
@@ -985,6 +1030,8 @@ export const handlers = [
           return linodeAclpSupportedRegionDetails[0];
         case 1005:
           return linodeAclpSupportedRegionDetails[1];
+        case 1006:
+          return linodeAclpSupportedRegionDetails[2];
         default:
           return linodeDetail;
       }
@@ -1100,7 +1147,24 @@ export const handlers = [
     return HttpResponse.json({});
   }),
   http.get('*/v4beta/networking/firewalls', () => {
-    const firewalls = firewallFactory.buildList(10);
+    const firewalls = [
+      ...firewallFactory.buildList(10),
+      firewallFactory.build({
+        entities: [
+          firewallEntityfactory.build({
+            type: 'linode_interface',
+            parent_entity: firewallEntityfactory.build({
+              type: 'linode',
+              id: 123,
+              label: 'Linode-123',
+            }),
+          }),
+          firewallEntityfactory.build({
+            type: 'linode',
+          }),
+        ],
+      }),
+    ];
     firewallFactory.resetSequenceNumber();
     return HttpResponse.json(makeResourcePage(firewalls));
   }),
@@ -2718,11 +2782,19 @@ export const handlers = [
       alertFactory.resetSequenceNumber();
       return HttpResponse.json({
         data: [
-          ...alertFactory.buildList(20, {
+          ...alertFactory.buildList(18, {
             rule_criteria: {
               rules: alertRulesFactory.buildList(2),
             },
             service_type: serviceType === 'dbaas' ? 'dbaas' : 'linode',
+          }),
+          // Mocked 2 alert definitions associated with mock Linode ID '1004' (aclp-supported-region-linode-1)
+          ...alertFactory.buildList(2, {
+            rule_criteria: {
+              rules: alertRulesFactory.buildList(2),
+            },
+            service_type: serviceType === 'dbaas' ? 'dbaas' : 'linode',
+            entity_ids: ['1004'],
           }),
           ...alertFactory.buildList(6, {
             service_type: serviceType === 'dbaas' ? 'dbaas' : 'linode',
@@ -2813,6 +2885,7 @@ export const handlers = [
             },
             service_type: params.serviceType === 'linode' ? 'linode' : 'dbaas',
             type: 'user',
+            scope: pickRandom(['account', 'region', 'entity']),
           })
         );
       }
@@ -3240,7 +3313,7 @@ export const handlers = [
       dashboardLabel = 'NodeBalancer Service I/O Statistics';
     } else if (id === '4') {
       serviceType = 'firewall';
-      dashboardLabel = 'Linode Service I/O Statistics';
+      dashboardLabel = 'Firewall Service I/O Statistics';
     } else {
       serviceType = 'linode';
       dashboardLabel = 'Linode Service I/O Statistics';
@@ -3248,7 +3321,7 @@ export const handlers = [
 
     const response = {
       created: '2024-04-29T17:09:29',
-      id: params.id,
+      id: Number(params.id),
       label: dashboardLabel,
       service_type: serviceType,
       type: 'standard',
@@ -3360,6 +3433,7 @@ export const handlers = [
             metric: {
               entity_id: '456',
               metric_name: 'average_cpu_usage',
+              linode_id: '123',
               node_id: 'primary-2',
             },
             values: [

@@ -34,6 +34,7 @@ import type { PrimaryLink as PrimaryLinkType } from './PrimaryLink';
 
 export type NavEntity =
   | 'Account'
+  | 'Account Settings'
   | 'Akamai Cloud WAF'
   | 'Alerts'
   | 'Betas'
@@ -61,7 +62,6 @@ export type NavEntity =
   | 'Placement Groups'
   | 'Quotas'
   | 'Service Transfers'
-  | 'Settings'
   | 'StackScripts'
   | 'Users & Grants'
   | 'Volumes'
@@ -116,11 +116,17 @@ export const PrimaryNav = (props: PrimaryNavProps) => {
 
   const { isIAMBeta, isIAMEnabled } = useIsIAMEnabled();
 
-  const { data: collapsedSideNavPreference } = usePreferences(
+  const {
+    data: collapsedSideNavPreference,
+    error: preferencesError,
+    isLoading: preferencesLoading,
+  } = usePreferences(
     (preferences) => preferences?.collapsedSideNavProductFamilies
   );
 
-  const collapsedAccordions = collapsedSideNavPreference ?? [1, 2, 3, 4, 5, 6]; // by default, we collapse all categories if no preference is set;
+  const collapsedAccordions = collapsedSideNavPreference ?? [
+    1, 2, 3, 4, 5, 6, 7,
+  ]; // by default, we collapse all categories if no preference is set;
 
   const { mutateAsync: updatePreferences } = useMutatePreferences();
 
@@ -294,7 +300,7 @@ export const PrimaryNav = (props: PrimaryNavProps) => {
               {
                 display: 'Users & Grants',
                 hide: isIAMEnabled,
-                to: '/account/users',
+                to: '/users',
               },
               {
                 display: 'Identity & Access',
@@ -309,19 +315,19 @@ export const PrimaryNav = (props: PrimaryNavProps) => {
               },
               {
                 display: 'Login History',
-                to: '/account/login-history', // TODO: replace with '/login-history' when flat route is added
+                to: '/login-history',
               },
               {
                 display: 'Service Transfers',
-                to: '/account/service-transfers', // TODO: replace with '/service-transfers' when flat route is added
+                to: '/service-transfers',
               },
               {
                 display: 'Maintenance',
-                to: '/account/maintenance', // TODO: replace with '/maintenance' when flat route is added
+                to: '/maintenance',
               },
               {
-                display: 'Settings',
-                to: '/account/settings', // TODO: replace with '/settings' when flat route is added
+                display: 'Account Settings',
+                to: '/account-settings',
               },
             ],
             name: 'Administration',
@@ -340,11 +346,12 @@ export const PrimaryNav = (props: PrimaryNavProps) => {
         isIAMBeta,
         isIAMEnabled,
         iamRbacPrimaryNavChanges,
+        limitsEvolution,
       ]
     );
 
   const accordionClicked = (index: number) => {
-    let updatedCollapsedAccordions: number[] = [0, 1, 2, 3, 4, 5];
+    let updatedCollapsedAccordions: number[] = [1, 2, 3, 4, 5, 6, 7];
     if (collapsedAccordions.includes(index)) {
       updatedCollapsedAccordions = collapsedAccordions.filter(
         (accIndex) => accIndex !== index
@@ -410,6 +417,10 @@ export const PrimaryNav = (props: PrimaryNavProps) => {
   // When a user lands on a page and does not have any preference set,
   // we want to expand the accordion that contains the active link for convenience and discoverability
   React.useEffect(() => {
+    if (preferencesLoading || preferencesError) {
+      return;
+    }
+
     if (collapsedSideNavPreference) {
       return;
     }
@@ -433,6 +444,8 @@ export const PrimaryNav = (props: PrimaryNavProps) => {
     location.search,
     productFamilyLinkGroups,
     collapsedSideNavPreference,
+    preferencesLoading,
+    preferencesError,
   ]);
 
   let activeProductFamily = '';

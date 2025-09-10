@@ -6,18 +6,26 @@ import { RegionSelect } from 'src/components/RegionSelect/RegionSelect';
 import { useFlags } from 'src/hooks/useFlags';
 import { useResourcesQuery } from 'src/queries/cloudpulse/resources';
 
+import { useFetchOptions } from '../Alerts/CreateAlert/Criteria/DimensionFilterValue/useFetchOptions';
 import { filterRegionByServiceType } from '../Alerts/Utils/utils';
-import { NO_REGION_MESSAGE, RESOURCE_FILTER_MAP } from '../Utils/constants';
+import {
+  LINODE_REGION,
+  NO_REGION_MESSAGE,
+  RESOURCE_FILTER_MAP,
+} from '../Utils/constants';
 import { deepEqual, filterUsingDependentFilters } from '../Utils/FilterBuilder';
 import { FILTER_CONFIG } from '../Utils/FilterConfig';
 
+import type { Item } from '../Alerts/constants';
 import type { CloudPulseMetricsFilter } from '../Dashboard/CloudPulseDashboardLanding';
 import type { Dashboard, FilterValue, Region } from '@linode/api-v4';
 
 export interface CloudPulseRegionSelectProps {
   defaultValue?: FilterValue;
   disabled?: boolean;
+  filterKey: string;
   handleRegionChange: (
+    filterKey: string,
     region: string | undefined,
     labels: string[],
     savePref?: boolean
@@ -26,6 +34,7 @@ export interface CloudPulseRegionSelectProps {
   placeholder?: string;
   savePreferences?: boolean;
   selectedDashboard: Dashboard | undefined;
+  selectedEntities: string[];
   xFilter?: CloudPulseMetricsFilter;
 }
 
@@ -33,11 +42,13 @@ export const CloudPulseRegionSelect = React.memo(
   (props: CloudPulseRegionSelectProps) => {
     const {
       defaultValue,
+      filterKey,
       handleRegionChange,
       label,
       placeholder,
       savePreferences,
       selectedDashboard,
+      selectedEntities,
       disabled = false,
       xFilter,
     } = props;
@@ -69,6 +80,47 @@ export const CloudPulseRegionSelect = React.memo(
       : undefined;
 
     const [selectedRegion, setSelectedRegion] = React.useState<string>();
+
+    const linodeRegionIds = useFetchOptions({
+      dimensionLabel: filterKey,
+      entities: selectedEntities,
+      regions,
+      serviceType,
+      type: 'metrics',
+    }).map((option: Item<string, string>) => option.value);
+
+    const supportedLinodeRegions = React.useMemo(() => {
+      return (
+        regions?.filter((region) => linodeRegionIds?.includes(region.id)) ?? []
+      );
+    }, [regions, linodeRegionIds]);
+
+    const supportedRegions = React.useMemo<Region[]>(() => {
+      return filterRegionByServiceType('metrics', regions, serviceType);
+    }, [regions, serviceType]);
+
+    const supportedRegionsFromResources = React.useMemo(() => {
+      if (filterKey === LINODE_REGION) {
+        return supportedLinodeRegions;
+      }
+      return supportedRegions.filter(({ id }) =>
+        filterUsingDependentFilters(resources, xFilter)?.some(
+          ({ region }) => region === id
+        )
+      );
+    }, [
+      filterKey,
+      supportedLinodeRegions,
+      supportedRegions,
+      resources,
+      xFilter,
+    ]);
+
+    const dependencyKey = supportedLinodeRegions
+      .map((region) => region.id)
+      .sort()
+      .join(',');
+
     React.useEffect(() => {
       if (disabled && !selectedRegion) {
         return; // no need to do anything
@@ -86,29 +138,34 @@ export const CloudPulseRegionSelect = React.memo(
           ? regions.find((regionObj) => regionObj.id === defaultValue)
           : undefined;
         // Notify parent and set internal state
-        handleRegionChange(region?.id, region ? [region.label] : []);
+        handleRegionChange(filterKey, region?.id, region ? [region.label] : []);
         setSelectedRegion(region?.id);
+      } else if (
+        filterKey === LINODE_REGION &&
+        !savePreferences &&
+        supportedRegionsFromResources?.length &&
+        selectedRegion === undefined
+      ) {
+        // Select the first region from the supported regions if savePreferences is false
+        const defaultRegionId = supportedRegionsFromResources[0].id;
+        const defaultRegionLabel = supportedRegionsFromResources[0].label;
+        handleRegionChange(filterKey, defaultRegionId, [defaultRegionLabel]);
+        setSelectedRegion(defaultRegionId);
       } else {
+        if (!disabled && filterKey === LINODE_REGION && selectedRegion) {
+          return;
+        }
         if (selectedRegion !== undefined) {
           setSelectedRegion('');
         }
-        handleRegionChange(undefined, []);
+        handleRegionChange(filterKey, undefined, []);
       }
       // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [
       xFilter, // Reacts to filter changes (to reset region)
       regions, // Function to call on change
+      dependencyKey, // Reacts to linode region changes
     ]);
-
-    const supportedRegions = React.useMemo<Region[] | undefined>(() => {
-      return filterRegionByServiceType('metrics', regions, serviceType);
-    }, [regions, serviceType]);
-
-    const supportedRegionsFromResources = supportedRegions?.filter(({ id }) =>
-      filterUsingDependentFilters(resources, xFilter)?.some(
-        ({ region }) => region === id
-      )
-    );
 
     return (
       <RegionSelect
@@ -133,15 +190,18 @@ export const CloudPulseRegionSelect = React.memo(
         onChange={(_, region) => {
           setSelectedRegion(region?.id ?? '');
           handleRegionChange(
+            filterKey,
             region?.id,
             region ? [region.label] : [],
             savePreferences
           );
         }}
         placeholder={placeholder ?? 'Select a Region'}
-        regions={supportedRegionsFromResources ?? []}
+        regions={supportedRegionsFromResources}
         value={
-          supportedRegionsFromResources?.length ? selectedRegion : undefined
+          supportedRegionsFromResources?.length
+            ? (selectedRegion ?? null)
+            : null
         }
       />
     );
