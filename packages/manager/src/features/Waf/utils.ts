@@ -1,4 +1,4 @@
-import { WAFAction } from '@linode/api-v4';
+import { WAFAction, WafStatus } from '@linode/api-v4';
 
 import type { WAFDevice } from '@linode/api-v4';
 import type { WAFExclusionType } from '@linode/api-v4';
@@ -96,4 +96,21 @@ export const WAF_ACTION_LABELS = {
   [WAFAction.ALERT]: 'Alert',
   [WAFAction.DENY]: 'Deny',
   [WAFAction.NOT_USED]: 'Not used',
+};
+
+export const getWafStatusIcon = (status: WafStatus) => {
+  switch (status) {
+    case WafStatus.DELETED:
+    case WafStatus.DISABLED:
+      return 'inactive';
+    case WafStatus.ENABLED:
+      return 'active';
+    case WafStatus.ERROR:
+      return 'error';
+    case WafStatus.PENDING:
+    case WafStatus.UPDATING:
+      return 'other';
+    default:
+      return 'inactive';
+  }
 };

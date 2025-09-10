@@ -1,3 +1,4 @@
+import { WafStatus } from '@linode/api-v4';
 import * as React from 'react';
 
 import { ActionMenu } from 'src/components/ActionMenu/ActionMenu';
@@ -8,6 +9,8 @@ import type { Action } from 'src/components/ActionMenu/ActionMenu';
 export interface ActionHandlers {
   handleAnalytics: () => void;
   handleDelete: () => void;
+  handleDisable: () => void;
+  handleEnable: () => void;
   handleLogs: () => void;
   handleOverview: () => void;
   handleSettings: () => void;
@@ -20,6 +23,8 @@ export interface Props {
 
 export const WafActionMenu = (props: Props) => {
   const { handlers, waf } = props;
+
+  const isEnabled = waf?.status === WafStatus.ENABLED;
 
   const actions: Action[] = [
     {
@@ -37,6 +42,10 @@ export const WafActionMenu = (props: Props) => {
     {
       onClick: handlers.handleSettings,
       title: 'Settings',
+    },
+    {
+      onClick: isEnabled ? handlers.handleDisable : handlers.handleEnable,
+      title: isEnabled ? 'Disable' : 'Enable',
     },
     {
       onClick: handlers.handleDelete,

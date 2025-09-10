@@ -1,4 +1,3 @@
-import { WafStatus } from '@linode/api-v4';
 import { getFormattedStatus } from '@linode/utilities';
 import * as React from 'react';
 
@@ -7,6 +6,7 @@ import { Link } from 'src/components/Link';
 import { StatusIcon } from 'src/components/StatusIcon/StatusIcon';
 import { TableCell } from 'src/components/TableCell';
 import { TableRow } from 'src/components/TableRow';
+import { getWafStatusIcon } from 'src/features/Waf/utils';
 
 import { WafActionMenu } from './WafActionMenu';
 
@@ -27,9 +27,7 @@ export const WafRow = (props: Props) => {
         <Link to={`/waf/${waf.id}`}>{waf.label}</Link>
       </TableCell>
       <TableCell statusCell>
-        <StatusIcon
-          status={waf.status === WafStatus.ACTIVE ? 'active' : 'inactive'}
-        />
+        <StatusIcon status={getWafStatusIcon(waf.status)} />
         {getFormattedStatus(waf.status)}
       </TableCell>
       <TableCell>
