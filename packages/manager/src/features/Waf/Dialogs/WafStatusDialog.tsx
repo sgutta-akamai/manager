@@ -71,7 +71,7 @@ export const WafStatusDialog = ({ onClose, open, waf }: Props) => {
         isEnabled ? 'disable' : 'enable'
       } this configuration?`}
       primaryButtonLabel={`${isEnabled ? 'Disable ' : 'Enable '} configuration`}
-      title={`${isEnabled ? 'Disable' : 'Enable'} ${waf?.label} configuration? `}
+      title={`${isEnabled ? 'Disable' : 'Enable'} ${waf?.label} configuration?`}
     />
   );
 };

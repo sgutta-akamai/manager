@@ -14,6 +14,7 @@ export interface WafCreateForm {
   isAdjustProtectedResourcesEnabled: boolean;
   label: string;
   paths?: Path[];
+  status: WafStatus;
 }
 
 export interface AttackGroup {

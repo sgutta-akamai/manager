@@ -41,12 +41,11 @@ vi.mock('@linode/queries', async () => {
 
 const handlers: ActionHandlers = {
   handleAnalytics: vi.fn(),
-  handleDisable: vi.fn(),
   handleDelete: vi.fn(),
-  handleEnable: vi.fn(),
   handleLogs: vi.fn(),
   handleOverview: vi.fn(),
   handleSettings: vi.fn(),
+  handleStatusChange: vi.fn(),
 };
 
 describe('Waf Landing', () => {

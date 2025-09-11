@@ -56,16 +56,8 @@ export const WafLandingTable = ({
 
   const handleWafAction = React.useCallback(
     (action: WafAction, waf: WAF) => {
-      // Actions that open dialogs
-      const dialogActions = {
-        delete: () => setSelectedWafForDelete(waf),
-        disable: () => setSelectedWafStatus(waf),
-        enable: () => setSelectedWafStatus(waf),
-      } as const;
-
-      // Check if it's a dialog action
-      if (action in dialogActions) {
-        dialogActions[action as keyof typeof dialogActions]();
+      if (action === 'delete') {
+        setSelectedWafForDelete(waf);
         return;
       }
 
@@ -76,7 +68,14 @@ export const WafLandingTable = ({
         to: `/waf/$wafId/$action`,
       });
     },
-    [navigate, setSelectedWafForDelete, setSelectedWafStatus]
+    [navigate, setSelectedWafForDelete]
+  );
+
+  const handleWafStatusChange = React.useCallback(
+    (waf: WAF) => {
+      setSelectedWafStatus(waf);
+    },
+    [setSelectedWafStatus]
   );
 
   return (
@@ -108,11 +107,10 @@ export const WafLandingTable = ({
                 handlers={{
                   handleAnalytics: () => handleWafAction('analytics', waf),
                   handleDelete: () => handleWafAction('delete', waf),
-                  handleDisable: () => handleWafAction('disable', waf),
-                  handleEnable: () => handleWafAction('enable', waf),
                   handleLogs: () => handleWafAction('logs', waf),
                   handleOverview: () => handleWafAction('overview', waf),
                   handleSettings: () => handleWafAction('settings', waf),
+                  handleStatusChange: () => handleWafStatusChange(waf),
                 }}
                 key={waf.id}
                 waf={waf}

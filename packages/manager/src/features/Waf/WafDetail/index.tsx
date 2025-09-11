@@ -104,6 +104,7 @@ export const WafDetail = () => {
           wafId: waf.id,
           data: {
             label: newLabel,
+            status: waf.status,
             devices: waf.devices,
             hosts: waf.hosts,
             advanced_settings: waf.advanced_settings,

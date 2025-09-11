@@ -63,7 +63,7 @@ export interface WAFPayload {
   devices?: WAFDevice[];
   hosts?: WAFHost[];
   label: string;
-  status?: WafStatus;
+  status: WafStatus;
 }
 
 export interface WAFRuleSetAttackGroup {

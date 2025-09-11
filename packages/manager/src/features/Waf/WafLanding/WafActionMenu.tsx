@@ -9,11 +9,10 @@ import type { Action } from 'src/components/ActionMenu/ActionMenu';
 export interface ActionHandlers {
   handleAnalytics: () => void;
   handleDelete: () => void;
-  handleDisable: () => void;
-  handleEnable: () => void;
   handleLogs: () => void;
   handleOverview: () => void;
   handleSettings: () => void;
+  handleStatusChange: () => void;
 }
 
 export interface Props {
@@ -44,7 +43,7 @@ export const WafActionMenu = (props: Props) => {
       title: 'Settings',
     },
     {
-      onClick: isEnabled ? handlers.handleDisable : handlers.handleEnable,
+      onClick: handlers.handleStatusChange,
       title: isEnabled ? 'Disable' : 'Enable',
     },
     {
