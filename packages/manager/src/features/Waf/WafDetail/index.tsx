@@ -132,7 +132,7 @@ export const WafDetail = () => {
     <React.Fragment>
       <LandingHeader
         breadcrumbProps={{
-          crumbOverrides: [{ label: 'WAF', position: 1 }],
+          crumbOverrides: [{ label: 'Akamai Cloud WAF', position: 1 }],
           onEditHandlers: {
             editableTextTitle: waf?.label,
             onCancel: resetEditableLabel,

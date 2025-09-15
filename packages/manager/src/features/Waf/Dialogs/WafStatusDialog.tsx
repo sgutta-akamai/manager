@@ -38,15 +38,13 @@ export const WafStatusDialog = ({ onClose, open, waf }: Props) => {
   const handleConfirm = () => {
     if (!waf) return;
 
+    const { id, created, updated, ...wafData } = waf;
+
     updateWaf(
       {
         wafId: waf.id,
         data: {
-          label: waf.label,
-          devices: waf.devices,
-          hosts: waf.hosts,
-          advanced_settings: waf.advanced_settings,
-          attack_groups: waf.attack_groups,
+          ...wafData,
           status: isEnabled ? WafStatus.DISABLED : WafStatus.ENABLED,
         },
       },

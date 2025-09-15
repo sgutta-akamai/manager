@@ -139,7 +139,10 @@ export const WafCreate = () => {
   return (
     <>
       <LandingHeader
-        breadcrumbProps={{ pathname: '/waf/create' }}
+        breadcrumbProps={{
+          crumbOverrides: [{ label: 'Akamai Cloud WAF', position: 1 }],
+          pathname: '/waf/create',
+        }}
         docsLabel="Getting Started"
         docsLink="https://techdocs.akamai.com/cloud-computing/docs/"
       />
