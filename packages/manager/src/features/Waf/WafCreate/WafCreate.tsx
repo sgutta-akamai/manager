@@ -1,4 +1,9 @@
-import { WAFAction, WAFDeviceType, WAFExclusionType } from '@linode/api-v4';
+import {
+  WAFAction,
+  WAFDeviceType,
+  WAFExclusionType,
+  WafStatus,
+} from '@linode/api-v4';
 import { useCreateWafMutation, useWafRuleSetQuery } from '@linode/queries';
 import { Button, Stack } from '@linode/ui';
 import { useNavigate } from '@tanstack/react-router';
@@ -62,6 +67,7 @@ export const WafCreate = () => {
   const createPayload = useCallback((formData: WafCreateForm): WAFPayload => {
     const payload: WAFPayload = {
       label: formData.label,
+      status: WafStatus.ENABLED, // New WAFs are 'enabled' by default
     };
 
     // Add devices if present
@@ -133,7 +139,10 @@ export const WafCreate = () => {
   return (
     <>
       <LandingHeader
-        breadcrumbProps={{ pathname: '/waf/create' }}
+        breadcrumbProps={{
+          crumbOverrides: [{ label: 'Akamai Cloud WAF', position: 1 }],
+          pathname: '/waf/create',
+        }}
         docsLabel="Getting Started"
         docsLink="https://techdocs.akamai.com/cloud-computing/docs/"
       />

@@ -40,6 +40,7 @@ interface CustomRulesSectionProps {
 // Helper function to create WAF update payload
 const createWafUpdatePayload = (data: WAF, customRulesEnabled: boolean) => ({
   label: data.label,
+  status: data.status,
   devices: data.devices || [],
   attack_groups: data.attack_groups || [],
   hosts: data.hosts || [],

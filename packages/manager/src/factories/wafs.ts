@@ -49,6 +49,6 @@ export const wafConfigurationsFactory = Factory.Sync.makeFactory<WAF>({
   created: Factory.each((i) => `2025-0${(i % 9) + 1}-01T12:00:00Z`),
   updated: Factory.each((i) => `2025-0${(i % 9) + 1}-15T12:00:00Z`),
   status: Factory.each((i) =>
-    i % 3 === 0 ? WafStatus.INACTIVE : WafStatus.ACTIVE
+    i % 3 === 0 ? WafStatus.DISABLED : WafStatus.ENABLED
   ),
 });

@@ -55,26 +55,25 @@ export const DeleteWafDialog = ({ onClose, open, waf }: Props) => {
       }}
       errors={error}
       expand
-      label="WAF Configuration Label"
+      label="WAF configuration label"
       loading={isPending}
       onClick={handleDelete}
       onClose={handleClose}
       open={open}
-      title="Delete Configuration"
+      title="Delete configuration?"
       typographyStyle={{ marginTop: '10px' }}
     >
       <Notice variant="warning">
         <Typography style={{ fontSize: '0.875rem' }}>
-          Deleting this WAF configuration is permanent and can&#39;t be undone.
+          Deleting this WAF configuration is permanent and can't be undone.
         </Typography>
       </Notice>
 
       {/* TODO: Replace the relevant text content below, once available from the UX*/}
       <Typography variant="body1">
-        Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod
-        tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim
-        veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea
-        commodo consequat.
+        This action will permanently remove your WAF configuration from our
+        database. The WAF and custom rules will also be removed from your
+        NodeBalancers and they will no longer protect your traffic.
       </Typography>
     </TypeToConfirmDialog>
   );
