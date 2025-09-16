@@ -17,8 +17,10 @@ import { useFieldArray } from 'react-hook-form';
 import { Controller, useFormContext } from 'react-hook-form';
 
 import { TagsInput } from 'src/components/TagsInput/TagsInput';
+import { HOSTNAME_ERROR_MESSAGE } from 'src/features/Waf/utils';
 
 import type { WAFDevice } from '@linode/api-v4';
+import type { TagOption } from 'src/components/TagsInput/TagsInput';
 import type { WafCreateForm } from 'src/features/Waf/utils';
 
 export const Nodebalancers = () => {
@@ -32,6 +34,8 @@ export const Nodebalancers = () => {
   });
 
   const [open, setOpen] = React.useState(false);
+  const [formArrayIndicesWithError, setFormArrayIndicesWithError] =
+    React.useState<number[]>([]);
 
   const { data, error, fetchNextPage, hasNextPage, isFetching } =
     useAvailableWafDevicesInfiniteQuery({}, open);
@@ -46,6 +50,16 @@ export const Nodebalancers = () => {
 
   const handleRemoveHostname = (index: number) => {
     remove(index);
+  };
+
+  const setErrors = (selected: TagOption[], index: number) => {
+    if (selected.length > 1) {
+      setFormArrayIndicesWithError([...formArrayIndicesWithError, index]);
+    } else {
+      setFormArrayIndicesWithError(
+        formArrayIndicesWithError?.filter((i) => i !== index)
+      );
+    }
   };
 
   return (
@@ -134,8 +148,14 @@ export const Nodebalancers = () => {
                     render={({ field }) => (
                       <TagsInput
                         label="Hostname"
-                        onChange={(selected) =>
-                          field.onChange(selected.map((item) => item.value))
+                        onChange={(selected) => {
+                          field.onChange(selected.map((item) => item.value));
+                          setErrors(selected, index);
+                        }}
+                        tagError={
+                          formArrayIndicesWithError.includes(index)
+                            ? HOSTNAME_ERROR_MESSAGE
+                            : ''
                         }
                         value={
                           field.value?.map((host) => ({

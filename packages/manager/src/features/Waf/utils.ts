@@ -1,7 +1,7 @@
 import { WAFAction } from '@linode/api-v4';
 import { WAFExclusionType } from '@linode/api-v4';
 
-import type { WAFDevice, WAFHost } from '@linode/api-v4';
+import type { WAFDevice } from '@linode/api-v4';
 
 export interface WafCreateForm {
   advancedSettings?: {
@@ -40,7 +40,7 @@ type Path = Host;
 
 export const WILDCARD_HOSTNAME = '*';
 
-//TODO - update attack_group_description values after discussion with UX team
+// TODO - update attack_group_description values after discussion with UX team
 export const AttackGroupDetailsMapping = {
   'CMD-INJECTION-ANOMALY': {
     attack_group_label: 'Command Injection',
@@ -104,16 +104,16 @@ export const WAF_ACTION_LABELS = {
 export const getTransformedHostsForPayload = (
   formData: Partial<WafCreateForm>
 ) => {
-  const payloadHosts: WAFHost[] = [];
-  formData.hosts?.forEach((host) => {
-    host.paths.forEach((path) => {
-      payloadHosts.push({
-        hostname: host.hostname[0],
-        path,
-        exclusion_type: WAFExclusionType.EXCLUDED,
-      });
-    });
-  });
+  if (!formData.hosts) return [];
 
-  return payloadHosts;
+  return formData.hosts.flatMap((host) =>
+    host.paths.map((path) => ({
+      hostname: host.hostname[0],
+      path,
+      exclusion_type: WAFExclusionType.EXCLUDED,
+    }))
+  );
 };
+
+export const HOSTNAME_ERROR_MESSAGE =
+  'You can only specify one hostname per entry';
