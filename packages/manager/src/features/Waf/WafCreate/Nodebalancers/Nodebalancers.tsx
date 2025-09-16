@@ -58,10 +58,11 @@ export const Nodebalancers = () => {
       setFormArrayIndicesWithError([...formArrayIndicesWithError, index]);
       setError('hosts', { type: 'manual', message: HOSTNAME_ERROR_MESSAGE });
     } else {
-      setFormArrayIndicesWithError(
-        formArrayIndicesWithError?.filter((i) => i !== index)
+      const updatedIndices = formArrayIndicesWithError?.filter(
+        (i) => i !== index
       );
-      if (formArrayIndicesWithError.length === 1) {
+      setFormArrayIndicesWithError(updatedIndices);
+      if (updatedIndices.length === 0) {
         clearErrors('hosts');
       }
     }
