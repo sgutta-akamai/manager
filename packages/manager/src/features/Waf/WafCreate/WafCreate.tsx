@@ -1,4 +1,4 @@
-import { WAFAction, WAFDeviceType, WAFExclusionType } from '@linode/api-v4';
+import { WAFAction, WAFDeviceType } from '@linode/api-v4';
 import { useCreateWafMutation, useWafRuleSetQuery } from '@linode/queries';
 import { Button, Stack } from '@linode/ui';
 import { useNavigate } from '@tanstack/react-router';
@@ -7,6 +7,7 @@ import React, { useCallback, useEffect, useMemo } from 'react';
 import { FormProvider, useForm } from 'react-hook-form';
 
 import { LandingHeader } from 'src/components/LandingHeader';
+import { getTransformedHostsForPayload } from 'src/features/Waf/utils';
 import { AttackProtections } from 'src/features/Waf/WafCreate/AttackProtections/AttackProtections';
 import { Nodebalancers } from 'src/features/Waf/WafCreate/Nodebalancers/Nodebalancers';
 import { Summary } from 'src/features/Waf/WafCreate/Summary/Summary';
@@ -81,12 +82,8 @@ export const WafCreate = () => {
 
     // Add hosts if protected resources are enabled
     if (formData.isAdjustProtectedResourcesEnabled) {
-      const allHosts = [...(formData.hosts || []), ...(formData.paths || [])];
-      if (allHosts.length > 0) {
-        payload.hosts = allHosts.map((host) => ({
-          ...host,
-          exclusion_type: WAFExclusionType.EXCLUDED,
-        }));
+      if (formData.hosts && formData.hosts.length > 0) {
+        payload.hosts = getTransformedHostsForPayload(formData);
 
         payload.advanced_settings = {
           ...payload.advanced_settings,

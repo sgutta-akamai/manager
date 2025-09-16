@@ -1,7 +1,7 @@
 import { WAFAction } from '@linode/api-v4';
+import { WAFExclusionType } from '@linode/api-v4';
 
-import type { WAFDevice } from '@linode/api-v4';
-import type { WAFExclusionType } from '@linode/api-v4';
+import type { WAFDevice, WAFHost } from '@linode/api-v4';
 
 export interface WafCreateForm {
   advancedSettings?: {
@@ -10,7 +10,10 @@ export interface WafCreateForm {
   };
   attackGroups?: AttackGroup[];
   devices?: WAFDevice[];
-  hosts?: Host[];
+  hosts?: Array<{
+    hostname: string[];
+    paths: string[];
+  }>;
   isAdjustProtectedResourcesEnabled: boolean;
   label: string;
   paths?: Path[];
@@ -96,4 +99,21 @@ export const WAF_ACTION_LABELS = {
   [WAFAction.ALERT]: 'Alert',
   [WAFAction.DENY]: 'Deny',
   [WAFAction.NOT_USED]: 'Not used',
+};
+
+export const getTransformedHostsForPayload = (
+  formData: Partial<WafCreateForm>
+) => {
+  const payloadHosts: WAFHost[] = [];
+  formData.hosts?.forEach((host) => {
+    host.paths.forEach((path) => {
+      payloadHosts.push({
+        hostname: host.hostname[0],
+        path,
+        exclusion_type: WAFExclusionType.EXCLUDED,
+      });
+    });
+  });
+
+  return payloadHosts;
 };
