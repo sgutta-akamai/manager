@@ -146,7 +146,7 @@ export const WafCreate = () => {
           <Stack alignItems="flex-end">
             <Button
               buttonType="primary"
-              disabled={!isLabelFilled}
+              disabled={!isLabelFilled || !!form.formState.errors.hosts}
               loading={isPending}
               type="submit"
             >

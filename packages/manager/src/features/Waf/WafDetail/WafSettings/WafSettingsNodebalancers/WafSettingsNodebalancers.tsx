@@ -127,7 +127,9 @@ export const WafSettingsNodebalancers = ({
           <Paper>
             <Button
               buttonType="primary"
-              disabled={!isDirty || isPending}
+              disabled={
+                !isDirty || isPending || !!methods.formState.errors.hosts
+              }
               loading={isPending}
               type="submit"
             >

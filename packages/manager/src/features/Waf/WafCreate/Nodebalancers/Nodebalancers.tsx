@@ -24,7 +24,8 @@ import type { TagOption } from 'src/components/TagsInput/TagsInput';
 import type { WafCreateForm } from 'src/features/Waf/utils';
 
 export const Nodebalancers = () => {
-  const { control, watch } = useFormContext<WafCreateForm>();
+  const { control, watch, setError, clearErrors } =
+    useFormContext<WafCreateForm>();
   const isAdjustProtectedResourcesEnabled = watch(
     'isAdjustProtectedResourcesEnabled'
   );
@@ -52,13 +53,17 @@ export const Nodebalancers = () => {
     remove(index);
   };
 
-  const setErrors = (selected: TagOption[], index: number) => {
+  const setHostErrors = (selected: TagOption[], index: number) => {
     if (selected.length > 1) {
       setFormArrayIndicesWithError([...formArrayIndicesWithError, index]);
+      setError('hosts', { type: 'manual', message: HOSTNAME_ERROR_MESSAGE });
     } else {
       setFormArrayIndicesWithError(
         formArrayIndicesWithError?.filter((i) => i !== index)
       );
+      if (formArrayIndicesWithError.length === 1) {
+        clearErrors('hosts');
+      }
     }
   };
 
@@ -150,7 +155,7 @@ export const Nodebalancers = () => {
                         label="Hostname"
                         onChange={(selected) => {
                           field.onChange(selected.map((item) => item.value));
-                          setErrors(selected, index);
+                          setHostErrors(selected, index);
                         }}
                         tagError={
                           formArrayIndicesWithError.includes(index)
