@@ -23,6 +23,11 @@ export const WafName = () => {
               label="WAF Label"
               onBlur={field.onBlur}
               onChange={field.onChange}
+              onKeyDown={(e) => {
+                if (e.key === 'Enter') {
+                  e.preventDefault();
+                }
+              }}
               required
               sx={{ width: '462px' }}
               value={field.value}
