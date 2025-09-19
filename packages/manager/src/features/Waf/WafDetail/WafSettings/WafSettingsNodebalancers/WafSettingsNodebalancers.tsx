@@ -33,11 +33,11 @@ export const WafSettingsNodebalancers = ({
     const hostnamePathMap: Map<string, Array<string>> = new Map();
     hosts.forEach((host: WAFHost) => {
       if (hostnamePathMap.has(host.hostname)) {
-        hostnamePathMap.set(host.hostname, [
-          ...(hostnamePathMap.get(host.hostname) || []),
-          host.path,
-        ]);
+        // update list of paths associated with this hostname
+        const associatedPaths = hostnamePathMap.get(host.hostname) || [];
+        hostnamePathMap.set(host.hostname, [...associatedPaths, host.path]);
       } else {
+        // create a new entry for this hostname
         hostnamePathMap.set(host.hostname, [host.path]);
       }
     });

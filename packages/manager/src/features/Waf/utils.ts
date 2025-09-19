@@ -106,14 +106,16 @@ export const getTransformedHostsForPayload = (
 ) => {
   if (!formData.hosts) return [];
 
-  return formData.hosts.flatMap((host) =>
-    host.paths.map((path) => ({
-      hostname: host.hostname[0],
-      path,
-      exclusion_type: WAFExclusionType.EXCLUDED,
-    }))
-  );
+  return formData.hosts
+    .filter((host) => Array.isArray(host.hostname) && host.hostname.length > 0)
+    .flatMap((host) =>
+      host.paths.map((path) => ({
+        hostname: host.hostname[0],
+        path,
+        exclusion_type: WAFExclusionType.EXCLUDED,
+      }))
+    );
 };
 
-export const HOSTNAME_ERROR_MESSAGE =
+export const MULTIPLE_HOSTNAMES_SELECTED_ERROR_MESSAGE =
   'You can only specify one hostname per entry';

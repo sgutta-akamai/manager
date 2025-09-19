@@ -17,11 +17,16 @@ import { useFieldArray } from 'react-hook-form';
 import { Controller, useFormContext } from 'react-hook-form';
 
 import { TagsInput } from 'src/components/TagsInput/TagsInput';
-import { HOSTNAME_ERROR_MESSAGE } from 'src/features/Waf/utils';
+import { MULTIPLE_HOSTNAMES_SELECTED_ERROR_MESSAGE } from 'src/features/Waf/utils';
 
 import type { WAFDevice } from '@linode/api-v4';
 import type { TagOption } from 'src/components/TagsInput/TagsInput';
 import type { WafCreateForm } from 'src/features/Waf/utils';
+
+interface HostnameError {
+  indicesWithError: number[];
+  message: string;
+}
 
 export const Nodebalancers = () => {
   const { control, watch, setError, clearErrors } =
@@ -35,8 +40,11 @@ export const Nodebalancers = () => {
   });
 
   const [open, setOpen] = React.useState(false);
-  const [formArrayIndicesWithError, setFormArrayIndicesWithError] =
-    React.useState<number[]>([]);
+  const [multipleHostnamesSelectedError, setMultipleHostnamesSelectedError] =
+    React.useState<HostnameError>({
+      indicesWithError: [],
+      message: MULTIPLE_HOSTNAMES_SELECTED_ERROR_MESSAGE,
+    });
 
   const { data, error, fetchNextPage, hasNextPage, isFetching } =
     useAvailableWafDevicesInfiniteQuery({}, open);
@@ -54,14 +62,31 @@ export const Nodebalancers = () => {
   };
 
   const setHostErrors = (selected: TagOption[], index: number) => {
-    if (selected.length > 1) {
-      setFormArrayIndicesWithError([...formArrayIndicesWithError, index]);
-      setError('hosts', { type: 'manual', message: HOSTNAME_ERROR_MESSAGE });
+    const hasMultipleHostnames: boolean = selected.length > 1;
+    if (hasMultipleHostnames) {
+      // add index to indicesWithError if not already present
+      if (!multipleHostnamesSelectedError.indicesWithError.includes(index)) {
+        setMultipleHostnamesSelectedError({
+          indicesWithError: [
+            ...multipleHostnamesSelectedError.indicesWithError,
+            index,
+          ],
+          message: MULTIPLE_HOSTNAMES_SELECTED_ERROR_MESSAGE,
+        });
+      }
+      setError('hosts', {
+        type: 'manual',
+        message: MULTIPLE_HOSTNAMES_SELECTED_ERROR_MESSAGE,
+      });
     } else {
-      const updatedIndices = formArrayIndicesWithError?.filter(
-        (i) => i !== index
-      );
-      setFormArrayIndicesWithError(updatedIndices);
+      const updatedIndices =
+        multipleHostnamesSelectedError.indicesWithError?.filter(
+          (i) => i !== index
+        );
+      setMultipleHostnamesSelectedError({
+        indicesWithError: updatedIndices,
+        message: MULTIPLE_HOSTNAMES_SELECTED_ERROR_MESSAGE,
+      });
       if (updatedIndices.length === 0) {
         clearErrors('hosts');
       }
@@ -159,8 +184,10 @@ export const Nodebalancers = () => {
                           setHostErrors(selected, index);
                         }}
                         tagError={
-                          formArrayIndicesWithError.includes(index)
-                            ? HOSTNAME_ERROR_MESSAGE
+                          multipleHostnamesSelectedError.indicesWithError.includes(
+                            index
+                          )
+                            ? multipleHostnamesSelectedError.message
                             : ''
                         }
                         value={
