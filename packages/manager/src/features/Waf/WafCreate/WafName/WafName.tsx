@@ -11,8 +11,7 @@ export const WafName = () => {
     <Paper>
       <Box alignItems="flex-start" display="flex" flexDirection="column">
         <Typography variant="h2">
-          {' '}
-          Provide your WAF configuration label{' '}
+          Provide your WAF configuration label
         </Typography>
         <Controller
           control={control}

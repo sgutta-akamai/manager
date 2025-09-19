@@ -152,7 +152,12 @@ export const WafCreate = () => {
           <Stack spacing={3}>
             {errors.root?.message && (
               <Notice spacingTop={8} variant="error">
-                <ErrorMessage message="An internal error occurred. Try again shortly." />
+                <ErrorMessage
+                  message={
+                    errors.root?.message ||
+                    'An internal error occurred. Try again shortly.'
+                  }
+                />
               </Notice>
             )}
             <WafName />
