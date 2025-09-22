@@ -40,6 +40,8 @@ export const Nodebalancers = () => {
   });
 
   const [open, setOpen] = React.useState(false);
+
+  // TODO - Refactor state management for error handling to efficiently support multiple error types. Right now, the state object only supports multiple hostnames error, and an additional state object would need to be created for each new error type.
   const [multipleHostnamesSelectedError, setMultipleHostnamesSelectedError] =
     React.useState<HostnameError>({
       indicesWithError: [],
