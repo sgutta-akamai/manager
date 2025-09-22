@@ -7,6 +7,8 @@ import { rootRoute } from '../root';
 const wafAction = {
   analytics: 'analytics',
   delete: 'delete',
+  disable: 'disable',
+  enable: 'enable',
   logs: 'logs',
   overview: 'overview',
   settings: 'settings',

@@ -45,6 +45,7 @@ const handlers: ActionHandlers = {
   handleLogs: vi.fn(),
   handleOverview: vi.fn(),
   handleSettings: vi.fn(),
+  handleStatusChange: vi.fn(),
 };
 
 describe('Waf Landing', () => {

@@ -10,6 +10,7 @@ import { TableRow } from 'src/components/TableRow';
 import { TableRowEmpty } from 'src/components/TableRowEmpty/TableRowEmpty';
 import { TableSortCell } from 'src/components/TableSortCell';
 import { DeleteWafDialog } from 'src/features/Waf/Dialogs/DeleteWafDialog';
+import { WafStatusDialog } from 'src/features/Waf/Dialogs/WafStatusDialog';
 import { WafRow } from 'src/features/Waf/WafLanding/WafRow';
 import { usePaginationV2 } from 'src/hooks/usePaginationV2';
 
@@ -46,19 +47,36 @@ export const WafLandingTable = ({
     setSelectedWafForDelete(undefined);
   };
 
-  const handleWafAction = React.useCallback((action: WafAction, waf: WAF) => {
-    if (action === 'delete') {
-      setSelectedWafForDelete(waf);
-      return;
-    }
+  // Track selected WAF for status dialog
+  const [selectedWafStatus, setSelectedWafStatus] = React.useState<WAF>();
 
-    // Navigate to other actions
-    navigate({
-      params: { action, wafId: waf.id },
-      search: (prev) => prev,
-      to: `/waf/$wafId/$action`,
-    });
-  }, []);
+  const closeStatusDialog = () => {
+    setSelectedWafStatus(undefined);
+  };
+
+  const handleWafAction = React.useCallback(
+    (action: WafAction, waf: WAF) => {
+      if (action === 'delete') {
+        setSelectedWafForDelete(waf);
+        return;
+      }
+
+      // Navigate to other actions (analytics, logs, overview, settings)
+      navigate({
+        params: { action, wafId: waf.id },
+        search: (prev) => prev,
+        to: `/waf/$wafId/$action`,
+      });
+    },
+    [navigate, setSelectedWafForDelete]
+  );
+
+  const handleWafStatusChange = React.useCallback(
+    (waf: WAF) => {
+      setSelectedWafStatus(waf);
+    },
+    [setSelectedWafStatus]
+  );
 
   return (
     <>
@@ -92,6 +110,7 @@ export const WafLandingTable = ({
                   handleLogs: () => handleWafAction('logs', waf),
                   handleOverview: () => handleWafAction('overview', waf),
                   handleSettings: () => handleWafAction('settings', waf),
+                  handleStatusChange: () => handleWafStatusChange(waf),
                 }}
                 key={waf.id}
                 waf={waf}
@@ -114,6 +133,12 @@ export const WafLandingTable = ({
         onClose={closeDeleteDialog}
         open={!!selectedWafForDelete}
         waf={selectedWafForDelete}
+      />
+
+      <WafStatusDialog
+        onClose={closeStatusDialog}
+        open={!!selectedWafStatus}
+        waf={selectedWafStatus}
       />
     </>
   );

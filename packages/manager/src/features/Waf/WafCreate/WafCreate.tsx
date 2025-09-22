@@ -1,11 +1,16 @@
-import { WAFAction, WAFDeviceType } from '@linode/api-v4';
+import {
+  WAFAction,
+  WAFDeviceType,
+  WafStatus,
+} from '@linode/api-v4';
 import { useCreateWafMutation, useWafRuleSetQuery } from '@linode/queries';
-import { Button, Stack } from '@linode/ui';
+import { Button, Notice, Stack } from '@linode/ui';
 import { useNavigate } from '@tanstack/react-router';
 import { useSnackbar } from 'notistack';
 import React, { useCallback, useEffect, useMemo } from 'react';
 import { FormProvider, useForm } from 'react-hook-form';
 
+import { ErrorMessage } from 'src/components/ErrorMessage';
 import { LandingHeader } from 'src/components/LandingHeader';
 import { getTransformedHostsForPayload } from 'src/features/Waf/utils';
 import { AttackProtections } from 'src/features/Waf/WafCreate/AttackProtections/AttackProtections';
@@ -13,7 +18,7 @@ import { Nodebalancers } from 'src/features/Waf/WafCreate/Nodebalancers/Nodebala
 import { Summary } from 'src/features/Waf/WafCreate/Summary/Summary';
 import { WafName } from 'src/features/Waf/WafCreate/WafName/WafName';
 
-import type { APIError, WAFPayload } from '@linode/api-v4';
+import type { WAFPayload } from '@linode/api-v4';
 import type { WafCreateForm } from 'src/features/Waf/utils';
 
 const DEFAULT_FORM_VALUES: Partial<WafCreateForm> = {
@@ -24,12 +29,18 @@ const DEFAULT_FORM_VALUES: Partial<WafCreateForm> = {
 export const WafCreate = () => {
   const navigate = useNavigate();
   const { enqueueSnackbar } = useSnackbar();
-  const { mutate: createWaf, isPending } = useCreateWafMutation();
+  const { mutateAsync: createWaf, isPending } = useCreateWafMutation();
   const { data: wafRuleSet } = useWafRuleSetQuery();
 
   const form = useForm<WafCreateForm>({
     defaultValues: DEFAULT_FORM_VALUES,
+    mode: 'onTouched',
   });
+
+  const {
+    formState: { errors },
+    setError,
+  } = form;
 
   // Transform ruleset attack groups for form usage
   const attackGroups = useMemo(() => {
@@ -52,17 +63,10 @@ export const WafCreate = () => {
     }
   }, [attackGroups, form]);
 
-  const handleError = useCallback(
-    (errors: APIError[]) => {
-      const message = errors?.[0]?.reason || 'Failed to create WAF';
-      enqueueSnackbar(message, { variant: 'error' });
-    },
-    [enqueueSnackbar]
-  );
-
   const createPayload = useCallback((formData: WafCreateForm): WAFPayload => {
     const payload: WAFPayload = {
       label: formData.label,
+      status: WafStatus.ENABLED, // New WAFs are 'enabled' by default
     };
 
     // Add devices if present
@@ -107,22 +111,23 @@ export const WafCreate = () => {
     return payload;
   }, []);
 
-  const handleSubmit = useCallback(
-    (formData: WafCreateForm) => {
+  const onSubmit = useCallback(
+    async (formData: WafCreateForm) => {
       const payload = createPayload(formData);
 
-      createWaf(payload, {
-        onSuccess: () => {
-          navigate({ to: '/waf' });
-          enqueueSnackbar(
-            `${payload.label} configuration successfully created`,
-            { variant: 'success' }
-          );
-        },
-        onError: handleError,
-      });
+      try {
+        await createWaf(payload);
+        enqueueSnackbar(`${payload.label} configuration successfully created`, {
+          variant: 'success',
+        });
+        navigate({ to: '/waf' });
+      } catch (errors) {
+        for (const error of errors) {
+          setError(error?.field ?? 'root', { message: error.reason });
+        }
+      }
     },
-    [createPayload, createWaf, handleError, navigate, enqueueSnackbar]
+    [createPayload, createWaf, setError, navigate, enqueueSnackbar]
   );
 
   const isLabelFilled = !!form.watch('label');
@@ -130,14 +135,27 @@ export const WafCreate = () => {
   return (
     <>
       <LandingHeader
-        breadcrumbProps={{ pathname: '/waf/create' }}
+        breadcrumbProps={{
+          crumbOverrides: [{ label: 'Akamai Cloud WAF', position: 1 }],
+          pathname: '/waf/create',
+        }}
         docsLabel="Getting Started"
         docsLink="https://techdocs.akamai.com/cloud-computing/docs/"
       />
 
       <FormProvider {...form}>
-        <form onSubmit={form.handleSubmit(handleSubmit)}>
+        <form onSubmit={form.handleSubmit(onSubmit)}>
           <Stack spacing={3}>
+            {errors.root?.message && (
+              <Notice spacingTop={8} variant="error">
+                <ErrorMessage
+                  message={
+                    errors.root?.message ||
+                    'An internal error occurred. Try again shortly.'
+                  }
+                />
+              </Notice>
+            )}
             <WafName />
             <Nodebalancers />
             <AttackProtections />

@@ -1,4 +1,4 @@
-import { type APIError, WafStatus } from '@linode/api-v4';
+import { type APIError } from '@linode/api-v4';
 import { useUpdateWafMutation, useWafQuery } from '@linode/queries';
 import { CircleProgress, ErrorState, Typography } from '@linode/ui';
 import { getFormattedStatus } from '@linode/utilities';
@@ -15,6 +15,7 @@ import { SafeTabPanel } from 'src/components/Tabs/SafeTabPanel';
 import { TabPanels } from 'src/components/Tabs/TabPanels';
 import { Tabs } from 'src/components/Tabs/Tabs';
 import { TanStackTabLinkList } from 'src/components/Tabs/TanStackTabLinkList';
+import { getWafStatusIcon } from 'src/features/Waf/utils';
 import { useTabs } from 'src/hooks/useTabs';
 import { getErrorStringOrDefault } from 'src/utilities/errorUtils';
 
@@ -103,6 +104,7 @@ export const WafDetail = () => {
           wafId: waf.id,
           data: {
             label: newLabel,
+            status: waf.status,
             devices: waf.devices,
             hosts: waf.hosts,
             advanced_settings: waf.advanced_settings,
@@ -130,7 +132,7 @@ export const WafDetail = () => {
     <React.Fragment>
       <LandingHeader
         breadcrumbProps={{
-          crumbOverrides: [{ label: 'WAF', position: 1 }],
+          crumbOverrides: [{ label: 'Akamai Cloud WAF', position: 1 }],
           onEditHandlers: {
             editableTextTitle: waf?.label,
             onCancel: resetEditableLabel,
@@ -146,9 +148,7 @@ export const WafDetail = () => {
       />
       <Paper>
         <Stack alignItems="center" direction="row" p={1}>
-          <StatusIcon
-            status={waf.status === WafStatus.ACTIVE ? 'active' : 'inactive'}
-          />
+          <StatusIcon status={getWafStatusIcon(waf.status)} />
           <Typography sx={{ font: theme.font.bold }}>
             {getFormattedStatus(waf.status)}
           </Typography>

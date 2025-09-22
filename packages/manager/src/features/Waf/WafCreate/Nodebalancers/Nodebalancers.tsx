@@ -96,10 +96,9 @@ export const Nodebalancers = () => {
   return (
     <Paper>
       <Box alignItems="flex-start" display="flex" flexDirection="column">
-        <Typography variant="h2">Assign NodeBalancers</Typography>
+        <Typography variant="h2"> Associate NodeBalancers </Typography>
         <Typography sx={{ marginTop: '10px' }}>
-          Select an existing NodeBalancer to associate with this WAF
-          configuration.
+          Select an existing NodeBalancer to associate with this configuration.
         </Typography>
         <Controller
           control={control}
@@ -158,7 +157,7 @@ export const Nodebalancers = () => {
                   }}
                 />
               }
-              label="Adjust protected resources"
+              label="Define host and path exclusions"
               sx={{ marginTop: '10px' }}
             />
           )}
@@ -167,8 +166,8 @@ export const Nodebalancers = () => {
           <>
             <Typography sx={{ marginTop: '10px' }}>
               By default, all hostnames and paths are selected and protected by
-              this WAF. You can choose to exclude specific hostnames or paths
-              from protection as needed.
+              this WAF configuration. You can choose to exclude specific
+              hostnames or paths from protection as needed.
             </Typography>
             {fields.map((item, index) => (
               <Stack alignItems="center" flexDirection="row" key={item.id}>

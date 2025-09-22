@@ -74,6 +74,7 @@ export const WafSettingsNodebalancers = ({
   const createPayload = (data: Partial<WafCreateForm>) => {
     const payload: WAFPayload = {
       label: waf.label,
+      status: waf.status,
       attack_groups: waf.attack_groups,
     };
 

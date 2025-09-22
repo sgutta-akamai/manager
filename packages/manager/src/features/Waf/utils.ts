@@ -1,4 +1,4 @@
-import { WAFAction } from '@linode/api-v4';
+import { WAFAction, WafStatus } from '@linode/api-v4';
 import { WAFExclusionType } from '@linode/api-v4';
 
 import type { WAFDevice } from '@linode/api-v4';
@@ -17,6 +17,7 @@ export interface WafCreateForm {
   isAdjustProtectedResourcesEnabled: boolean;
   label: string;
   paths?: Path[];
+  status: WafStatus;
 }
 
 export interface AttackGroup {
@@ -119,3 +120,20 @@ export const getTransformedHostsForPayload = (
 
 export const MULTIPLE_HOSTNAMES_SELECTED_ERROR_MESSAGE =
   'You can only specify one hostname per entry';
+
+export const getWafStatusIcon = (status: WafStatus) => {
+  switch (status) {
+    case WafStatus.DELETED:
+    case WafStatus.DISABLED:
+      return 'inactive';
+    case WafStatus.ENABLED:
+      return 'active';
+    case WafStatus.ERROR:
+      return 'error';
+    case WafStatus.PENDING:
+    case WafStatus.UPDATING:
+      return 'other';
+    default:
+      return 'inactive';
+  }
+};

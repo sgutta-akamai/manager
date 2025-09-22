@@ -37,9 +37,12 @@ export interface WAFAdvancedSettings {
 }
 
 export enum WafStatus {
-  ACTIVE = 'active',
   DELETED = 'deleted',
-  INACTIVE = 'in_active',
+  DISABLED = 'disabled',
+  ENABLED = 'enabled',
+  ERROR = 'error',
+  PENDING = 'pending',
+  UPDATING = 'updating',
 }
 
 export interface WAF {
@@ -60,6 +63,7 @@ export interface WAFPayload {
   devices?: WAFDevice[];
   hosts?: WAFHost[];
   label: string;
+  status: WafStatus;
 }
 
 export interface WAFRuleSetAttackGroup {

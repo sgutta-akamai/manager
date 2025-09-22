@@ -43,6 +43,7 @@ export const WafSettingsLabel = ({ waf }: WafSettingsLabelProps) => {
           wafId: waf.id,
           data: {
             label: data.label,
+            status: waf.status,
             devices: waf.devices,
             hosts: waf.hosts,
             advanced_settings: waf.advanced_settings,

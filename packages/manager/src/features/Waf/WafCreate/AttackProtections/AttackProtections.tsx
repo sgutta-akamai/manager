@@ -10,11 +10,11 @@ export const AttackProtections = () => {
   return (
     <Paper>
       <Box alignItems="flex-start" display="flex" flexDirection="column">
-        <Typography variant="h2">Attack Protections</Typography>
+        <Typography variant="h2"> Web Application Firewall </Typography>
         <Typography sx={{ marginTop: '10px' }}>
           Your app will be protected against common threat categories, based on
-          OWASP best practices. These protections are currently in Alert mode -
-          monitoring traffic without blocking.
+          OWASP best practices. These protections are currently in{' '}
+          <b>Alert mode</b> - monitoring traffic without blocking.
           <br />
           Attack Categories: injection attacks, scripting & file inclusion,
           protocol violations, abuse tools & crawlers, and known CVEs &
