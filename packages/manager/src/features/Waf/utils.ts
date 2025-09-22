@@ -1,7 +1,7 @@
 import { WAFAction, WafStatus } from '@linode/api-v4';
+import { WAFExclusionType } from '@linode/api-v4';
 
 import type { WAFDevice } from '@linode/api-v4';
-import type { WAFExclusionType } from '@linode/api-v4';
 
 export interface WafCreateForm {
   advancedSettings?: {
@@ -10,7 +10,10 @@ export interface WafCreateForm {
   };
   attackGroups?: AttackGroup[];
   devices?: WAFDevice[];
-  hosts?: Host[];
+  hosts?: Array<{
+    hostname: string[];
+    paths: string[];
+  }>;
   isAdjustProtectedResourcesEnabled: boolean;
   label: string;
   paths?: Path[];
@@ -38,7 +41,7 @@ type Path = Host;
 
 export const WILDCARD_HOSTNAME = '*';
 
-//TODO - update attack_group_description values after discussion with UX team
+// TODO - update attack_group_description values after discussion with UX team
 export const AttackGroupDetailsMapping = {
   'CMD-INJECTION-ANOMALY': {
     attack_group_label: 'Command Injection',
@@ -98,6 +101,25 @@ export const WAF_ACTION_LABELS = {
   [WAFAction.DENY]: 'Deny',
   [WAFAction.NOT_USED]: 'Not used',
 };
+
+export const getTransformedHostsForPayload = (
+  formData: Partial<WafCreateForm>
+) => {
+  if (!formData.hosts) return [];
+
+  return formData.hosts
+    .filter((host) => Array.isArray(host.hostname) && host.hostname.length > 0)
+    .flatMap((host) =>
+      host.paths.map((path) => ({
+        hostname: host.hostname[0],
+        path,
+        exclusion_type: WAFExclusionType.EXCLUDED,
+      }))
+    );
+};
+
+export const MULTIPLE_HOSTNAMES_SELECTED_ERROR_MESSAGE =
+  'You can only specify one hostname per entry';
 
 export const getWafStatusIcon = (status: WafStatus) => {
   switch (status) {

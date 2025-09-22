@@ -1,4 +1,4 @@
-import { type APIError, WAFExclusionType } from '@linode/api-v4';
+import { type APIError } from '@linode/api-v4';
 import { useUpdateWafMutation } from '@linode/queries';
 import { Button, Paper } from '@linode/ui';
 import { useSnackbar } from 'notistack';
@@ -6,6 +6,7 @@ import * as React from 'react';
 import { useCallback } from 'react';
 import { FormProvider, useForm } from 'react-hook-form';
 
+import { getTransformedHostsForPayload } from 'src/features/Waf/utils';
 import { Nodebalancers } from 'src/features/Waf/WafCreate/Nodebalancers/Nodebalancers';
 import { getErrorStringOrDefault } from 'src/utilities/errorUtils';
 
@@ -25,14 +26,38 @@ export const WafSettingsNodebalancers = ({
 
   const devicesValue: WAFDevice[] = waf.devices || [];
   const hosts: WAFHost[] = waf.hosts || [];
-  const hostsValue = hosts.filter((host) => host.hostname !== '*');
-  const pathsValue = hosts.filter((host) => host.hostname === '*');
   const isAdjustProtectedResourcesEnabledValue = hosts.length > 0;
+
+  // transform backend data into format required by the form
+  const getInitialFormValues = (hosts: WAFHost[]) => {
+    const hostnamePathMap: Map<string, Array<string>> = new Map();
+    hosts.forEach((host: WAFHost) => {
+      if (hostnamePathMap.has(host.hostname)) {
+        // update list of paths associated with this hostname
+        const associatedPaths = hostnamePathMap.get(host.hostname) || [];
+        hostnamePathMap.set(host.hostname, [...associatedPaths, host.path]);
+      } else {
+        // create a new entry for this hostname
+        hostnamePathMap.set(host.hostname, [host.path]);
+      }
+    });
+
+    const initialFormValues: Array<{ hostname: string[]; paths: string[] }> =
+      [];
+    Array.from(hostnamePathMap.keys()).forEach((hostname) => {
+      initialFormValues.push({
+        hostname: [hostname],
+        paths: hostnamePathMap.get(hostname) || [],
+      });
+    });
+
+    return initialFormValues;
+  };
+
   const methods = useForm<Partial<WafCreateForm>>({
     defaultValues: {
       devices: devicesValue,
-      hosts: hostsValue,
-      paths: pathsValue,
+      hosts: getInitialFormValues(hosts),
       isAdjustProtectedResourcesEnabled: isAdjustProtectedResourcesEnabledValue,
     },
   });
@@ -47,10 +72,6 @@ export const WafSettingsNodebalancers = ({
   );
 
   const createPayload = (data: Partial<WafCreateForm>) => {
-    const getHosts = data.hosts || [];
-    const getPaths = data.paths || [];
-    const updatedHosts = [...getHosts, ...getPaths];
-
     const payload: WAFPayload = {
       label: waf.label,
       status: waf.status,
@@ -66,13 +87,13 @@ export const WafSettingsNodebalancers = ({
     }
 
     if (data.isAdjustProtectedResourcesEnabled) {
-      payload.hosts = updatedHosts.map((host) => {
-        return {
-          path: host.path,
-          hostname: host.hostname,
-          exclusion_type: WAFExclusionType.EXCLUDED,
-        } as WAFHost;
-      });
+      if (data.hosts && data.hosts.length > 0) {
+        payload.hosts = getTransformedHostsForPayload(data);
+        payload.advanced_settings = {
+          ...payload.advanced_settings,
+          host_path_exclusion_enabled: true,
+        };
+      }
     }
 
     if (payload.hosts && payload.hosts.length > 0) {
@@ -107,7 +128,9 @@ export const WafSettingsNodebalancers = ({
           <Paper>
             <Button
               buttonType="primary"
-              disabled={!isDirty || isPending}
+              disabled={
+                !isDirty || isPending || !!methods.formState.errors.hosts
+              }
               loading={isPending}
               type="submit"
             >

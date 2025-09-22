@@ -1,32 +1,52 @@
-import { WAFExclusionType } from '@linode/api-v4';
 import { useAvailableWafDevicesInfiniteQuery } from '@linode/queries';
 import {
   Autocomplete,
   Box,
+  Button,
+  CloseIcon,
   FormControlLabel,
+  IconButton,
   Paper,
+  Stack,
   TextField,
   Toggle,
   Typography,
 } from '@linode/ui';
 import * as React from 'react';
-import type { ControllerRenderProps } from 'react-hook-form';
+import { useFieldArray } from 'react-hook-form';
 import { Controller, useFormContext } from 'react-hook-form';
 
 import { TagsInput } from 'src/components/TagsInput/TagsInput';
-import { WILDCARD_HOSTNAME } from 'src/features/Waf/utils';
+import { MULTIPLE_HOSTNAMES_SELECTED_ERROR_MESSAGE } from 'src/features/Waf/utils';
 
 import type { WAFDevice } from '@linode/api-v4';
 import type { TagOption } from 'src/components/TagsInput/TagsInput';
 import type { WafCreateForm } from 'src/features/Waf/utils';
 
+interface HostnameError {
+  indicesWithError: number[];
+  message: string;
+}
+
 export const Nodebalancers = () => {
-  const { control, watch } = useFormContext<WafCreateForm>();
+  const { control, watch, setError, clearErrors } =
+    useFormContext<WafCreateForm>();
   const isAdjustProtectedResourcesEnabled = watch(
     'isAdjustProtectedResourcesEnabled'
   );
+  const { fields, append, remove } = useFieldArray<WafCreateForm>({
+    control,
+    name: 'hosts',
+  });
 
   const [open, setOpen] = React.useState(false);
+
+  // TODO - Refactor state management for error handling to efficiently support multiple error types. Right now, the state object only supports multiple hostnames error, and an additional state object would need to be created for each new error type.
+  const [multipleHostnamesSelectedError, setMultipleHostnamesSelectedError] =
+    React.useState<HostnameError>({
+      indicesWithError: [],
+      message: MULTIPLE_HOSTNAMES_SELECTED_ERROR_MESSAGE,
+    });
 
   const { data, error, fetchNextPage, hasNextPage, isFetching } =
     useAvailableWafDevicesInfiniteQuery({}, open);
@@ -35,30 +55,44 @@ export const Nodebalancers = () => {
     return data?.pages.flatMap((page) => page.data) ?? [];
   }, [data]);
 
-  const handleHostnamesOnChange = (
-    selected: TagOption[],
-    field: ControllerRenderProps<WafCreateForm, 'hosts'>
-  ) => {
-    field.onChange(
-      selected.map((item) => ({
-        hostname: item.value,
-        path: '',
-        exclusionType: WAFExclusionType.EXCLUDED,
-      }))
-    );
+  const handleAddHostname = () => {
+    append({ hostname: [], paths: [] });
   };
 
-  const handlePathsOnChange = (
-    selected: TagOption[],
-    field: ControllerRenderProps<WafCreateForm, 'paths'>
-  ) => {
-    field.onChange(
-      selected.map((item) => ({
-        hostname: WILDCARD_HOSTNAME,
-        path: item.value,
-        exclusionType: WAFExclusionType.EXCLUDED,
-      }))
-    );
+  const handleRemoveHostname = (index: number) => {
+    remove(index);
+  };
+
+  const setHostErrors = (selected: TagOption[], index: number) => {
+    const hasMultipleHostnames: boolean = selected.length > 1;
+    if (hasMultipleHostnames) {
+      // add index to indicesWithError if not already present
+      if (!multipleHostnamesSelectedError.indicesWithError.includes(index)) {
+        setMultipleHostnamesSelectedError({
+          indicesWithError: [
+            ...multipleHostnamesSelectedError.indicesWithError,
+            index,
+          ],
+          message: MULTIPLE_HOSTNAMES_SELECTED_ERROR_MESSAGE,
+        });
+      }
+      setError('hosts', {
+        type: 'manual',
+        message: MULTIPLE_HOSTNAMES_SELECTED_ERROR_MESSAGE,
+      });
+    } else {
+      const updatedIndices =
+        multipleHostnamesSelectedError.indicesWithError?.filter(
+          (i) => i !== index
+        );
+      setMultipleHostnamesSelectedError({
+        indicesWithError: updatedIndices,
+        message: MULTIPLE_HOSTNAMES_SELECTED_ERROR_MESSAGE,
+      });
+      if (updatedIndices.length === 0) {
+        clearErrors('hosts');
+      }
+    }
   };
 
   return (
@@ -119,6 +153,9 @@ export const Nodebalancers = () => {
                   checked={field.value}
                   onChange={(_, value) => {
                     field.onChange(value);
+                    if (value && fields.length === 0) {
+                      append({ hostname: [], paths: [] });
+                    }
                   }}
                 />
               }
@@ -134,46 +171,79 @@ export const Nodebalancers = () => {
               this WAF configuration. You can choose to exclude specific
               hostnames or paths from protection as needed.
             </Typography>
-            <Box sx={{ width: '462px' }}>
-              <Controller
-                control={control}
-                name="hosts"
-                render={({ field }) => (
-                  <TagsInput
-                    label="Exclude hostnames"
-                    onChange={(selected) =>
-                      handleHostnamesOnChange(selected, field)
-                    }
-                    value={
-                      field.value?.map((host) => ({
-                        label: host.hostname,
-                        value: host.hostname,
-                      })) || []
-                    }
+            {fields.map((item, index) => (
+              <Stack alignItems="center" flexDirection="row" key={item.id}>
+                <Box sx={{ width: '462px' }}>
+                  <Controller
+                    control={control}
+                    name={`hosts.${index}.hostname`}
+                    render={({ field }) => (
+                      <TagsInput
+                        label="Hostname"
+                        onChange={(selected) => {
+                          field.onChange(selected.map((item) => item.value));
+                          setHostErrors(selected, index);
+                        }}
+                        tagError={
+                          multipleHostnamesSelectedError.indicesWithError.includes(
+                            index
+                          )
+                            ? multipleHostnamesSelectedError.message
+                            : ''
+                        }
+                        value={
+                          field.value?.map((host) => ({
+                            label: host,
+                            value: host,
+                          })) || []
+                        }
+                      />
+                    )}
                   />
-                )}
-              />
-            </Box>
-            <Box sx={{ width: '462px' }}>
-              <Controller
-                control={control}
-                name="paths"
-                render={({ field }) => (
-                  <TagsInput
-                    label="Exclude paths"
-                    onChange={(selected) =>
-                      handlePathsOnChange(selected, field)
-                    }
-                    value={
-                      field.value?.map((host) => ({
-                        label: host.path,
-                        value: host.path,
-                      })) || []
-                    }
+                </Box>
+                <Box sx={{ width: '462px' }}>
+                  <Controller
+                    control={control}
+                    name={`hosts.${index}.paths`}
+                    render={({ field }) => (
+                      <TagsInput
+                        label="Paths"
+                        onChange={(selected) =>
+                          field.onChange(selected.map((item) => item.value))
+                        }
+                        value={
+                          field.value?.map((host) => ({
+                            label: host,
+                            value: host,
+                          })) || []
+                        }
+                      />
+                    )}
                   />
+                </Box>
+                {index > 0 && (
+                  <IconButton
+                    aria-label="Clear"
+                    onClick={() => handleRemoveHostname(index)}
+                    size="medium"
+                    sx={{
+                      height: 'fit-content',
+                      position: 'relative',
+                      top: '20px',
+                    }}
+                  >
+                    <CloseIcon />
+                  </IconButton>
                 )}
-              />
-            </Box>
+              </Stack>
+            ))}
+            <Button
+              buttonType="outlined"
+              onClick={handleAddHostname}
+              sx={{ marginTop: '16px' }}
+            >
+              Add A Hostname
+            </Button>
           </>
         )}
       </Box>
