@@ -6,6 +6,7 @@ import {
   useNodeBalancerVPCConfigsBetaQuery,
   useRegionsQuery,
   useVPCQuery,
+  useWafAssociatedWithDevice,
 } from '@linode/queries';
 import { Paper, Typography } from '@linode/ui';
 import { convertMegabytesTo } from '@linode/utilities';
@@ -34,6 +35,7 @@ export const SummaryPanel = () => {
   const { data: attachedFirewallData } = useNodeBalancersFirewallsQuery(
     Number(id)
   );
+  const { data: waf } = useWafAssociatedWithDevice(Number(id));
   const linkText = attachedFirewallData?.data[0]?.label;
   const linkID = attachedFirewallData?.data[0]?.id;
   const region = regions?.find((r) => r.id === nodebalancer?.region);
@@ -41,6 +43,7 @@ export const SummaryPanel = () => {
     Number(id)
   );
   const displayFirewallLink = !!attachedFirewallData?.data?.length;
+  const displayWAFLink = !!waf?.id;
 
   const { data: permissions } = usePermissions(
     'nodebalancer',
@@ -196,6 +199,16 @@ export const SummaryPanel = () => {
               {linkText}
             </Link>
           </Typography>
+        </StyledSummarySection>
+      )}
+      {displayWAFLink && (
+        <StyledSummarySection>
+          <StyledTitle data-qa-title variant="h3">
+            WAF Configuration
+          </StyledTitle>
+          <StyledSection>
+            <Link to={`/waf/${waf?.id}`}>{waf?.label}</Link>
+          </StyledSection>
         </StyledSummarySection>
       )}
       <StyledSummarySection>
