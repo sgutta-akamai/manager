@@ -43,7 +43,7 @@ export const SummaryPanel = () => {
     Number(id)
   );
   const displayFirewallLink = !!attachedFirewallData?.data?.length;
-  const displayWAFLink = !!waf?.id;
+  const displayWAFLink = waf?.id !== undefined && waf?.id !== null;
 
   const { data: permissions } = usePermissions(
     'nodebalancer',

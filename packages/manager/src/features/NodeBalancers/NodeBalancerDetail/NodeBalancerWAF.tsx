@@ -19,7 +19,11 @@ interface NodeBalancerWAFProps {
 
 export const NodeBalancerWAF = (props: NodeBalancerWAFProps) => {
   const { nodeBalancerId } = props;
-  const { data, error, isLoading } = useWafAssociatedWithDevice(nodeBalancerId);
+  const {
+    data: waf,
+    error,
+    isLoading,
+  } = useWafAssociatedWithDevice(nodeBalancerId);
 
   const renderTableContent = () => {
     if (isLoading) {
@@ -35,7 +39,7 @@ export const NodeBalancerWAF = (props: NodeBalancerWAFProps) => {
       );
     }
 
-    if (!data?.id) {
+    if (waf?.id === undefined || waf?.id === null) {
       return (
         <TableRowEmpty
           colSpan={2}
@@ -47,9 +51,9 @@ export const NodeBalancerWAF = (props: NodeBalancerWAFProps) => {
     return (
       <TableRow>
         <TableCell>
-          <Link to={`/waf/${data?.id}`}>{data?.label}</Link>
+          <Link to={`/waf/${waf?.id}`}>{waf?.label}</Link>
         </TableCell>
-        <TableCell>{capitalize(data?.status)}</TableCell>
+        <TableCell>{capitalize(waf?.status)}</TableCell>
       </TableRow>
     );
   };
