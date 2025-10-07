@@ -188,3 +188,14 @@ export const updateWafAttackGroupAction = (
     setMethod('POST'),
     setData(data),
   );
+
+/**
+ * getWafAssociatedWithDevice
+ *
+ * Get WAF config associated with a device
+ */
+export const getWafAssociatedWithDevice = (deviceId: number) =>
+  Request<WAF>(
+    setURL(`${API_ROOT}/waf-configs/devices/${encodeURIComponent(deviceId)}`),
+    setMethod('GET'),
+  );

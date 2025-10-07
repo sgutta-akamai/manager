@@ -14,6 +14,7 @@ import { useMatch, useNavigate, useParams } from '@tanstack/react-router';
 import * as React from 'react';
 
 import { DocumentTitleSegment } from 'src/components/DocumentTitle';
+import { NodeBalancerWAF } from 'src/features/NodeBalancers/NodeBalancerDetail/NodeBalancerWAF';
 import { useIsResourceRestricted } from 'src/hooks/useIsResourceRestricted';
 
 import { NodeBalancerDeleteDialog } from '../NodeBalancerDeleteDialog';
@@ -100,6 +101,9 @@ export const NodeBalancerSettings = () => {
       </Accordion>
       <Accordion defaultExpanded heading="Firewalls">
         <NodeBalancerFirewalls nodeBalancerId={Number(id)} />
+      </Accordion>
+      <Accordion defaultExpanded heading="WAF Configuration">
+        <NodeBalancerWAF nodeBalancerId={Number(id)} />
       </Accordion>
       <Accordion defaultExpanded heading="Client Connection Throttle">
         <TextField

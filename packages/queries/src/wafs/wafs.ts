@@ -5,6 +5,7 @@ import {
   deleteWaf,
   getAvailableWafDevices,
   getWaf,
+  getWafAssociatedWithDevice,
   getWafCustomRules,
   getWafMetadata,
   getWafRuleSet,
@@ -40,6 +41,10 @@ export const wafQueries = createQueryKeys('wafs', {
   waf: (id: number) => ({
     queryFn: () => getWaf(id),
     queryKey: [id],
+  }),
+  wafAssociatedWithDevice: (deviceId: number) => ({
+    queryFn: () => getWafAssociatedWithDevice(deviceId),
+    queryKey: [deviceId],
   }),
   paginated: (params: Params = {}, filter: Filter = {}) => ({
     queryFn: () => getWafs(params, filter),
@@ -221,3 +226,8 @@ export const useUpdateWafAttackGroupActionMutation = (wafId: number) => {
     },
   });
 };
+
+export const useWafAssociatedWithDevice = (deviceId: number) =>
+  useQuery<WAF, APIError[]>({
+    ...wafQueries.wafAssociatedWithDevice(deviceId),
+  });
